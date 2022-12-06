@@ -4,13 +4,13 @@ package nl.tudelft.sem.template.authentication.domain.user;
  * A DDD domain event that indicated a user was created.
  */
 public class UserWasCreatedEvent {
-    private final NetId netId;
+    private final MemberId memberId;
 
-    public UserWasCreatedEvent(NetId netId) {
-        this.netId = netId;
+    public UserWasCreatedEvent(MemberId memberId) {
+        this.memberId = memberId;
     }
 
-    public NetId getNetId() {
-        return this.netId;
+    public MemberId getMemberId() {
+        return this.memberId;
     }
 }

@@ -19,6 +19,6 @@ public class UserWasCreatedListener {
     @EventListener
     public void onAccountWasCreated(UserWasCreatedEvent event) {
         // Handler code here
-        System.out.println("Account (" + event.getNetId().toString() + ") was created.");
+        System.out.println("Account (" + event.getMemberId().toString() + ") was created.");
     }
 }
