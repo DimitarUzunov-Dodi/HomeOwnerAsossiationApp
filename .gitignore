@@ -1,1 +1,6 @@
+/.idea/
 /.gradle/
+
+/authentication-microservice/build/
+/example-microservice/build/
+/voting-microservice/build/
