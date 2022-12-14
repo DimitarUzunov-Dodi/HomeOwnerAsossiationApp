@@ -2,7 +2,7 @@ package nl.tudelft.sem.template.authentication.controllers;
 
 import nl.tudelft.sem.template.authentication.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authentication.authentication.JwtUserDetailsService;
-import nl.tudelft.sem.template.authentication.domain.user.NetId;
+import nl.tudelft.sem.template.authentication.domain.user.MemberId;
 import nl.tudelft.sem.template.authentication.domain.user.Password;
 import nl.tudelft.sem.template.authentication.domain.user.RegistrationService;
 import nl.tudelft.sem.template.authentication.models.AuthenticationRequestModel;
@@ -65,7 +65,7 @@ public class AuthenticationController {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getNetId(),
+                            request.getMemberId(),
                             request.getPassword()));
         } catch (DisabledException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "USER_DISABLED", e);
@@ -73,7 +73,7 @@ public class AuthenticationController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", e);
         }
 
-        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(request.getNetId());
+        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(request.getMemberId());
         final String jwtToken = jwtTokenGenerator.generateToken(userDetails);
         return ResponseEntity.ok(new AuthenticationResponseModel(jwtToken));
     }
@@ -89,9 +89,9 @@ public class AuthenticationController {
     public ResponseEntity register(@RequestBody RegistrationRequestModel request) throws Exception {
 
         try {
-            NetId netId = new NetId(request.getNetId());
+            MemberId memberId = new MemberId(request.getMemberId());
             Password password = new Password(request.getPassword());
-            registrationService.registerUser(netId, password);
+            registrationService.registerUser(memberId, password);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
