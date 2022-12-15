@@ -2,7 +2,6 @@ package nl.tudelft.sem.template.authentication.domain.user;
 
 import java.util.Objects;
 import javax.persistence.*;
-
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.authentication.domain.HasEvents;
 
