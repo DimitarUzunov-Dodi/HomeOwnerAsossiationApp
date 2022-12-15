@@ -36,27 +36,8 @@ public class RuleVoting extends Voting {
         return votes;
     }
 
-    public String proposeRule() {
-        return null;
+    public void addVote(Pair<Integer, String> vote) {
+        votes.add(vote);
     }
 
-    @Override
-    public void createVote() {
-
-    }
-
-    @Override
-    public boolean verify() {
-        return false;
-    }
-
-    @Override
-    public String castVote() {
-        return null;
-    }
-
-    @Override
-    public String getResults() {
-        return null;
-    }
 }

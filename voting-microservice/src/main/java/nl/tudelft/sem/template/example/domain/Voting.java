@@ -23,12 +23,4 @@ public abstract class Voting {
         return date;
     }
 
-    public abstract void createVote();
-
-    public abstract boolean verify();
-
-    public abstract String castVote();
-
-    public abstract String getResults();
-
 }

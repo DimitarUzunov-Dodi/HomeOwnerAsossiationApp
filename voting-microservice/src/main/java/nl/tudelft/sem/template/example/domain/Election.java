@@ -44,27 +44,8 @@ public class Election extends Voting {
         return votes;
     }
 
-    public boolean applyForCandidate() {
-        return false;
+    public void addVote(Pair<Integer, Integer> vote) {
+        votes.add(vote);
     }
 
-    @Override
-    public void createVote() {
-
-    }
-
-    @Override
-    public boolean verify() {
-        return false;
-    }
-
-    @Override
-    public String castVote() {
-        return null;
-    }
-
-    @Override
-    public String getResults() {
-        return null;
-    }
 }
