@@ -1,4 +1,5 @@
 include:
   - authentication-microservice/.gitlab-ci.yml
   - example-microservice/.gitlab-ci.yml
+  - association-microservice/.gitlab-ci.yml
   - voting-microservice/.gitlab-ci.yml
