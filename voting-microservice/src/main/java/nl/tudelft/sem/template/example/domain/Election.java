@@ -3,10 +3,7 @@ package nl.tudelft.sem.template.example.domain;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import lombok.NoArgsConstructor;
 import org.springframework.data.util.Pair;
 
