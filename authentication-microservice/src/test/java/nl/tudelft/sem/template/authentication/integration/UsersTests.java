@@ -10,7 +10,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import nl.tudelft.sem.template.authentication.authentication.JwtTokenGenerator;
-import nl.tudelft.sem.template.authentication.domain.user.*;
+import nl.tudelft.sem.template.authentication.domain.user.AppUser;
+import nl.tudelft.sem.template.authentication.domain.user.HashedPassword;
+import nl.tudelft.sem.template.authentication.domain.user.MemberId;
+import nl.tudelft.sem.template.authentication.domain.user.Password;
+import nl.tudelft.sem.template.authentication.domain.user.PasswordHashingService;
+import nl.tudelft.sem.template.authentication.domain.user.UserRepository;
 import nl.tudelft.sem.template.authentication.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.authentication.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authentication.models.AuthenticationResponseModel;
@@ -117,12 +122,12 @@ public class UsersTests {
 
         when(mockAuthenticationManager.authenticate(argThat(authentication ->
                 !testUser.toString().equals(authentication.getPrincipal())
-                    || !testPassword.toString().equals(authentication.getCredentials())
+                        || !testPassword.toString().equals(authentication.getCredentials())
         ))).thenThrow(new UsernameNotFoundException("User not found"));
 
         final String testToken = "testJWTToken";
         when(mockJwtTokenGenerator.generateToken(
-            argThat(userDetails -> userDetails.getUsername().equals(testUser.toString())))
+                argThat(userDetails -> userDetails.getUsername().equals(testUser.toString())))
         ).thenReturn(testToken);
 
         AppUser appUser = new AppUser(testUser, testHashedPassword);
@@ -150,7 +155,7 @@ public class UsersTests {
 
         verify(mockAuthenticationManager).authenticate(argThat(authentication ->
                 testUser.toString().equals(authentication.getPrincipal())
-                    && testPassword.toString().equals(authentication.getCredentials())));
+                        && testPassword.toString().equals(authentication.getCredentials())));
     }
 
     @Test
@@ -161,7 +166,7 @@ public class UsersTests {
 
         when(mockAuthenticationManager.authenticate(argThat(authentication ->
                 testUser.equals(authentication.getPrincipal())
-                    && testPassword.equals(authentication.getCredentials())
+                        && testPassword.equals(authentication.getCredentials())
         ))).thenThrow(new UsernameNotFoundException("User not found"));
 
         AuthenticationRequestModel model = new AuthenticationRequestModel();
@@ -178,7 +183,7 @@ public class UsersTests {
 
         verify(mockAuthenticationManager).authenticate(argThat(authentication ->
                 testUser.equals(authentication.getPrincipal())
-                    && testPassword.equals(authentication.getCredentials())));
+                        && testPassword.equals(authentication.getCredentials())));
 
         verify(mockJwtTokenGenerator, times(0)).generateToken(any());
     }
@@ -194,7 +199,7 @@ public class UsersTests {
 
         when(mockAuthenticationManager.authenticate(argThat(authentication ->
                 testUser.equals(authentication.getPrincipal())
-                    && wrongPassword.equals(authentication.getCredentials())
+                        && wrongPassword.equals(authentication.getCredentials())
         ))).thenThrow(new BadCredentialsException("Invalid password"));
 
         AppUser appUser = new AppUser(new MemberId(testUser), testHashedPassword);
@@ -214,7 +219,7 @@ public class UsersTests {
 
         verify(mockAuthenticationManager).authenticate(argThat(authentication ->
                 testUser.equals(authentication.getPrincipal())
-                    && wrongPassword.equals(authentication.getCredentials())));
+                        && wrongPassword.equals(authentication.getCredentials())));
 
         verify(mockJwtTokenGenerator, times(0)).generateToken(any());
     }

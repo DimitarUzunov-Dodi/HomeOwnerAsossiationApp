@@ -1,14 +1,14 @@
 package nl.tudelft.sem.template.example.domain;
 
-import lombok.NoArgsConstructor;
-import org.springframework.data.util.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.NoArgsConstructor;
+import org.springframework.data.util.Pair;
 
 @Entity
 @Table(name = "elections")
@@ -16,7 +16,7 @@ import java.util.List;
 public class Election extends Voting {
 
     @Column(name = "association_id", nullable = false)
-    private int associationID;
+    private int associationId;
 
     @Column(name = "candidates", nullable = false)
     @Convert(converter = CandidateAttributeConverter.class)
@@ -25,15 +25,20 @@ public class Election extends Voting {
     @Convert(converter = ElectionVotesAttributeConverter.class)
     private List<Pair<Integer, Integer>> votes;
 
-    public Election(int associationID) {
+    /**
+     * Constructor for the election object.
+     *
+     * @param associationId The association id of the association the election is in.
+     */
+    public Election(int associationId) {
         super();
-        this.associationID = associationID;
+        this.associationId = associationId;
         this.candidates = new ArrayList<>();
         this.votes = new ArrayList<>();
     }
 
-    public int getAssociationID() {
-        return associationID;
+    public int getAssociationId() {
+        return associationId;
     }
 
     public List<Integer> getCandidates() {

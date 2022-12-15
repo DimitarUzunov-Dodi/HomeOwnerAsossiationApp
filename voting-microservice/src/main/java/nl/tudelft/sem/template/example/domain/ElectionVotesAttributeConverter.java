@@ -1,11 +1,9 @@
 package nl.tudelft.sem.template.example.domain;
 
-import org.springframework.data.util.Pair;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.AttributeConverter;
+import org.springframework.data.util.Pair;
 
 public class ElectionVotesAttributeConverter implements AttributeConverter<List<Pair<Integer, Integer>>, String> {
     @Override

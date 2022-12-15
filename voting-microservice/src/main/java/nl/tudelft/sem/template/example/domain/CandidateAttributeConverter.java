@@ -1,8 +1,8 @@
 package nl.tudelft.sem.template.example.domain;
 
-import javax.persistence.AttributeConverter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.AttributeConverter;
 
 public class CandidateAttributeConverter implements AttributeConverter<List<Integer>, String> {
 

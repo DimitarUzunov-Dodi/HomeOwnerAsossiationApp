@@ -1,11 +1,13 @@
 package nl.tudelft.sem.template.example.domain;
 
-import lombok.NoArgsConstructor;
-import org.springframework.data.util.Pair;
-
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import lombok.NoArgsConstructor;
+import org.springframework.data.util.Pair;
 
 @Entity
 @Table(name = "rule_votings")
@@ -15,9 +17,14 @@ public class RuleVoting extends Voting {
     @Column(name = "rule", nullable = false)
     private String rule;
     @Column(name = "votes", nullable = false)
-    @Convert(converter = RuleVoteVotesAttributeConverter.class)
+    @Convert(converter = RuleVotingVotesAttributeConverter.class)
     private List<Pair<Integer, String>> votes;
 
+    /**
+     * Constructor for the RuleVoting object.
+     *
+     * @param rule The rule on which will be voted.
+     */
     public RuleVoting(String rule) {
         super();
         this.rule = rule;

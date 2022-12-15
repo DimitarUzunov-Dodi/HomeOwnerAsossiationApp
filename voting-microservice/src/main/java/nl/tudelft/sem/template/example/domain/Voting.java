@@ -1,10 +1,10 @@
 package nl.tudelft.sem.template.example.domain;
 
+import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import java.sql.Date;
 
 @MappedSuperclass
 public abstract class Voting {
@@ -21,6 +21,10 @@ public abstract class Voting {
 
     public Date getDate() {
         return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 }
