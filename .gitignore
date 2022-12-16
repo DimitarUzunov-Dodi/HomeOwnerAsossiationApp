@@ -4,3 +4,6 @@
 /authentication-microservice/build/
 /example-microservice/build/
 /voting-microservice/build/
+/authentication-microservice/bin/
+/example-microservice/bin/
+/voting-microservice/bin/
