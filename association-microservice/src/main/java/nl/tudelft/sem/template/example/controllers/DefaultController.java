@@ -22,7 +22,6 @@ public class DefaultController {
     private final transient AssociationService associationService;
 
     private final transient MemberService memberService;
-
     /**
      * Instantiates a new controller.
      *
