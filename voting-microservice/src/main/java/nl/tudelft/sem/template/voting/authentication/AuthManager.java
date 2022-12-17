@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.authentication;
+package nl.tudelft.sem.template.voting.authentication;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

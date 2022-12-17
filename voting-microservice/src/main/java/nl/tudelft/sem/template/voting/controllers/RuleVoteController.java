@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.controllers;
+package nl.tudelft.sem.template.voting.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 

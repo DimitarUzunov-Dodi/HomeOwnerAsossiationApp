@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.domain;
+package nl.tudelft.sem.template.voting.domain;
 
 import org.springframework.stereotype.Service;
 
@@ -38,6 +38,7 @@ public class ElectionService extends VotingService {
     public String createElection(int associationId) {
         Election election = new Election(associationId);
         electionRepository.save(election);
-        return "Election was created for association " + associationId + "and date";
+        System.out.println("DONE");
+        return "Election was created for association " + associationId + " and will be held " + election.getEndDate().toString();
     }
 }

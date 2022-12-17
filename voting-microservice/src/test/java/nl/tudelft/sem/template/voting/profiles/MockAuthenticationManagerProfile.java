@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.profiles;
+package nl.tudelft.sem.template.voting.profiles;
 
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import org.mockito.Mockito;

@@ -1,9 +1,9 @@
-package nl.tudelft.sem.template.example.domain;
+package nl.tudelft.sem.template.voting.domain;
 
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
@@ -39,7 +39,7 @@ public class Election extends Voting {
         Calendar c = Calendar.getInstance();
         c.setTime(this.getCreationDate());
         c.add(Calendar.YEAR, 1);
-        this.endDate = c.getTime();
+        this.setEndDate(new Date(c.getTime().getTime()));
     }
 
     public int getAssociationId() {

@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.authentication;
+package nl.tudelft.sem.template.voting.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
