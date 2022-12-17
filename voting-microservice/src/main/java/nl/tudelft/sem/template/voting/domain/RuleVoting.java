@@ -1,9 +1,6 @@
 package nl.tudelft.sem.template.voting.domain;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
 import org.springframework.data.util.Pair;

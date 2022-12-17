@@ -46,6 +46,6 @@ public class ElectionService extends VotingService {
         electionRepository.save(election);
         System.out.println("DONE");
         return "Election was created for association " + associationId
-                + " and will be held " + election.getEndDate().toString();
+                + " and will be held on " + election.getEndDate().toString() + ".";
     }
 }
