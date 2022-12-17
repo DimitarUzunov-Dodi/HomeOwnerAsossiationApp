@@ -1,7 +1,7 @@
 package nl.tudelft.sem.template.voting.domain;
 
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -17,11 +17,11 @@ public class Election extends Voting {
     @Column(name = "association_id", nullable = false)
     private int associationId;
 
-    @Column(name = "candidates", nullable = false)
+    @Column(name = "candidates")
     @Convert(converter = CandidateAttributeConverter.class)
     private List<Integer> candidates;
 
-    @Column(name = "votes", nullable = false)
+    @Column(name = "votes")
     @Convert(converter = ElectionVotesAttributeConverter.class)
     private List<Pair<Integer, Integer>> votes;
 

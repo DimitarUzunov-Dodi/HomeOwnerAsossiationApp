@@ -1,6 +1,6 @@
 package nl.tudelft.sem.template.voting.domain;
 
-import java.sql.Date;
+import java.util.Date;
 import javax.persistence.*;
 
 @MappedSuperclass
@@ -11,6 +11,7 @@ public abstract class Voting {
     @Column(name = "id", nullable = false, unique = true)
     private long id;
 
+    @Column(name = "creationDate", nullable = false)
     private Date creationDate;
 
     @Column(name = "endDate", nullable = false)

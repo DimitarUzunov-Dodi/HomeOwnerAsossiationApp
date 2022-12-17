@@ -6,7 +6,7 @@ import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,7 +22,7 @@ public class ElectionController {
         this.electionService = electionService;
     }
 
-    @GetMapping("/createElection")
+    @PostMapping("/createElection")
     public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request) throws Exception {
         //We could add the part where we check if it has been 1 year since the last election
         // or just check if another election is ongoing

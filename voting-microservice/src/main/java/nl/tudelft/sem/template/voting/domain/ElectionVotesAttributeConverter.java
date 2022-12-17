@@ -8,6 +8,7 @@ import org.springframework.data.util.Pair;
 public class ElectionVotesAttributeConverter implements AttributeConverter<List<Pair<Integer, Integer>>, String> {
     @Override
     public String convertToDatabaseColumn(List<Pair<Integer, Integer>> attribute) {
+        if (attribute.size() == 0) return null;
         List<Integer> candidates = new ArrayList<>();
         for (Pair<Integer, Integer> p : attribute) {
             candidates.add(p.getFirst());
@@ -18,15 +19,17 @@ public class ElectionVotesAttributeConverter implements AttributeConverter<List<
 
     @Override
     public List<Pair<Integer, Integer>> convertToEntityAttribute(String dbData) {
-        List<Integer> candidates = new ArrayList<>();
+        List<Integer> values = new ArrayList<>();
+        List<Pair<Integer, Integer>> votes = new ArrayList<>();
+        if (dbData == null) return votes;
 
         String[] split = dbData.split(", ");
         for (String s : split) {
-            candidates.add(Integer.parseInt(s));
+            values.add(Integer.parseInt(s));
         }
-        List<Pair<Integer, Integer>> votes = new ArrayList<>();
-        for (int i = 0; i < candidates.size(); i += 2) {
-            votes.add(Pair.of(candidates.get(i), candidates.get(i + 1)));
+
+        for (int i = 0; i < values.size(); i += 2) {
+            votes.add(Pair.of(values.get(i), values.get(i + 1)));
         }
         return votes;
     }

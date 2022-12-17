@@ -2,7 +2,7 @@ package nl.tudelft.sem.template.voting.domain;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ public class RuleVoting extends Voting {
 
     @Column(name = "rule", nullable = false)
     private String rule;
-    @Column(name = "votes", nullable = false)
+    @Column(name = "votes")
     @Convert(converter = RuleVotingVotesAttributeConverter.class)
     private List<Pair<Integer, String>> votes;
 
