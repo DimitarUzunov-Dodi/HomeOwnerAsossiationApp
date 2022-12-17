@@ -1,6 +1,8 @@
 package nl.tudelft.sem.template.example.domain;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.sql.Date;
 import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,11 @@ public class RuleVoting extends Voting {
         super();
         this.rule = rule;
         this.votes = new ArrayList<>();
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(this.getCreationDate());
+        c.add(Calendar.DATE, 14);
+        this.setEndDate(new Date(c.getTime().getTime()));
     }
 
     public String getRule() {

@@ -1,5 +1,8 @@
 package nl.tudelft.sem.template.example.domain;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class ElectionService extends VotingService {
 
     private final transient ElectionRepository electionRepository;
@@ -30,5 +33,11 @@ public class ElectionService extends VotingService {
     @Override
     public String getResults() {
         return null;
+    }
+
+    public String createElection(int associationId) {
+        Election election = new Election(associationId);
+        electionRepository.save(election);
+        return "Election was created for association " + associationId + "and date";
     }
 }

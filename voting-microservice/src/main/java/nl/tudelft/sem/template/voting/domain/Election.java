@@ -2,6 +2,8 @@ package nl.tudelft.sem.template.example.domain;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,7 @@ public class Election extends Voting {
     @Column(name = "candidates", nullable = false)
     @Convert(converter = CandidateAttributeConverter.class)
     private List<Integer> candidates;
+
     @Column(name = "votes", nullable = false)
     @Convert(converter = ElectionVotesAttributeConverter.class)
     private List<Pair<Integer, Integer>> votes;
@@ -32,6 +35,11 @@ public class Election extends Voting {
         this.associationId = associationId;
         this.candidates = new ArrayList<>();
         this.votes = new ArrayList<>();
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(this.getCreationDate());
+        c.add(Calendar.YEAR, 1);
+        this.endDate = c.getTime();
     }
 
     public int getAssociationId() {
