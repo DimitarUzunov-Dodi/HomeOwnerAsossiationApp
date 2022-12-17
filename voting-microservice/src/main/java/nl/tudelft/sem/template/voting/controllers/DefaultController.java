@@ -1,6 +1,6 @@
-package nl.tudelft.sem.template.example.controllers;
+package nl.tudelft.sem.template.voting.controllers;
 
-import nl.tudelft.sem.template.example.authentication.AuthManager;
+import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,9 +34,8 @@ public class DefaultController {
      */
     @GetMapping("/hello")
     public ResponseEntity<String> helloWorld() {
-        return ResponseEntity.ok("Hello " + authManager.getMemberId());
+        return ResponseEntity.ok("Hello " + authManager.getNetId());
 
     }
 
 }
-

@@ -4,6 +4,7 @@ build/
 gradle-app.setting
 !gradle/wrapper/gradle-wrapper.jar
 **/build/
+**/bin/
 .gradletasknamecache
 
 ### Java ###
@@ -26,5 +27,6 @@ gradle-app.setting
 *.rar
 
 *.db
+*.mv.db
 /.idea/
 /.gitignore
