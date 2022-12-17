@@ -8,6 +8,7 @@ import nl.tudelft.sem.template.authentication.domain.user.RegistrationService;
 import nl.tudelft.sem.template.authentication.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authentication.models.AuthenticationResponseModel;
 import nl.tudelft.sem.template.authentication.models.RegistrationRequestModel;
+import nl.tudelft.sem.template.authentication.models.UpdatePasswordRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,15 +84,64 @@ public class AuthenticationController {
      *
      * @param request The registration model
      * @return 200 OK if the registration is successful
-     * @throws Exception if a user with this netid already exists
+     * @throws Exception if a user with this memberid already exists
      */
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegistrationRequestModel request) throws Exception {
+    public ResponseEntity register(@RequestBody RegistrationRequestModel request) throws ResponseStatusException {
 
         try {
             MemberId memberId = new MemberId(request.getMemberId());
             Password password = new Password(request.getPassword());
             registrationService.registerUser(memberId, password);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
+        return ResponseEntity.ok().build();
+    }
+    /**
+     * Endpoint for registration.
+     *
+     * @param request The change pass model
+     * @return 200 OK if the update is successful
+     * @throws Exception if the credentials don't match
+     */
+
+    @PostMapping("/changepass")
+    public ResponseEntity changePass(@RequestBody UpdatePasswordRequestModel request) throws ResponseStatusException {
+        try {
+            MemberId memberId = new MemberId(request.getMemberId());
+            Password password = new Password(request.getPassword());
+
+            try {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                memberId,
+                                password));
+            } catch (DisabledException e) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "USER_DISABLED", e);
+            } catch (BadCredentialsException e) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", e);
+            }
+
+            Password newPassword = new Password(request.getNewPassword());
+
+            if (newPassword.toString() == null) {
+                Exception p = new Exception("NULL_PASSWORD");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, p.getMessage());
+            }
+
+            if ((password.toString()).equals(newPassword.toString())) {
+                Exception p = new Exception("SAME_PASSWORD");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, p.getMessage());
+            }
+
+            try {
+                registrationService.changePassword(memberId, newPassword);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

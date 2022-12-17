@@ -1,11 +1,15 @@
 package nl.tudelft.sem.template.authentication.domain.user;
 
+import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 /**
  * A DDD service for registering a new user.
  */
 @Service
+@Transactional
 public class RegistrationService {
     private final transient UserRepository userRepository;
     private final transient PasswordHashingService passwordHashingService;
@@ -39,9 +43,27 @@ public class RegistrationService {
             userRepository.save(user);
 
             return user;
+        } else {
+            throw new MemberIdAlreadyInUseException(memberId);
+        }
+    }
+
+    /**
+     * Change a user's password.
+     *
+     * @param memberId The MemberID of the user
+     * @param password The current password of the user
+     * @throws Exception if the memberId and password don't match
+     */
+    public void changePassword(MemberId memberId, Password password) throws Exception {
+        Optional<AppUser> tempUser = userRepository.findByMemberId(memberId);
+
+        if (tempUser.isEmpty()) {
+            throw new Exception("Credentials don't match existing user");
         }
 
-        throw new MemberIdAlreadyInUseException(memberId);
+        HashedPassword hashedPassword = passwordHashingService.hash(password);
+        userRepository.changePassword(memberId, hashedPassword);
     }
 
     public boolean checkMemberIdIsUnique(MemberId memberId) {

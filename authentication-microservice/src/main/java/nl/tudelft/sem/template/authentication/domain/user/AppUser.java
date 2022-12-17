@@ -2,9 +2,9 @@ package nl.tudelft.sem.template.authentication.domain.user;
 
 import java.util.Objects;
 import javax.persistence.*;
-
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.authentication.domain.HasEvents;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A DDD entity representing an application user in our domain.
@@ -12,6 +12,7 @@ import nl.tudelft.sem.template.authentication.domain.HasEvents;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
+@DynamicUpdate
 public class AppUser extends HasEvents {
     /**
      * Identifier for the application user.
@@ -66,7 +67,7 @@ public class AppUser extends HasEvents {
             return false;
         }
         AppUser appUser = (AppUser) o;
-        return id == (appUser.id);
+        return this.memberId.toString().equals(appUser.memberId.toString());
     }
 
     @Override
