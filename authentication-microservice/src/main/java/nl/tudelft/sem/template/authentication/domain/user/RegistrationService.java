@@ -28,45 +28,45 @@ public class RegistrationService {
     /**
      * Register a new user.
      *
-     * @param memberId    The MemberID of the user
+     * @param userId    The UserID of the user
      * @param password The password of the user
      * @throws Exception if the user already exists
      */
-    public AppUser registerUser(MemberId memberId, Password password) throws Exception {
+    public AppUser registerUser(UserId userId, Password password) throws Exception {
 
-        if (checkMemberIdIsUnique(memberId)) {
+        if (checkUserIdIsUnique(userId)) {
             // Hash password
             HashedPassword hashedPassword = passwordHashingService.hash(password);
 
             // Create new account
-            AppUser user = new AppUser(memberId, hashedPassword);
+            AppUser user = new AppUser(userId, hashedPassword);
             userRepository.save(user);
 
             return user;
         } else {
-            throw new MemberIdAlreadyInUseException(memberId);
+            throw new UserIdAlreadyInUseException(userId);
         }
     }
 
     /**
      * Change a user's password.
      *
-     * @param memberId The MemberID of the user
+     * @param userId The UserID of the user
      * @param password The current password of the user
-     * @throws Exception if the memberId and password don't match
+     * @throws Exception if the userId and password don't match
      */
-    public void changePassword(MemberId memberId, Password password) throws Exception {
-        Optional<AppUser> tempUser = userRepository.findByMemberId(memberId);
+    public void changePassword(UserId userId, Password password) throws Exception {
+        Optional<AppUser> tempUser = userRepository.findByUserId(userId);
 
         if (tempUser.isEmpty()) {
             throw new Exception("Credentials don't match existing user");
         }
 
         HashedPassword hashedPassword = passwordHashingService.hash(password);
-        userRepository.changePassword(memberId, hashedPassword);
+        userRepository.changePassword(userId, hashedPassword);
     }
 
-    public boolean checkMemberIdIsUnique(MemberId memberId) {
-        return !userRepository.existsByMemberId(memberId);
+    public boolean checkUserIdIsUnique(UserId userId) {
+        return !userRepository.existsByUserId(userId);
     }
 }

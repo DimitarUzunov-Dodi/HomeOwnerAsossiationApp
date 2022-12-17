@@ -13,17 +13,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface UserRepository extends JpaRepository<AppUser, String> {
     /**
-     * Find user by MemberID.
+     * Find user by UserID.
      */
-    Optional<AppUser> findByMemberId(MemberId memberId);
+    Optional<AppUser> findByUserId(UserId userId);
 
     /**
-     * Check if an existing user already uses a MemberID.
+     * Check if an existing user already uses a UserID.
      */
-    boolean existsByMemberId(MemberId memberId);
+    boolean existsByUserId(UserId userId);
 
     @Modifying
     @Transactional
-    @Query("update AppUser user set user.password = ?2 where user.memberId = ?1")
-    void changePassword(MemberId user, HashedPassword hashedPassword);
+    @Query("update AppUser user set user.password = ?2 where user.userId = ?1")
+    void changePassword(UserId user, HashedPassword hashedPassword);
 }
