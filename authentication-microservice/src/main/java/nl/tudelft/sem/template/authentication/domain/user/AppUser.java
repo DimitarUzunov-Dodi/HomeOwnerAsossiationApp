@@ -4,6 +4,7 @@ import java.util.Objects;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.authentication.domain.HasEvents;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * A DDD entity representing an application user in our domain.
@@ -11,6 +12,7 @@ import nl.tudelft.sem.template.authentication.domain.HasEvents;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
+@DynamicUpdate
 public class AppUser extends HasEvents {
     /**
      * Identifier for the application user.
@@ -20,9 +22,9 @@ public class AppUser extends HasEvents {
     @Column(name = "id", nullable = false, unique = true)
     private int id;
 
-    @Column(name = "member_id", nullable = false, unique = true)
-    @Convert(converter = MemberIdAttributeConverter.class)
-    private MemberId memberId;
+    @Column(name = "user_id", nullable = false, unique = true)
+    @Convert(converter = UserIdAttributeConverter.class)
+    private UserId userId;
 
     @Column(name = "password_hash", nullable = false)
     @Convert(converter = HashedPasswordAttributeConverter.class)
@@ -31,13 +33,13 @@ public class AppUser extends HasEvents {
     /**
      * Create new application user.
      *
-     * @param memberId The MemberId for the new user
+     * @param userId The UserId for the new user
      * @param password The password for the new user
      */
-    public AppUser(MemberId memberId, HashedPassword password) {
-        this.memberId = memberId;
+    public AppUser(UserId userId, HashedPassword password) {
+        this.userId = userId;
         this.password = password;
-        this.recordThat(new UserWasCreatedEvent(memberId));
+        this.recordThat(new UserWasCreatedEvent(userId));
     }
 
     public void changePassword(HashedPassword password) {
@@ -45,8 +47,8 @@ public class AppUser extends HasEvents {
         this.recordThat(new PasswordWasChangedEvent(this));
     }
 
-    public MemberId getMemberId() {
-        return memberId;
+    public UserId getUserId() {
+        return userId;
     }
 
     public HashedPassword getPassword() {
@@ -65,11 +67,11 @@ public class AppUser extends HasEvents {
             return false;
         }
         AppUser appUser = (AppUser) o;
-        return id == (appUser.id);
+        return this.userId.toString().equals(appUser.userId.toString());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(memberId);
+        return Objects.hash(userId);
     }
 }
