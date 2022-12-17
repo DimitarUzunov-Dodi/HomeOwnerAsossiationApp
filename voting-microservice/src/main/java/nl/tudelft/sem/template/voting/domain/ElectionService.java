@@ -35,10 +35,17 @@ public class ElectionService extends VotingService {
         return null;
     }
 
+
+    /**
+     * Creates a board election for an association with a given ID.
+     *
+     * @return a message confirming the creation.
+     */
     public String createElection(int associationId) {
         Election election = new Election(associationId);
         electionRepository.save(election);
         System.out.println("DONE");
-        return "Election was created for association " + associationId + " and will be held " + election.getEndDate().toString();
+        return "Election was created for association " + associationId
+                + " and will be held " + election.getEndDate().toString();
     }
 }

@@ -8,8 +8,12 @@ import org.springframework.data.util.Pair;
 public class RuleVotingVotesAttributeConverter implements AttributeConverter<List<Pair<Integer, String>>, String> {
     @Override
     public String convertToDatabaseColumn(List<Pair<Integer, String>> attribute) {
+        if (attribute.size() == 0) {
+            return null;
+        }
+
         StringBuilder str = new StringBuilder();
-        if (attribute.size() == 0) return null;
+
         for (Pair<Integer, String> p : attribute) {
             str.append(p.getFirst());
             str.append(",");
@@ -22,7 +26,9 @@ public class RuleVotingVotesAttributeConverter implements AttributeConverter<Lis
     @Override
     public List<Pair<Integer, String>> convertToEntityAttribute(String dbData) {
         List<Pair<Integer, String>> votes = new ArrayList<>();
-        if (dbData == null) return votes;
+        if (dbData == null) {
+            return votes;
+        }
         String[] split = dbData.split(",");
         for (int i = 0; i < split.length; i += 2) {
             votes.add(Pair.of(Integer.parseInt(split[i]), split[i + 1]));

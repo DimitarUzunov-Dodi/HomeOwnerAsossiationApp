@@ -22,6 +22,12 @@ public class ElectionController {
         this.electionService = electionService;
     }
 
+
+    /**
+     * Creates a board election for an association with a given ID.
+     *
+     * @return a message confirming the creation.
+     */
     @PostMapping("/createElection")
     public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request) throws Exception {
         //We could add the part where we check if it has been 1 year since the last election
@@ -29,15 +35,12 @@ public class ElectionController {
 
         //Check for correct associationId will happen in Association before calling this
 
-        ResponseEntity<String> res;
         try {
-            int associationId = Integer.parseInt(request.getAssociationId());
-            res = ResponseEntity.ok(electionService.createElection(associationId));
+            int associationId = request.getAssociationId();
+            return ResponseEntity.ok(electionService.createElection(associationId));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-
-        return res;
     }
 
 

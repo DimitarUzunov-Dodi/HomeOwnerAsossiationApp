@@ -7,5 +7,5 @@ import lombok.Data;
  */
 @Data
 public class AssociationRequestModel {
-    private String associationId;
+    private int associationId;
 }
