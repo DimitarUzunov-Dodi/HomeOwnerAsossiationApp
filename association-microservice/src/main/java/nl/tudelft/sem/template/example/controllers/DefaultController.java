@@ -2,7 +2,7 @@ package nl.tudelft.sem.template.example.controllers;
 
 import nl.tudelft.sem.template.example.authentication.AuthManager;
 import nl.tudelft.sem.template.example.domain.association.AssociationService;
-import nl.tudelft.sem.template.example.domain.member.MemberService;
+import nl.tudelft.sem.template.example.domain.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,20 +21,20 @@ public class DefaultController {
 
     private final transient AssociationService associationService;
 
-    private final transient MemberService memberService;
+    private final transient UserService userService;
 
     /**
      * Instantiates a new controller.
      *
      * @param authManager        Spring Security component used to authenticate and authorize the user
      * @param associationService
-     * @param memberService
+     * @param userService
      */
     @Autowired
-    public DefaultController(AuthManager authManager, AssociationService associationService, MemberService memberService) {
+    public DefaultController(AuthManager authManager, AssociationService associationService, UserService userService) {
         this.authManager = authManager;
         this.associationService = associationService;
-        this.memberService = memberService;
+        this.userService = userService;
     }
 
     /**

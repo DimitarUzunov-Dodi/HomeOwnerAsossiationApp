@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.domain.member;
+package nl.tudelft.sem.template.example.domain.Membership;
 
 import lombok.EqualsAndHashCode;
 
