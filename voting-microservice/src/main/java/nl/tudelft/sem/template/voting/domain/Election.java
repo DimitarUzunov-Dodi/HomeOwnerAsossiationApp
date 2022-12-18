@@ -16,7 +16,7 @@ public class Election extends Voting {
 
     @Column(name = "candidates")
     @Convert(converter = CandidateAttributeConverter.class)
-    private List<Integer> candidates;
+    private Set<Integer> candidates;
 
     @Column(name = "votes")
     @Convert(converter = ElectionVotesAttributeConverter.class)
@@ -30,7 +30,7 @@ public class Election extends Voting {
     public Election(int associationId) {
         super();
         this.associationId = associationId;
-        this.candidates = new ArrayList<>();
+        this.candidates = new HashSet<>();
         this.votes = new ArrayList<>();
 
         Calendar c = Calendar.getInstance();
@@ -43,8 +43,12 @@ public class Election extends Voting {
         return associationId;
     }
 
-    public List<Integer> getCandidates() {
+    public Set<Integer> getCandidates() {
         return candidates;
+    }
+
+    public void addCandidate(int userId) {
+        this.candidates.add(userId);
     }
 
     public List<Pair<Integer, Integer>> getVotes() {

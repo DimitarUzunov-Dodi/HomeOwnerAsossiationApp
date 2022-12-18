@@ -1,6 +1,8 @@
 package nl.tudelft.sem.template.voting.domain;
 
+import java.util.Set;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class ElectionService extends VotingService {
@@ -44,8 +46,22 @@ public class ElectionService extends VotingService {
     public String createElection(int associationId) {
         Election election = new Election(associationId);
         electionRepository.save(election);
-        System.out.println("DONE");
         return "Election was created for association " + associationId
                 + " and will be held on " + election.getEndDate().toString() + ".";
+    }
+
+    /**
+     * Returns the candidates of an active board election in a given association.
+     *
+     * @return a set of User IDs of candidates.
+     */
+    public Set<Integer> getCandidates(int associationId) {
+        var optElection = electionRepository.findByAssociationId(associationId);
+        if (optElection.isPresent()) {
+            return optElection.get().getCandidates();
+        } else {
+            throw new IllegalArgumentException("Association with ID "
+                    + associationId + " does not have an active election.");
+        }
     }
 }
