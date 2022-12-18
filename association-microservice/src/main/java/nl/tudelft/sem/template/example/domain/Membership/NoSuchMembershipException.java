@@ -1,4 +1,4 @@
 package nl.tudelft.sem.template.example.domain.Membership;
 
-public class NoSuchMembershipException extends Exception{
+public class NoSuchMembershipException extends Exception {
 }

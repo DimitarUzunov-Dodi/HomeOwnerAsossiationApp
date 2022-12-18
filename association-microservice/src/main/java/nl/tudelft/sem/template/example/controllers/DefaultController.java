@@ -1,8 +1,8 @@
 package nl.tudelft.sem.template.example.controllers;
 
 import nl.tudelft.sem.template.example.authentication.AuthManager;
-import nl.tudelft.sem.template.example.domain.association.AssociationService;
 import nl.tudelft.sem.template.example.domain.User.UserService;
+import nl.tudelft.sem.template.example.domain.association.AssociationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

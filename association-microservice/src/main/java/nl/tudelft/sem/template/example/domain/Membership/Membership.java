@@ -15,31 +15,31 @@ unique id for different memberships
  */
     @Id
     @GeneratedValue
-    @Column(name = "id",nullable = false,unique = true)
+    @Column(name = "id", nullable = false, unique = true)
     private Integer id;
 
-    @Column(name = "user_id",nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
-    @Column(name = "association_id" ,nullable = false)
+    @Column(name = "association_id", nullable = false)
     private int associationId;
 
-    @Column(name = "address",nullable = false)
+    @Column(name = "address", nullable = false)
     @Convert(converter = AddressAttributeConverter.class)
     private Address address;
 
-    @Column(name = "join_date",nullable = false)
+    @Column(name = "join_date", nullable = false)
     private Date joinDate;
 
     @Column(name = "board")
     private boolean board;
 
-    public void setAddress(Address address) {
+    public Membership(String userId, int associationId, Address address, Date joinDate, boolean isBoard) {
+        this.userId = userId;
+        this.associationId = associationId;
         this.address = address;
-    }
-
-    public void setBoard(boolean board) {
-        board = board;
+        this.joinDate = joinDate;
+        this.board = isBoard;
     }
 
     public Integer getId() {
@@ -58,6 +58,10 @@ unique id for different memberships
         return address;
     }
 
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
     public Date getJoinDate() {
         return joinDate;
     }
@@ -66,13 +70,7 @@ unique id for different memberships
         return board;
     }
 
-
-
-    public Membership(String userId, int associationId, Address address, Date joinDate, boolean isBoard) {
-        this.userId = userId;
-        this.associationId = associationId;
-        this.address = address;
-        this.joinDate = joinDate;
-        this.board = isBoard;
+    public void setBoard(boolean board) {
+        board = board;
     }
 }
