@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.voting.domain;
 
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -56,9 +57,9 @@ public class ElectionService extends VotingService {
      * @return a set of User IDs of candidates.
      */
     public Set<Integer> getCandidates(int associationId) {
-        var optElection = electionRepository.findByAssociationId(associationId);
+        Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
-            return optElection.get().getCandidates();
+            return optElection.get().getCandidateIds();
         } else {
             throw new IllegalArgumentException("Association with ID "
                     + associationId + " does not have an active election.");
