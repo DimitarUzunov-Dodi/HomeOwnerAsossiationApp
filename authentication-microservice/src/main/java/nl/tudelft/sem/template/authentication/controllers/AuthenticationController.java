@@ -104,7 +104,7 @@ public class AuthenticationController {
      *
      * @param request The change pass model
      * @return 200 OK if the update is successful
-     * @throws Exception if the credentials don't match
+     * @throws Exception if the credentials don't match or if the password is invalid
      */
 
     @PostMapping("/changepass")
