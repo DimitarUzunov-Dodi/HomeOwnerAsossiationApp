@@ -1,65 +1,88 @@
 package nl.tudelft.sem.template.example.domain.activity;
 
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+/**
+ * Repository template of the activities class.
+ */
 @Entity
-@Table(name="activities")
+@Table(name = "activities")
 @NoArgsConstructor
 public class Activity {
     @Id
     @GeneratedValue
+    @Getter
     @Column(name = "activity_id", nullable = false, unique = true)
     private int activityId;
 
+    @Getter
     @Column(name = "event_name", nullable = false)
     private String eventName;
 
+    @Getter
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "starting_date",nullable = false)
+    @Getter
+    @Column(name = "starting_date", nullable = false)
     private Date startingDate;
 
-    @Column(name = "expiration_date",nullable = false)
+    @Getter
+    @Column(name = "expiration_date", nullable = false)
     private Date expirationDate;
 
-    @Column(name = "association_id",nullable = false)
+    @Getter
+    @Column(name = "association_id", nullable = false)
     private int associationId;
 
-    @Column(name = "publisher_id",nullable = false)
+    @Getter
+    @Column(name = "publisher_id", nullable = false)
     private int publisherId;
 
-    //add columns for interested and going
+    @Getter
     @Column(name = "going_to_members_id", nullable = false)
     @Convert(converter = MemberIdConverter.class)
     private List<Integer> goingToMembersId;
 
-
+    @Getter
     @Column(name = "interested_members_id", nullable = false)
     @Convert(converter = MemberIdConverter.class)
     private List<Integer> interestedMembersId;
 
 
-
-
-    public Activity(String eventName, String description, Date startingDate, Date expirationDate, int associationId, int publisherId) {
+    /** Constructor for the activity class.
+     *
+     * @param eventName name of the event.
+     * @param description description of the event
+     * @param startingDate timestamp to start the event
+     * @param expirationDate timestamp to end the event
+     * @param associationId association id the activity belong to
+     * @param publisherId id of the publisher of the event
+     *
+     */
+    public Activity(String eventName, String description, Date startingDate,
+                    Date expirationDate, int associationId, int publisherId) {
         this.eventName = eventName;
         this.description = description;
         this.startingDate = startingDate;
         this.expirationDate = expirationDate;
         this.associationId = associationId;
         this.publisherId = publisherId;
-        this.goingToMembersId =  Collections.emptyList();
-        this.interestedMembersId = Collections.emptyList();
+        this.goingToMembersId =  new ArrayList<Integer>();
+        this.interestedMembersId = new ArrayList<Integer>();
     }
 
-    public void addInterested(int memberId){
-        if(interestedMembersId.contains(memberId)){
+    /** adds id to the interested list.
+     *
+     * @param memberId id of the interested member
+     */
+    public void addInterested(int memberId) {
+        if (interestedMembersId.contains(memberId)) {
             return;
         } else {
             removeGoingTo(memberId);
@@ -67,14 +90,22 @@ public class Activity {
         }
     }
 
-    public void removeInterested(int memberId){
-        if(interestedMembersId.contains(memberId)){
+    /** removes id from the interested list if it exists.
+     *
+     * @param memberId id of the interested member
+     */
+    public void removeInterested(int memberId) {
+        if (interestedMembersId.contains(memberId)) {
             interestedMembersId.remove(interestedMembersId.indexOf(memberId));
         }
     }
 
-    public void addGoingTo(int memberId){
-        if(goingToMembersId.contains(memberId)){
+    /** adds id to the goingTo list.
+     *
+     * @param memberId id of the goingTo member
+     */
+    public void addGoingTo(int memberId) {
+        if (goingToMembersId.contains(memberId)) {
             return;
         } else {
             removeInterested(memberId);
@@ -82,8 +113,12 @@ public class Activity {
         }
     }
 
-    public void removeGoingTo(int memberId){
-        if(goingToMembersId.contains(memberId)){
+    /** removes id from the goingTo list if it exists.
+     *
+     * @param memberId id of the goingTo member
+     */
+    public void removeGoingTo(int memberId) {
+        if (goingToMembersId.contains(memberId)) {
             goingToMembersId.remove(goingToMembersId.indexOf(memberId));
         }
     }

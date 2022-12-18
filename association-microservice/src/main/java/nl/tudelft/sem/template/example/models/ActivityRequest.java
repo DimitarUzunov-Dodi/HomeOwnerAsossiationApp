@@ -1,11 +1,11 @@
 package nl.tudelft.sem.template.example.models;
 
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
 
 /**
- * Model representing a request to add a new activity
+ * Model representing a request to add a new activity.
  */
 @Data
 public class ActivityRequest {
