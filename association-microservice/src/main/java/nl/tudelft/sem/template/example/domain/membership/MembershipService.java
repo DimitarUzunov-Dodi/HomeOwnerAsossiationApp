@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.domain.Membership;
+package nl.tudelft.sem.template.example.domain.membership;
 
 import org.springframework.stereotype.Service;
 
@@ -17,13 +17,17 @@ public class MembershipService {
 
     public List<Membership> getMembers(int associationId) throws NoSuchMembershipException {
         List<Membership> memberships = membershipRepository.findByAssociationId(associationId);
-        if (memberships.size() == 0) throw new NoSuchMembershipException();
+        if (memberships.size() == 0) {
+            throw new NoSuchMembershipException();
+        }
         return memberships;
     }
 
     public List<String> getCouncil(int associationId) throws NoSuchMembershipException {
         List<Membership> council = membershipRepository.findByAssociationIdAndBoard(associationId, true);
-        if (council.size() == 0) throw new NoSuchMembershipException();
+        if (council.size() == 0) {
+            throw new NoSuchMembershipException();
+        }
         ArrayList<String> councilId = new ArrayList<>();
         for (Membership m : council) {
             councilId.add(m.getUserId());
@@ -37,7 +41,9 @@ public class MembershipService {
 
     public Membership getMembership(String userId, int associationId) throws NoSuchMembershipException {
         Optional<Membership> membership = membershipRepository.findByUserIdAndAssociationId(userId, associationId);
-        if (membership.isEmpty()) throw new NoSuchMembershipException();
+        if (membership.isEmpty()) {
+            throw new NoSuchMembershipException();
+        }
         return membership.get();
     }
 
@@ -48,16 +54,24 @@ public class MembershipService {
      * @param joinDate
      * @return if successfully joined or not, new membership is not council as default
      */
-    public boolean addMembership(String userId, int associationId, Address address, Date joinDate) throws FieldShouldNotBeNullException {
-        if (address == null || joinDate == null) throw new FieldShouldNotBeNullException();
-        if (membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) return false;
+    public boolean addMembership(String userId, int associationId, Address address, Date joinDate) throws FieldNoNullException {
+        if (address == null || joinDate == null) {
+            throw new FieldNoNullException();
+        }
+        if (membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
+            return false;
+        }
         membershipRepository.save(new Membership(userId, associationId, address, joinDate, false));
         return true;
     }
 
-    public boolean updateMembership(String userId, int associationId, Address address, boolean isBoard) throws FieldShouldNotBeNullException {
-        if (address == null) throw new FieldShouldNotBeNullException();
-        if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) return false;
+    public boolean updateMembership(String userId, int associationId, Address address, boolean isBoard) throws FieldNoNullException {
+        if (address == null) {
+            throw new FieldNoNullException();
+        }
+        if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
+            return false;
+        }
         Membership membership = membershipRepository.findByUserIdAndAssociationId(userId, associationId).get();
         membership.setBoard(isBoard);
         membership.setAddress(address);
@@ -66,7 +80,9 @@ public class MembershipService {
     }
 
     public boolean deleteMembership(String userId, int associationId) {
-        if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) return false;
+        if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
+            return false;
+        }
         Membership membership = membershipRepository.findByUserIdAndAssociationId(userId, associationId).get();
         membershipRepository.delete(membership);
         return true;

@@ -1,9 +1,8 @@
-package nl.tudelft.sem.template.example.domain.Membership;
-
-import lombok.NoArgsConstructor;
+package nl.tudelft.sem.template.example.domain.membership;
 
 import javax.persistence.*;
 import java.util.Date;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "memberships")
