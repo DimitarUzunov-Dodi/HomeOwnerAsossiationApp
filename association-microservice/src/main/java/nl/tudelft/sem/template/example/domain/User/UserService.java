@@ -1,10 +1,7 @@
 package nl.tudelft.sem.template.example.domain.User;
 
-import nl.tudelft.sem.template.example.domain.association.AssociationService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -27,30 +24,15 @@ public class UserService {
 
     /**
      *
-     * @param memberId
+     * @param userId
      * @param name
-     * @throws NoSuchAssociationException
-     *
+     * @return if the userId already exist or not
      * save a member to the repository
      */
-    public void addUser(String memberId, String name) {
-        userRepository.save(new User(memberId, name));
+    public boolean addUser(String userId, String name) {
+        if(userRepository.existsByUserId(userId)) return false;
+        userRepository.save(new User(userId, name));
+        return true;
     }
 
-
-    /**
-     *
-     * @param service
-     * @param associationId
-     * @throws NoSuchAssociationException
-     *
-     * checks if there is an association correspond to the id
-     */
-    private void checkAssociationExists(AssociationService service, int associationId) throws NoSuchAssociationException{
-        try{
-            service.getAssociation(associationId).get();
-        }catch (NoSuchElementException e){
-            throw new NoSuchAssociationException();
-        }
-    }
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository("memberRepository")
+@Repository("userRepository")
 public interface UserRepository extends JpaRepository<User,Integer> {
     /*
     return the user according to user id
