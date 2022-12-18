@@ -20,7 +20,7 @@ public class ElectionService extends VotingService {
 
     }
 
-    @Override
+
     public boolean verify() {
         return false;
     }

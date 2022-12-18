@@ -6,8 +6,6 @@ public abstract class VotingService {
 
     public abstract void createVote();
 
-    public abstract boolean verify();
-
     public abstract String castVote();
 
     public abstract String getResults();
