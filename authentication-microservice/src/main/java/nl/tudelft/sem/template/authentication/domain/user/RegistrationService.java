@@ -59,7 +59,7 @@ public class RegistrationService {
         Optional<AppUser> tempUser = userRepository.findByUserId(userId);
 
         if (tempUser.isEmpty()) {
-            throw new Exception("Credentials don't match existing user");
+            throw new Exception("CREDENTIALS_NOT_MATCHING");
         }
 
         HashedPassword hashedPassword = passwordHashingService.hash(password);

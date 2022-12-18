@@ -61,7 +61,7 @@ public class AuthenticationController {
      */
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponseModel> authenticate(@RequestBody AuthenticationRequestModel request)
-            throws Exception {
+            throws ResponseStatusException {
 
         try {
             authenticationManager.authenticate(
@@ -94,7 +94,7 @@ public class AuthenticationController {
             Password password = new Password(request.getPassword());
             registrationService.registerUser(userId, password);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "USER_ID_TAKEN", e);
         }
 
         return ResponseEntity.ok().build();
@@ -119,21 +119,20 @@ public class AuthenticationController {
                                 userId,
                                 password));
             } catch (DisabledException e) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "USER_DISABLED", e);
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "USER_DISABLED");
             } catch (BadCredentialsException e) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", e);
+                throw new RuntimeException("INVALID_CREDENTIALS");
             }
 
             Password newPassword = new Password(request.getNewPassword());
 
             if (newPassword.toString() == null) {
-                Exception p = new Exception("NULL_PASSWORD");
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, p.getMessage());
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NULL_PASSWORD");
             }
 
             if ((password.toString()).equals(newPassword.toString())) {
-                Exception p = new Exception("SAME_PASSWORD");
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, p.getMessage());
+                throw new RuntimeException("SAME_PASSWORD");
+
             }
 
             try {
