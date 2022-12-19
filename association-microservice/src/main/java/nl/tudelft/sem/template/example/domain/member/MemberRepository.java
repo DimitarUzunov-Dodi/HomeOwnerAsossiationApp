@@ -1,13 +1,13 @@
 package nl.tudelft.sem.template.example.domain.member;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
 
 @Repository("memberRepository")
-public interface MemberRepository extends JpaRepository<Member,Integer> {
+public interface MemberRepository extends JpaRepository<Member, Integer> {
     /*
     return the user according to member id
      */

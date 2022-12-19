@@ -1,11 +1,11 @@
 package nl.tudelft.sem.template.example.domain.association;
 
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
+
 
 @Service
 public class AssociationService {
@@ -15,42 +15,41 @@ public class AssociationService {
         this.associationRepository = associationRepository;
     }
 
-    /**
+    /** returns the searched association by id.
      *
-     * @param associationId
+     * @param associationId id of the association
      * @return Association correspondingly
      */
-    public Optional<Association> getAssociation(int associationId){
+    public Optional<Association> getAssociation(int associationId) {
         return associationRepository.findById(associationId);
     }
 
-    /**
+    /** returns the searched association by name.
      *
-     * @param name
+     * @param name name of the association
      * @return all possible association with the name
      */
-    public List<Association> getAssociationByName(String name){
+    public List<Association> getAssociationByName(String name) {
         return associationRepository.findAllByName(name);
     }
 
-    /**
+    /** returns all associations in the repository.
      *
      * @return all associations in the repo
      */
-    public List<Association> getAllAssociation(){
+    public List<Association> getAllAssociation() {
         return associationRepository.findBy();
     }
 
-    /**
-     * @param name
-     * @param electionDate
-     * @param description
-     * @param councilNumber
+    /** add new association to the repository.
      *
-     * add new association to the repo
+     * @param name name of the association
+     * @param electionDate election date of the association
+     * @param description description of the association
+     * @param councilNumber number of council members in the association
      */
-    public void addAssociation(String name, Date electionDate, String description, int councilNumber){
-        associationRepository.save(new Association(name,electionDate,description,councilNumber));
+    public void addAssociation(String name, Date electionDate, String description, int councilNumber) {
+        associationRepository.save(new Association(name, electionDate, description, councilNumber));
     }
 
 }

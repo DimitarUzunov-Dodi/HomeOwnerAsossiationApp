@@ -14,7 +14,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     /*
     returns activity based on id
      */
-    Optional<Activity> findByActivityId(int eventId);
+    Optional<Activity> findByActivityId(int activityId);
 
 
     /*

@@ -22,12 +22,13 @@ public class DefaultController {
     private final transient AssociationService associationService;
 
     private final transient MemberService memberService;
+
     /**
      * Instantiates a new controller.
      *
      * @param authManager        Spring Security component used to authenticate and authorize the user
-     * @param associationService
-     * @param memberService
+     * @param associationService service for the association
+     * @param memberService service for the members
      */
     @Autowired
     public DefaultController(AuthManager authManager, AssociationService associationService, MemberService memberService) {

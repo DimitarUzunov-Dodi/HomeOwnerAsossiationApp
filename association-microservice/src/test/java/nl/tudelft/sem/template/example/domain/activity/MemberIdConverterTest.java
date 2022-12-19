@@ -1,12 +1,12 @@
 package nl.tudelft.sem.template.example.domain.activity;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class MemberIdConverterTest {
     List<Integer> ids;
@@ -23,18 +23,18 @@ class MemberIdConverterTest {
 
     @Test
     void convertToDatabaseColumn() {
-        assertEquals("1, 2, 3",converter.convertToDatabaseColumn(ids));
+        assertEquals("1, 2, 3", converter.convertToDatabaseColumn(ids));
         ids.add(1);
         ids.add(2);
-        assertEquals("1, 2, 3, 1, 2",converter.convertToDatabaseColumn(ids));
+        assertEquals("1, 2, 3, 1, 2", converter.convertToDatabaseColumn(ids));
     }
 
     @Test
     void convertToEntityAttribute() {
-        assertEquals(ids,converter.convertToEntityAttribute("1, 2, 3"));
+        assertEquals(ids, converter.convertToEntityAttribute("1, 2, 3"));
         ids.add(1);
         ids.add(2);
-        assertEquals(ids,converter.convertToEntityAttribute("1, 2, 3, 1, 2"));
+        assertEquals(ids, converter.convertToEntityAttribute("1, 2, 3, 1, 2"));
 
     }
 }

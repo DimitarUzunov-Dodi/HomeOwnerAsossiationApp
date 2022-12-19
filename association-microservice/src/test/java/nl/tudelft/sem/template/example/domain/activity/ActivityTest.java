@@ -1,14 +1,15 @@
 package nl.tudelft.sem.template.example.domain.activity;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+
 
 class ActivityTest {
     public Activity activity;
@@ -19,7 +20,7 @@ class ActivityTest {
         String description = "This is the description of the event";
         Date startingDate = new Date();
         Date expirationDate = new Date();
-        activity = new Activity(eventName, description,startingDate,expirationDate,1,21  );
+        activity = new Activity(eventName, description, startingDate, expirationDate, 1, 21);
     }
 
     @Test
@@ -58,19 +59,19 @@ class ActivityTest {
 
     @Test
     void getGoingToMembersId() {
-        List<Integer> result =new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<Integer>();
         result.add(1);
         assertEquals(activity.getGoingToMembersId(), Collections.emptyList());
         activity.addGoingTo(1);
-        assertEquals(activity.getGoingToMembersId(),result);
+        assertEquals(activity.getGoingToMembersId(), result);
     }
 
     @Test
     void getInterestedMembersId() {
-        List<Integer> result =new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<Integer>();
         result.add(1);
         assertEquals(activity.getInterestedMembersId(), Collections.emptyList());
         activity.addInterested(1);
-        assertEquals(activity.getInterestedMembersId(),result);
+        assertEquals(activity.getInterestedMembersId(), result);
     }
 }

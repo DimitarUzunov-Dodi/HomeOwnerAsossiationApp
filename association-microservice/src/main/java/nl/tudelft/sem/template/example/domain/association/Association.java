@@ -1,10 +1,9 @@
 package nl.tudelft.sem.template.example.domain.association;
 
-import lombok.EqualsAndHashCode;
+import java.util.Date;
+import javax.persistence.*;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import java.util.Date;
 @Entity
 @Table(name = "associations")
 @NoArgsConstructor
@@ -16,20 +15,20 @@ public class Association {
      */
     @Id
     @GeneratedValue
-    @Column(name = "id",nullable = false,unique = true)
+    @Column(name = "id", nullable = false, unique = true)
     private Integer id;
 
     /*
     name of the association, not necessarily unique
      */
-    @Column(name = "name",nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     /*
     election date of the association
     assumed to be yearly election
      */
-    @Column(name = "election_date",nullable = false)
+    @Column(name = "election_date", nullable = false)
     private Date electionDate;
 
     /*
@@ -45,6 +44,13 @@ public class Association {
     @Column(name = "council_number")
     private int councilNumber;
 
+    /** Constructor for the association class.
+     *
+     * @param name name of the association
+     * @param electionDate election date the association
+     * @param description description of the association
+     * @param councilNumber number of council members in the association
+     */
     public Association(String name, Date electionDate, String description, int councilNumber) {
         this.name = name;
         this.electionDate = electionDate;

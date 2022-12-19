@@ -3,6 +3,7 @@ package nl.tudelft.sem.template.example.domain.activity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,13 @@ public class ActivityService {
      * @param activityId the id of the activity we want to get
      * @return Activity correspondingly
      */
-    public Optional<Activity> getActivity(int activityId) {
-        return activityRepository.findByActivityId(activityId);
+    public Activity getActivity(int activityId)  {
+        try {
+            return activityRepository.findByActivityId(activityId).get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+
     }
 
     public List<Activity> getNoticeBoard(int associationId) {
