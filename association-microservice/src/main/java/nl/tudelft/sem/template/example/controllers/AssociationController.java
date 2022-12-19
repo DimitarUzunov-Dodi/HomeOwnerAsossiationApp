@@ -38,13 +38,13 @@ public class AssociationController {
     }
 
     /**
-     * Verify whether the provided user is part of the provided council.
+     * Verify whether the provided user is part of the provided association.
      *
-     * @param request   The request body containing the user's id and the list of council members.
+     * @param request   The request body containing the user's id and the association's id.
      * @return          A response message in the form of string indicating the result of the verification.
      */
     @PostMapping("/verify-council-member")
-    public ResponseEntity<String> verify(@RequestBody RuleVerificationRequestModel request) {
+    public ResponseEntity<String> verifyCouncilMember(@RequestBody RuleVerificationRequestModel request) {
         boolean isMember = associationService.verifyCouncilMember(request.getUserId(), request.getAssociationId());
 
         if (isMember) {
