@@ -1,5 +1,10 @@
 package nl.tudelft.sem.template.voting.domain;
 
+import nl.tudelft.sem.template.voting.domain.election.Election;
+import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
+import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVoting;
+import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
+
 public class VotingFactory {
     private final transient ElectionRepository electionRepository;
     private final transient RuleVotingRepository ruleVotingRepository;
@@ -15,13 +20,13 @@ public class VotingFactory {
      *
      * @return the created Voting object.
      */
-    public Voting createVoting(boolean isElection, int associationId, String rule, String amendment) {
-        if (isElection) {
+    public Voting createVoting(String type, int associationId, Integer userId, String rule, String amendment) {
+        if (type.equals("Election")) {
             Election election = new Election(associationId);
             electionRepository.save(election);
             return election;
         } else {
-            RuleVoting ruleVoting = new RuleVoting(rule, amendment);
+            RuleVoting ruleVoting = new RuleVoting(userId, rule, amendment, type);
             ruleVotingRepository.save(ruleVoting);
             return ruleVoting;
         }

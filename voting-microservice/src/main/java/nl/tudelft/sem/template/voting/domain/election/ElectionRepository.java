@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.election;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

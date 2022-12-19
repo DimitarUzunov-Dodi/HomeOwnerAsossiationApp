@@ -1,18 +1,23 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.rulevoting;
 
 import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.voting.domain.Voting;
 import org.springframework.data.util.Pair;
 
 @Entity
 @Table(name = "rule_votings")
 @NoArgsConstructor
 public class RuleVoting extends Voting {
-
+    @Column(name = "user_id", nullable = false)
+    private int userId;
     @Column(name = "rule", nullable = false)
     private String rule;
+    @Column(name = "amendment")
     private String amendment;
+    @Column(name = "type", nullable = false)
+    private String type;
     @Column(name = "votes")
     @Convert(converter = RuleVotingVotesAttributeConverter.class)
     private List<Pair<Integer, String>> votes;
@@ -22,10 +27,12 @@ public class RuleVoting extends Voting {
      *
      * @param rule The rule on which will be voted.
      */
-    public RuleVoting(String rule, String amendment) {
+    public RuleVoting(int userId, String rule, String amendment, String type) {
         super();
+        this.userId = userId;
         this.rule = rule;
         this.amendment = amendment;
+        this.type = type;
         this.votes = new ArrayList<>();
 
         Calendar c = Calendar.getInstance();
@@ -34,12 +41,36 @@ public class RuleVoting extends Voting {
         this.setEndDate(new Date(c.getTime().getTime()));
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     public String getRule() {
         return rule;
     }
 
     public void setRule(String rule) {
         this.rule = rule;
+    }
+
+    public String getAmendment() {
+        return amendment;
+    }
+
+    public void setAmendment(String amendment) {
+        this.amendment = amendment;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public List<Pair<Integer, String>> getVotes() {

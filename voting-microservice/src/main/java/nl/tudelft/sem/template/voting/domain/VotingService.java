@@ -2,6 +2,9 @@ package nl.tudelft.sem.template.voting.domain;
 
 import java.util.Optional;
 import java.util.Set;
+import nl.tudelft.sem.template.voting.domain.election.Election;
+import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
+import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
 import org.springframework.stereotype.Service;
 
 
@@ -28,8 +31,8 @@ public class VotingService {
      *
      * @return a message confirming the creation.
      */
-    public String createElection(boolean isElection, int associationId, String rule, String amendment) {
-        Voting voting = votingFactory.createVoting(isElection, associationId, rule, amendment);
+    public String createElection(String type, int associationId, Integer userId, String rule, String amendment) {
+        Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         return "Voting was created for association " + associationId
                 + " and will be held on " + voting.getEndDate().toString() + ".";
     }

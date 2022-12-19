@@ -7,28 +7,36 @@ import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-@RequestMapping("/election")
 @RestController
-public class ElectionController {
+public class VotingController {
+
     private final transient AuthManager authManager;
     private final transient VotingService votingService;
 
+    /**
+     * Instantiates new voting controller.
+     *
+     * @param authManager   Spring Security component used to authenticate and authorize the user.
+     * @param votingService The voting service.
+     */
     @Autowired
-    public ElectionController(AuthManager authManager, VotingService votingService) {
+    public VotingController(AuthManager authManager, VotingService votingService) {
         this.authManager = authManager;
         this.votingService = votingService;
     }
-
 
     /**
      * Creates a board election for an association with a given ID.
      *
      * @return a message confirming the creation.
      */
-    @PostMapping("/create-election")
+    @PostMapping("/election/create-election")
     public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request) throws Exception {
         //We could add the part where we check if it has been 1 year since the last election
         // or just check if another election is ongoing
@@ -37,7 +45,7 @@ public class ElectionController {
 
         try {
             int associationId = request.getAssociationId();
-            return ResponseEntity.ok(votingService.createElection(true, associationId, null, null));
+            return ResponseEntity.ok(votingService.createElection("Election", associationId, null, null, null));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -48,7 +56,7 @@ public class ElectionController {
      *
      * @return a set of User IDs of candidates.
      */
-    @GetMapping("/get-candidates")
+    @GetMapping("/election/get-candidates")
     public ResponseEntity<Set<Integer>> getCandidates(@RequestBody AssociationRequestModel request) throws Exception {
         //Check for correct associationId will happen in Association before calling this
 
@@ -59,6 +67,5 @@ public class ElectionController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
-
 
 }
