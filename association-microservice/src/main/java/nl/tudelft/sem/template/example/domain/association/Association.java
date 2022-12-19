@@ -1,8 +1,10 @@
 package nl.tudelft.sem.template.example.domain.association;
 
 import java.util.Date;
+import java.util.Set;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.example.domain.membership.CouncilUserIdsAttributeConverter;
 
 @Entity
 @Table(name = "associations")
@@ -25,11 +27,10 @@ public class Association {
     private String name;
 
     /*
-    election date of the association
-    assumed to be yearly election
+    creation date of the association
      */
-    @Column(name = "election_date", nullable = false)
-    private Date electionDate;
+    @Column(name = "creation_date", nullable = false)
+    private Date creationDate;
 
     /*
     a short description of the association
@@ -44,16 +45,23 @@ public class Association {
     @Column(name = "council_number")
     private int councilNumber;
 
+    /*
+    User Ids of the council members
+     */
+    @Column(name = "council_user_ids")
+    @Convert(converter = CouncilUserIdsAttributeConverter.class)
+    private Set<Integer> councilUserIds;
+
     /**constructor.
      *
      * @param name name of association
-     * @param electionDate election date of association
+     * @param creationDate creation date of association
      * @param description description of association
      * @param councilNumber the maximum council number of the association
      */
-    public Association(String name, Date electionDate, String description, int councilNumber) {
+    public Association(String name, Date creationDate, String description, int councilNumber) {
         this.name = name;
-        this.electionDate = electionDate;
+        this.creationDate = creationDate;
         this.description = description;
         this.councilNumber = councilNumber;
     }
@@ -78,16 +86,16 @@ public class Association {
      *
      * @return election date
      */
-    public Date getElectionDate() {
-        return electionDate;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
     /**setter.
      *
-     * @param electionDate set new election date
+     * @param creationDate set new election date
      */
-    public void setElectionDate(Date electionDate) {
-        this.electionDate = electionDate;
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     /**getter.
@@ -112,5 +120,13 @@ public class Association {
      */
     public int getCouncilNumber() {
         return councilNumber;
+    }
+
+    /**getter.
+     *
+     * @return the User Ids of council members
+     */
+    public Set<Integer> getCouncilUserIds() {
+        return councilUserIds;
     }
 }

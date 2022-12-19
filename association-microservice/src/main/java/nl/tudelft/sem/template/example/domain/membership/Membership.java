@@ -30,23 +30,18 @@ unique id for different memberships
     @Column(name = "join_date", nullable = false)
     private Date joinDate;
 
-    @Column(name = "board")
-    private boolean board;
-
     /**constructor.
      *
      * @param userId user id
      * @param associationId association id
      * @param address address
      * @param joinDate join date
-     * @param isBoard board status
      */
-    public Membership(String userId, int associationId, Address address, Date joinDate, boolean isBoard) {
+    public Membership(String userId, int associationId, Address address, Date joinDate) {
         this.userId = userId;
         this.associationId = associationId;
         this.address = address;
         this.joinDate = joinDate;
-        this.board = isBoard;
     }
 
     /**getter.
@@ -95,21 +90,5 @@ unique id for different memberships
      */
     public Date getJoinDate() {
         return joinDate;
-    }
-
-    /**getter.
-     *
-     * @return if the membership is board
-     */
-    public boolean isBoard() {
-        return board;
-    }
-
-    /**setter.
-     *
-     * @param board update board status
-     */
-    public void setBoard(boolean board) {
-        this.board = board;
     }
 }

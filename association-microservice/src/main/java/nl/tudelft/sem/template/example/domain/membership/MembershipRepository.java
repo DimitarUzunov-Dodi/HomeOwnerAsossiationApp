@@ -15,29 +15,12 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      */
     boolean existsByUserIdAndAssociationId(String userId, int associationId);
 
-    /**existsByUserIdAndAssociationIdAndBoard.
-     *
-     * @param userId the user id condition
-     * @param associationId the association id condition
-     * @param board the board condition
-     * @return the existence over the conditions
-     */
-    boolean existsByUserIdAndAssociationIdAndBoard(String userId, int associationId, boolean board);
-
     /**findByAssociationId.
      *
      * @param associationId the association id
      * @return the corresponding memberships
      */
     List<Membership> findByAssociationId(int associationId);
-
-    /**findByAssociationIdAndBoard.
-     *
-     * @param associationId the association id
-     * @param board the board condition
-     * @return the corresponding memberships
-     */
-    List<Membership> findByAssociationIdAndBoard(int associationId, boolean board);
 
     /**findByUserIdAndAssociationId.
      *

@@ -34,24 +34,6 @@ public class MembershipService {
 
     /**getter.
      *
-     * @param associationId the association
-     * @return boards in the association
-     * @throws NoSuchMembershipException if there is an invalid id
-     */
-    public List<String> getCouncil(int associationId) throws NoSuchMembershipException {
-        List<Membership> council = membershipRepository.findByAssociationIdAndBoard(associationId, true);
-        if (council.size() == 0) {
-            throw new NoSuchMembershipException();
-        }
-        ArrayList<String> councilId = new ArrayList<>();
-        for (Membership m : council) {
-            councilId.add(m.getUserId());
-        }
-        return councilId;
-    }
-
-    /**getter.
-     *
      * @param userId user id
      * @param associationId association id
      * @return if the membership exists
@@ -91,7 +73,7 @@ public class MembershipService {
         if (membershipRepository.existsByUserIdAndAssociationId(userId, assoId)) {
             return false;
         }
-        membershipRepository.save(new Membership(userId, assoId, address, joinDate, false));
+        membershipRepository.save(new Membership(userId, assoId, address, joinDate));
         return true;
     }
 
@@ -113,7 +95,6 @@ public class MembershipService {
             return false;
         }
         Membership membership = membershipRepository.findByUserIdAndAssociationId(userId, assoId).get();
-        membership.setBoard(isBoard);
         membership.setAddress(addr);
         membershipRepository.save(membership);
         return true;

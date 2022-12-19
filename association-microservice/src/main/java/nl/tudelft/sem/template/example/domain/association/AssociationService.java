@@ -3,6 +3,7 @@ package nl.tudelft.sem.template.example.domain.association;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,8 +19,14 @@ public class AssociationService {
      * @param associationId the id of the association
      * @return Association correspondingly
      */
-    public Optional<Association> getAssociation(int associationId) {
-        return associationRepository.findById(associationId);
+    public Association getAssociationById(int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isPresent()) {
+            return optionalAssociation.get();
+        } else {
+            throw new IllegalArgumentException("Association with ID "
+                    + associationId + " does not exist.");
+        }
     }
 
     /**getter.
@@ -29,6 +36,15 @@ public class AssociationService {
      */
     public List<Association> getAssociationByName(String name) {
         return associationRepository.findAllByName(name);
+    }
+
+    /**getter.
+     *
+     * @param associationId the association
+     * @return council of the association
+     */
+    public Set<Integer> getCouncil(int associationId) {
+        return getAssociationById(associationId).getCouncilUserIds();
     }
 
     /**getter.
@@ -57,9 +73,9 @@ public class AssociationService {
      * @param description update the description
      */
     public void updateAssociation(int id, Date electionDate, String description) {
-        Association association = this.getAssociation(id).get();
+        Association association = this.getAssociationById(id);
         association.setDescription(description);
-        association.setElectionDate(electionDate);
+        association.setCreationDate(electionDate);
         associationRepository.save(association);
     }
 
