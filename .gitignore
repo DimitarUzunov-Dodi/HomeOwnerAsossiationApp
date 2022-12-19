@@ -1,6 +1,32 @@
-/.idea/
-/.gradle/
+### Gradle ###
+.gradle
+build/
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+**/build/
+**/bin/
+.gradletasknamecache
 
-/authentication-microservice/build/
-/example-microservice/build/
-/voting-microservice/build/
+### Java ###
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+*.db
+*.mv.db
+/.idea/
+/.gitignore

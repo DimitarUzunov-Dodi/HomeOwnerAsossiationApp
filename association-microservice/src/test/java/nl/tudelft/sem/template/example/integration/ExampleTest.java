@@ -42,9 +42,9 @@ public class ExampleTest {
         // Arrange
         // Notice how some custom parts of authorisation need to be mocked.
         // Otherwise, the integration test would never be able to authorise as the authorisation server is offline.
-        when(mockAuthenticationManager.getMemberId()).thenReturn("ExampleUser");
+        when(mockAuthenticationManager.getUserId()).thenReturn("ExampleUser");
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getMemberIdFromToken(anyString())).thenReturn("ExampleUser");
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
 
         // Act
         // Still include Bearer token as AuthFilter itself is not mocked
