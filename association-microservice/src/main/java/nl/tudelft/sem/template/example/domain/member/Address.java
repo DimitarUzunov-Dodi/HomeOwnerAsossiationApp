@@ -4,14 +4,14 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class Address {
-    public final transient String address;
+    public final transient String addressName;
 
     public Address(String address) {
-        this.address = address;
+        this.addressName = address;
     }
 
     @Override
     public String toString() {
-        return address;
+        return addressName;
     }
 }

@@ -45,9 +45,9 @@ public class Activity {
     private int publisherId;
 
     @Getter
-    @Column(name = "going_to_members_id", nullable = false)
+    @Column(name = "participating_members_id", nullable = false)
     @Convert(converter = MemberIdConverter.class)
-    private List<Integer> goingToMembersId;
+    private List<Integer> participatingMembersId;
 
     @Getter
     @Column(name = "interested_members_id", nullable = false)
@@ -73,7 +73,7 @@ public class Activity {
         this.expirationDate = expirationDate;
         this.associationId = associationId;
         this.publisherId = publisherId;
-        this.goingToMembersId =  new ArrayList<Integer>();
+        this.participatingMembersId =  new ArrayList<Integer>();
         this.interestedMembersId = new ArrayList<Integer>();
     }
 
@@ -85,7 +85,7 @@ public class Activity {
         if (interestedMembersId.contains(memberId)) {
             return;
         } else {
-            removeGoingTo(memberId);
+            removeParticipating(memberId);
             interestedMembersId.add(memberId);
         }
     }
@@ -100,26 +100,26 @@ public class Activity {
         }
     }
 
-    /** adds id to the goingTo list.
+    /** adds id to the participating list.
      *
      * @param memberId id of the goingTo member
      */
-    public void addGoingTo(int memberId) {
-        if (goingToMembersId.contains(memberId)) {
+    public void addParticipating(int memberId) {
+        if (participatingMembersId.contains(memberId)) {
             return;
         } else {
             removeInterested(memberId);
-            goingToMembersId.add(memberId);
+            participatingMembersId.add(memberId);
         }
     }
 
-    /** removes id from the goingTo list if it exists.
+    /** removes id from the participating list if it exists.
      *
      * @param memberId id of the goingTo member
      */
-    public void removeGoingTo(int memberId) {
-        if (goingToMembersId.contains(memberId)) {
-            goingToMembersId.remove(goingToMembersId.indexOf(memberId));
+    public void removeParticipating(int memberId) {
+        if (participatingMembersId.contains(memberId)) {
+            participatingMembersId.remove(participatingMembersId.indexOf(memberId));
         }
     }
 

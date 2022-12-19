@@ -54,16 +54,16 @@ public class ActivityService {
         activityRepository.findByActivityId(activityId).get().addInterested(memberId);
     }
 
-    public void addGoingTo(int activityId, int memberId) {
-        activityRepository.findByActivityId(activityId).get().addGoingTo(memberId);
+    public void addParticipating(int activityId, int memberId) {
+        activityRepository.findByActivityId(activityId).get().addParticipating(memberId);
     }
 
     public void removeInterested(int activityId, int memberId) {
         activityRepository.findByActivityId(activityId).get().removeInterested(memberId);
     }
 
-    public void removeGoingTo(int activityId, int memberId) {
-        activityRepository.findByActivityId(activityId).get().removeGoingTo(memberId);
+    public void removeParticipating(int activityId, int memberId) {
+        activityRepository.findByActivityId(activityId).get().removeParticipating(memberId);
     }
 
 

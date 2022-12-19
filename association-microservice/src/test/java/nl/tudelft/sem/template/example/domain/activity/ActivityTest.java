@@ -26,10 +26,10 @@ class ActivityTest {
     @Test
     void addInterested() {
         assertTrue(activity.getInterestedMembersId().isEmpty());
-        activity.addGoingTo(2);
+        activity.addParticipating(2);
         activity.addInterested(2);
         assertFalse(activity.getInterestedMembersId().isEmpty());
-        assertTrue(activity.getGoingToMembersId().isEmpty());
+        assertTrue(activity.getParticipatingMembersId().isEmpty());
     }
 
     @Test
@@ -43,16 +43,16 @@ class ActivityTest {
 
     @Test
     void addGoingTo() {
-        assertTrue(activity.getGoingToMembersId().isEmpty());
-        activity.addGoingTo(2);
-        assertFalse(activity.getGoingToMembersId().isEmpty());
+        assertTrue(activity.getParticipatingMembersId().isEmpty());
+        activity.addParticipating(2);
+        assertFalse(activity.getParticipatingMembersId().isEmpty());
 
     }
 
     @Test
     void removeGoingTo() {
-        activity.addGoingTo(2);
-        activity.removeGoingTo(2);
+        activity.addParticipating(2);
+        activity.removeParticipating(2);
         assertTrue(activity.getInterestedMembersId().isEmpty());
 
     }
@@ -61,9 +61,9 @@ class ActivityTest {
     void getGoingToMembersId() {
         List<Integer> result = new ArrayList<Integer>();
         result.add(1);
-        assertEquals(activity.getGoingToMembersId(), Collections.emptyList());
-        activity.addGoingTo(1);
-        assertEquals(activity.getGoingToMembersId(), result);
+        assertEquals(activity.getParticipatingMembersId(), Collections.emptyList());
+        activity.addParticipating(1);
+        assertEquals(activity.getParticipatingMembersId(), result);
     }
 
     @Test

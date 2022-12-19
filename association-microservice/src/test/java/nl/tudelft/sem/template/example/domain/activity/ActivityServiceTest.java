@@ -84,7 +84,7 @@ class ActivityServiceTest {
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
         //Act
-        activityService.addGoingTo(0, 41);
+        activityService.addParticipating(0, 41);
         verify(activityRepoMock).findByActivityId(0);
     }
 

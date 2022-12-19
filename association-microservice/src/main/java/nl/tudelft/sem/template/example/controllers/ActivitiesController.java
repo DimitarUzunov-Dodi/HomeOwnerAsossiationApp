@@ -28,7 +28,7 @@ public class ActivitiesController {
         return ResponseEntity.ok(activityService.getNoticeBoard(associationId));
     }
 
-    /** adds anew activity in the activity repository.
+    /** adds a new activity in the activity repository.
      *
      * @param associationId id of the association the activity is added to
      * @param publisherId id of the publishing member
@@ -44,24 +44,24 @@ public class ActivitiesController {
                 associationId, publisherId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/{activityId}")
+    @PostMapping("/{memberId}/noticeBoard/addInterested/{activityId}")
     public void addInterested(@PathVariable int activityId, @PathVariable int memberId) {
         activityService.addInterested(activityId, memberId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/{activityId}")
-    public void addGoingTo(@PathVariable int activityId, @PathVariable int memberId) {
-        activityService.addGoingTo(activityId, memberId);
+    @PostMapping("/{memberId}/noticeBoard/addParticipating/{activityId}")
+    public void addParticipating(@PathVariable int activityId, @PathVariable int memberId) {
+        activityService.addParticipating(activityId, memberId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/{activityId}")
+    @PostMapping("/{memberId}/noticeBoard/removeInterested/{activityId}")
     public void removeInterested(@PathVariable int activityId, @PathVariable int memberId) {
         activityService.removeInterested(activityId, memberId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/{activityId}")
-    public void removeGoingTo(@PathVariable int activityId, @PathVariable int memberId) {
-        activityService.removeGoingTo(activityId, memberId);
+    @PostMapping("/{memberId}/noticeBoard/removeParticipating/{activityId}")
+    public void removeParticipating(@PathVariable int activityId, @PathVariable int memberId) {
+        activityService.removeParticipating(activityId, memberId);
     }
 
 
