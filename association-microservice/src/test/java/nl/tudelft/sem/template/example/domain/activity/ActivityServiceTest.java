@@ -99,12 +99,12 @@ class ActivityServiceTest {
     }
 
     @Test
-    void removeGoingTo() {
+    void removeParticipating() {
         //Arrange
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
         //Act
-        activityService.removeInterested(0, 41);
+        activityService.removeParticipating(0, 41);
         verify(activityRepoMock).findByActivityId(0);
     }
 }
