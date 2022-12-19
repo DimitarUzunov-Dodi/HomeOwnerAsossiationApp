@@ -1,10 +1,12 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.rulevoting;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import org.springframework.data.util.Pair;
 
+@Converter
 public class RuleVotingVotesAttributeConverter implements AttributeConverter<List<Pair<Integer, String>>, String> {
     @Override
     public String convertToDatabaseColumn(List<Pair<Integer, String>> attribute) {

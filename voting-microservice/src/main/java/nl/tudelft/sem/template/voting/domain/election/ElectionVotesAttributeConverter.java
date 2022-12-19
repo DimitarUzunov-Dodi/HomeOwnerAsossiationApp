@@ -1,10 +1,12 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.election;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import org.springframework.data.util.Pair;
 
+@Converter
 public class ElectionVotesAttributeConverter implements AttributeConverter<List<Pair<Integer, Integer>>, String> {
     @Override
     public String convertToDatabaseColumn(List<Pair<Integer, Integer>> attribute) {

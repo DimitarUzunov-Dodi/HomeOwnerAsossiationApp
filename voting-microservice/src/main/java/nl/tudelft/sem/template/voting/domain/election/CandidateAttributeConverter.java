@@ -1,13 +1,15 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.election;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
-public class CandidateAttributeConverter implements AttributeConverter<List<Integer>, String> {
+@Converter
+public class CandidateAttributeConverter implements AttributeConverter<Set<Integer>, String> {
 
     @Override
-    public String convertToDatabaseColumn(List<Integer> attribute) {
+    public String convertToDatabaseColumn(Set<Integer> attribute) {
         if (attribute.size() == 0) {
             return null;
         }
@@ -15,8 +17,8 @@ public class CandidateAttributeConverter implements AttributeConverter<List<Inte
     }
 
     @Override
-    public List<Integer> convertToEntityAttribute(String dbData) {
-        List<Integer> candidates = new ArrayList<>();
+    public Set<Integer> convertToEntityAttribute(String dbData) {
+        HashSet<Integer> candidates = new HashSet<>();
         if (dbData == null) {
             return candidates;
         }

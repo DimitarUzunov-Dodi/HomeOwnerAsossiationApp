@@ -1,9 +1,10 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.election;
 
 
 import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.voting.domain.Voting;
 import org.springframework.data.util.Pair;
 
 @Entity
@@ -16,7 +17,7 @@ public class Election extends Voting {
 
     @Column(name = "candidates")
     @Convert(converter = CandidateAttributeConverter.class)
-    private List<Integer> candidates;
+    private Set<Integer> candidateIds;
 
     @Column(name = "votes")
     @Convert(converter = ElectionVotesAttributeConverter.class)
@@ -30,7 +31,7 @@ public class Election extends Voting {
     public Election(int associationId) {
         super();
         this.associationId = associationId;
-        this.candidates = new ArrayList<>();
+        this.candidateIds = new HashSet<>();
         this.votes = new ArrayList<>();
 
         Calendar c = Calendar.getInstance();
@@ -43,8 +44,12 @@ public class Election extends Voting {
         return associationId;
     }
 
-    public List<Integer> getCandidates() {
-        return candidates;
+    public Set<Integer> getCandidateIds() {
+        return candidateIds;
+    }
+
+    public void addCandidate(int userId) {
+        this.candidateIds.add(userId);
     }
 
     public List<Pair<Integer, Integer>> getVotes() {
