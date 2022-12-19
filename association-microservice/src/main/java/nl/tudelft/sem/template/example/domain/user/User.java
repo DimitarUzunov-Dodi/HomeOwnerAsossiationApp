@@ -1,8 +1,8 @@
 package nl.tudelft.sem.template.example.domain.user;
 
+import javax.persistence.*;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 
 @Entity
 @Table(name = "Users")
@@ -36,25 +36,25 @@ public class User {
         this.name = name;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return userid
      */
     public String getUserId() {
         return userId;
     }
 
-    /**
+    /**name.
      *
-     * @return
+     * @return username
      */
     public String getName() {
         return name;
     }
 
-    /**
+    /**set new name.
      *
-     * @param name
+     * @param name the new name
      */
     public void setName(String name) {
         this.name = name;

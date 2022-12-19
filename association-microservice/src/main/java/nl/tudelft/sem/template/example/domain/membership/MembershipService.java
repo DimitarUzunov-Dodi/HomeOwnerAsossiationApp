@@ -1,25 +1,28 @@
 package nl.tudelft.sem.template.example.domain.membership;
 
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MembershipService {
     private final transient MembershipRepository membershipRepository;
 
+    /**constructor.
+     *
+     * @param membershipRepository the repo
+     */
     public MembershipService(MembershipRepository membershipRepository) {
         this.membershipRepository = membershipRepository;
     }
 
-    /**
+    /**getter.
      *
-     * @param associationId
-     * @return
-     * @throws NoSuchMembershipException
+     * @param associationId the association
+     * @return members in the association
+     * @throws NoSuchMembershipException if there is an invalid id
      */
     public List<Membership> getMembers(int associationId) throws NoSuchMembershipException {
         List<Membership> memberships = membershipRepository.findByAssociationId(associationId);
@@ -29,11 +32,11 @@ public class MembershipService {
         return memberships;
     }
 
-    /**
+    /**getter.
      *
-     * @param associationId
-     * @return
-     * @throws NoSuchMembershipException
+     * @param associationId the association
+     * @return boards in the association
+     * @throws NoSuchMembershipException if there is an invalid id
      */
     public List<String> getCouncil(int associationId) throws NoSuchMembershipException {
         List<Membership> council = membershipRepository.findByAssociationIdAndBoard(associationId, true);
@@ -47,22 +50,22 @@ public class MembershipService {
         return councilId;
     }
 
-    /**
+    /**getter.
      *
-     * @param userId
-     * @param associationId
-     * @return
+     * @param userId user id
+     * @param associationId association id
+     * @return if the membership exists
      */
     public boolean isInAssociation(String userId, int associationId) {
         return membershipRepository.existsByUserIdAndAssociationId(userId, associationId);
     }
 
-    /**
+    /**getter.
      *
-     * @param userId
-     * @param associationId
-     * @return
-     * @throws NoSuchMembershipException
+     * @param userId user id
+     * @param associationId association id
+     * @return the corresponding membership
+     * @throws NoSuchMembershipException if there is an invalid id
      */
     public Membership getMembership(String userId, int associationId) throws NoSuchMembershipException {
         Optional<Membership> membership = membershipRepository.findByUserIdAndAssociationId(userId, associationId);
@@ -72,52 +75,55 @@ public class MembershipService {
         return membership.get();
     }
 
-    /**
-     * @param userId
-     * @param associationId
-     * @param address
-     * @param joinDate
+    /**add new membership.
+     *
+     * @param userId user id
+     * @param assoId association id
+     * @param address address
+     * @param joinDate join date
+     *
      * @return if successfully joined or not, new membership is not council as default
      */
-    public boolean addMembership(String userId, int associationId, Address address, Date joinDate) throws FieldNoNullException {
+    public boolean addMembership(String userId, int assoId, Address address, Date joinDate) throws FieldNoNullException {
         if (address == null || joinDate == null) {
             throw new FieldNoNullException();
         }
-        if (membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
+        if (membershipRepository.existsByUserIdAndAssociationId(userId, assoId)) {
             return false;
         }
-        membershipRepository.save(new Membership(userId, associationId, address, joinDate, false));
+        membershipRepository.save(new Membership(userId, assoId, address, joinDate, false));
         return true;
     }
 
-    /**
+    /**update membership info.
      *
-     * @param userId
-     * @param associationId
-     * @param address
-     * @param isBoard
-     * @return
-     * @throws FieldNoNullException
+     * @param userId user id
+     * @param assoId association id
+     * @param addr address
+     * @param isBoard board flag
+     *
+     * @return if successfully updated or not
+     * @throws FieldNoNullException if there is an invalid input
      */
-    public boolean updateMembership(String userId, int associationId, Address address, boolean isBoard) throws FieldNoNullException {
-        if (address == null) {
+    public boolean updateMembership(String userId, int assoId, Address addr, boolean isBoard) throws FieldNoNullException {
+        if (addr == null) {
             throw new FieldNoNullException();
         }
-        if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
+        if (!membershipRepository.existsByUserIdAndAssociationId(userId, assoId)) {
             return false;
         }
-        Membership membership = membershipRepository.findByUserIdAndAssociationId(userId, associationId).get();
+        Membership membership = membershipRepository.findByUserIdAndAssociationId(userId, assoId).get();
         membership.setBoard(isBoard);
-        membership.setAddress(address);
+        membership.setAddress(addr);
         membershipRepository.save(membership);
         return true;
     }
 
-    /**
+    /**delete a membership.
      *
-     * @param userId
-     * @param associationId
-     * @return
+     * @param userId user id
+     * @param associationId association id
+     * @return if the deletion is successful
      */
     public boolean deleteMembership(String userId, int associationId) {
         if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {

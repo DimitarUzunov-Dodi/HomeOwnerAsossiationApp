@@ -1,7 +1,7 @@
 package nl.tudelft.sem.template.example.domain.membership;
 
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.*;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -33,6 +33,14 @@ unique id for different memberships
     @Column(name = "board")
     private boolean board;
 
+    /**constructor.
+     *
+     * @param userId user id
+     * @param associationId association id
+     * @param address address
+     * @param joinDate join date
+     * @param isBoard board status
+     */
     public Membership(String userId, int associationId, Address address, Date joinDate, boolean isBoard) {
         this.userId = userId;
         this.associationId = associationId;
@@ -41,67 +49,67 @@ unique id for different memberships
         this.board = isBoard;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return membership id
      */
     public Integer getId() {
         return id;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return user id
      */
     public String getUserId() {
         return userId;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return association id
      */
     public int getAssociationId() {
         return associationId;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return address
      */
     public Address getAddress() {
         return address;
     }
 
-    /**
+    /**setter.
      *
-     * @param address
+     * @param address set new address
      */
     public void setAddress(Address address) {
         this.address = address;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return get join date
      */
     public Date getJoinDate() {
         return joinDate;
     }
 
-    /**
+    /**getter.
      *
-     * @return
+     * @return if the membership is board
      */
     public boolean isBoard() {
         return board;
     }
 
-    /**
+    /**setter.
      *
-     * @param board
+     * @param board update board status
      */
     public void setBoard(boolean board) {
-        board = board;
+        this.board = board;
     }
 }

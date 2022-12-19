@@ -1,8 +1,7 @@
 package nl.tudelft.sem.template.example.domain.user;
 
-import org.springframework.stereotype.Service;
-
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
@@ -13,22 +12,25 @@ public class UserService {
     }
 
 
-    /**
-     * @param userId
+    /** getter.
+     *
+     * @param userId the userid
      * @return the corresponding memberId
      */
     public Optional<User> getMemberById(String userId) {
         return userRepository.findByUserId(userId);
     }
 
-    /**
-     * @param userId
-     * @param name
+    /** add new user.
+     *
+     * @param userId the userid
+     * @param name the username
      * @return if the userId already exist or not
-     * save a member to the repository
      */
     public boolean addUser(String userId, String name) {
-        if (userRepository.existsByUserId(userId)) return false;
+        if (userRepository.existsByUserId(userId)) {
+            return false;
+        }
         userRepository.save(new User(userId, name));
         return true;
     }
