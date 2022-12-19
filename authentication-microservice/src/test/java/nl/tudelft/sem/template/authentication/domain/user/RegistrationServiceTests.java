@@ -2,6 +2,7 @@ package nl.tudelft.sem.template.authentication.domain.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.when;
 
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -68,5 +69,87 @@ public class RegistrationServiceTests {
 
         assertThat(savedUser.getUserId()).isEqualTo(testUser);
         assertThat(savedUser.getPassword()).isEqualTo(existingTestPassword);
+    }
+
+    @Test
+    public void createUser_withInvalidData_throwsException() {
+        final UserId invalidUser = new UserId("");
+        final Password invalidPassword = new Password("");
+
+        final UserId validUser = new UserId("clairo");
+        final Password validPassword = new Password("north");
+
+        try {
+            registrationService.registerUser(invalidUser, invalidPassword);
+            fail("User register or hash should've thrown an exception!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isEqualTo("EMPTY_USER");
+        }
+
+        try {
+            registrationService.registerUser(invalidUser, validPassword);
+            fail("User registration should've thrown an exception!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isEqualTo("EMPTY_USER");
+        }
+
+        try {
+            registrationService.registerUser(validUser, invalidPassword);
+            fail("Hash should've thrown an exception!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isNotNull();
+        }
+    }
+
+    @Test
+    public void changePass_withNonExistingUser_throwsException() {
+        final UserId nonExistingUser = new UserId("");
+        final Password newPassword = new Password("newPassword");
+
+        try {
+            registrationService.changePassword(nonExistingUser, newPassword);
+            fail("Change password should've thrown an exception!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isEqualTo("CREDENTIALS_NOT_MATCHING");
+        }
+    }
+
+    @Test
+    public void changePass_withInvalidPass_throwsException() throws Exception {
+        final UserId testUser = new UserId("victim");
+        final Password correctPassword = new Password("correctPassword");
+        final Password invalidPass = new Password("");
+        final HashedPassword correctHashedPassword = new HashedPassword("correctPassword");
+
+        when(mockPasswordEncoder.hash(correctPassword)).thenReturn(correctHashedPassword);
+        registrationService.registerUser(testUser, correctPassword);
+
+        try {
+            registrationService.changePassword(testUser, invalidPass);
+            fail("Change password should've thrown an exception!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isEqualTo("INVALID_PASSWORD");
+        }
+    }
+
+    @Test
+    public void changePass_withValidPass_worksCorrectly() throws Exception {
+        final UserId testUser = new UserId("victim");
+        final Password oldPassword = new Password("oldpass");
+        final Password newPassword = new Password("newpass");
+        final HashedPassword oldHash = new HashedPassword("oldpass");
+        final HashedPassword newHash = new HashedPassword("newpass");
+
+        when(mockPasswordEncoder.hash(oldPassword)).thenReturn(oldHash);
+        when(mockPasswordEncoder.hash(newPassword)).thenReturn(newHash);
+
+        registrationService.registerUser(testUser, oldPassword);
+
+        registrationService.changePassword(testUser, newPassword);
+
+        AppUser savedUser = userRepository.findByUserId(testUser).orElseThrow();
+
+        assertThat(savedUser.getUserId()).isEqualTo(testUser);
+        assertThat(savedUser.getPassword()).isEqualTo(newHash);
     }
 }
