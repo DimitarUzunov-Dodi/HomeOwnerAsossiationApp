@@ -1,9 +1,7 @@
 package nl.tudelft.sem.template.example.domain.association;
-
-import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.util.Date;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "associations")

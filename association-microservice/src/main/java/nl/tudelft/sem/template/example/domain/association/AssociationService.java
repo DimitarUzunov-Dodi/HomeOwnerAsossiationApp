@@ -47,6 +47,12 @@ public class AssociationService {
         associationRepository.save(new Association(name, electionDate, description, councilNumber));
     }
 
+    /**
+     *
+     * @param id
+     * @param electionDate
+     * @param description
+     */
     public void updateAssociation(int id, Date electionDate, String description) {
         Association association = this.getAssociation(id).get();
         association.setDescription(description);

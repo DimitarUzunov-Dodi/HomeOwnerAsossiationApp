@@ -36,14 +36,26 @@ public class User {
         this.name = name;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }

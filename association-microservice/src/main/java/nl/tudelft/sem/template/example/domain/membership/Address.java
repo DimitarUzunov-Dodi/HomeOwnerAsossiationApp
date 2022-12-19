@@ -10,6 +10,10 @@ public class Address {
         this.address = address;
     }
 
+    /**
+     *
+     * @return the underlying string
+     */
     @Override
     public String toString() {
         return address;

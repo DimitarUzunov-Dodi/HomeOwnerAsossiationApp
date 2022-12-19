@@ -15,6 +15,12 @@ public class MembershipService {
         this.membershipRepository = membershipRepository;
     }
 
+    /**
+     *
+     * @param associationId
+     * @return
+     * @throws NoSuchMembershipException
+     */
     public List<Membership> getMembers(int associationId) throws NoSuchMembershipException {
         List<Membership> memberships = membershipRepository.findByAssociationId(associationId);
         if (memberships.size() == 0) {
@@ -23,6 +29,12 @@ public class MembershipService {
         return memberships;
     }
 
+    /**
+     *
+     * @param associationId
+     * @return
+     * @throws NoSuchMembershipException
+     */
     public List<String> getCouncil(int associationId) throws NoSuchMembershipException {
         List<Membership> council = membershipRepository.findByAssociationIdAndBoard(associationId, true);
         if (council.size() == 0) {
@@ -35,10 +47,23 @@ public class MembershipService {
         return councilId;
     }
 
+    /**
+     *
+     * @param userId
+     * @param associationId
+     * @return
+     */
     public boolean isInAssociation(String userId, int associationId) {
         return membershipRepository.existsByUserIdAndAssociationId(userId, associationId);
     }
 
+    /**
+     *
+     * @param userId
+     * @param associationId
+     * @return
+     * @throws NoSuchMembershipException
+     */
     public Membership getMembership(String userId, int associationId) throws NoSuchMembershipException {
         Optional<Membership> membership = membershipRepository.findByUserIdAndAssociationId(userId, associationId);
         if (membership.isEmpty()) {
@@ -65,6 +90,15 @@ public class MembershipService {
         return true;
     }
 
+    /**
+     *
+     * @param userId
+     * @param associationId
+     * @param address
+     * @param isBoard
+     * @return
+     * @throws FieldNoNullException
+     */
     public boolean updateMembership(String userId, int associationId, Address address, boolean isBoard) throws FieldNoNullException {
         if (address == null) {
             throw new FieldNoNullException();
@@ -79,6 +113,12 @@ public class MembershipService {
         return true;
     }
 
+    /**
+     *
+     * @param userId
+     * @param associationId
+     * @return
+     */
     public boolean deleteMembership(String userId, int associationId) {
         if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
             return false;

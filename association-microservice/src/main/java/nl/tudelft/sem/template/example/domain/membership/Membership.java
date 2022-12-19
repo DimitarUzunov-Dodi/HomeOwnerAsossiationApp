@@ -41,34 +41,66 @@ unique id for different memberships
         this.board = isBoard;
     }
 
+    /**
+     *
+     * @return
+     */
     public Integer getId() {
         return id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getAssociationId() {
         return associationId;
     }
 
+    /**
+     *
+     * @return
+     */
     public Address getAddress() {
         return address;
     }
 
+    /**
+     *
+     * @param address
+     */
     public void setAddress(Address address) {
         this.address = address;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getJoinDate() {
         return joinDate;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isBoard() {
         return board;
     }
 
+    /**
+     *
+     * @param board
+     */
     public void setBoard(boolean board) {
         board = board;
     }
