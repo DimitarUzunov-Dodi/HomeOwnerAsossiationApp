@@ -79,7 +79,7 @@ class ActivityServiceTest {
     }
 
     @Test
-    void addGoingTo() {
+    void addParticipating() {
         //Arrange
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
