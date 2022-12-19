@@ -28,7 +28,7 @@ public class VotingServiceTest {
     private String rule;
 
     /**
-     * Initialize the councilMembers and userId variables before each test.
+     * Initialize the associationId, userId and rule variables before each test.
      */
     @BeforeEach
     public void setup() {
