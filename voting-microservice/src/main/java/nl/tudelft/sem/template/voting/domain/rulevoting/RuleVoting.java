@@ -10,6 +10,8 @@ import org.springframework.data.util.Pair;
 @Table(name = "rule_votings")
 @NoArgsConstructor
 public class RuleVoting extends Voting {
+    @Column(name = "association_id", nullable = false)
+    private int associationId;
     @Column(name = "user_id", nullable = false)
     private int userId;
     @Column(name = "rule", nullable = false)
@@ -27,8 +29,9 @@ public class RuleVoting extends Voting {
      *
      * @param rule The rule on which will be voted.
      */
-    public RuleVoting(int userId, String rule, String amendment, String type) {
+    public RuleVoting(int associationId, int userId, String rule, String amendment, String type) {
         super();
+        this.associationId = associationId;
         this.userId = userId;
         this.rule = rule;
         this.amendment = amendment;
@@ -39,6 +42,14 @@ public class RuleVoting extends Voting {
         c.setTime(this.getCreationDate());
         c.add(Calendar.DATE, 14);
         this.setEndDate(new Date(c.getTime().getTime()));
+    }
+
+    public int getAssociationId() {
+        return associationId;
+    }
+
+    public void setAssociationId(int associationId) {
+        this.associationId = associationId;
     }
 
     public int getUserId() {

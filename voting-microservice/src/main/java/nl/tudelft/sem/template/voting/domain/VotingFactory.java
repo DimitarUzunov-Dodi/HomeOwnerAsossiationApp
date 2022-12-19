@@ -26,7 +26,7 @@ public class VotingFactory {
             electionRepository.save(election);
             return election;
         } else {
-            RuleVoting ruleVoting = new RuleVoting(userId, rule, amendment, type);
+            RuleVoting ruleVoting = new RuleVoting(associationId, userId, rule, amendment, type);
             ruleVotingRepository.save(ruleVoting);
             return ruleVoting;
         }
