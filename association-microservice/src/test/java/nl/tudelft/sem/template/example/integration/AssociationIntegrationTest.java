@@ -1,17 +1,17 @@
-package nl.tudelft.sem.template.voting.integration;
+package nl.tudelft.sem.template.example.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import nl.tudelft.sem.template.voting.authentication.JwtTokenVerifier;
-import nl.tudelft.sem.template.voting.integration.utils.JsonUtil;
-import nl.tudelft.sem.template.voting.models.RuleVerificationRequestModel;
+import java.util.*;
+import nl.tudelft.sem.template.example.authentication.JwtTokenVerifier;
+import nl.tudelft.sem.template.example.domain.association.Association;
+import nl.tudelft.sem.template.example.domain.association.AssociationRepository;
+import nl.tudelft.sem.template.example.integration.utils.JsonUtil;
+import nl.tudelft.sem.template.example.models.RuleVerificationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +29,15 @@ import org.springframework.test.web.servlet.ResultActions;
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-public class RuleVotingIntegrationTest {
+public class AssociationIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private transient JwtTokenVerifier mockJwtTokenVerifier;
-    private List<Integer> councilMembers;
+    @Autowired
+    private transient AssociationRepository mockAssociationRepository;
+    private HashSet<Integer> councilMembers;
+    private Association association;
     private int userId;
 
     /**
@@ -43,27 +45,29 @@ public class RuleVotingIntegrationTest {
      */
     @BeforeEach
     public void setup() {
-        this.councilMembers = new ArrayList<>();
+        this.councilMembers = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             this.councilMembers.add(i);
         }
-        Collections.shuffle(this.councilMembers);
+
         this.userId = 10;
+        this.association = new Association("test", "test", 10);
+        this.association.setCouncilUserIds(this.councilMembers);
+        mockAssociationRepository.save(this.association);
+
+        when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
     }
 
     @Test
     public void verifyTrueTest() throws Exception {
-        when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(anyString())).thenReturn("ExampleUser");
-
-        this.councilMembers.add(this.userId);
+        this.userId = 0;
 
         RuleVerificationRequestModel model = new RuleVerificationRequestModel();
         model.setUserId(this.userId);
-        model.setCouncilMembers(this.councilMembers);
+        model.setAssociationId(1);
 
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/verify")
+        ResultActions result = mockMvc.perform(post("/association/verify-council-member")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -77,15 +81,11 @@ public class RuleVotingIntegrationTest {
 
     @Test
     public void verifyFalseTest() throws Exception {
-        when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(anyString())).thenReturn("ExampleUser");
-
         RuleVerificationRequestModel model = new RuleVerificationRequestModel();
         model.setUserId(this.userId);
-        model.setCouncilMembers(this.councilMembers);
+        model.setAssociationId(1);
 
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/verify")
+        ResultActions result = mockMvc.perform(post("/association/verify-council-member")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -99,15 +99,11 @@ public class RuleVotingIntegrationTest {
 
     @Test
     public void verifyNullTest() throws Exception {
-        when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(anyString())).thenReturn("ExampleUser");
-
         RuleVerificationRequestModel model = new RuleVerificationRequestModel();
         model.setUserId(null);
-        model.setCouncilMembers(null);
+        model.setAssociationId(null);
 
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/verify")
+        ResultActions result = mockMvc.perform(post("/association/verify-council-member")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -121,15 +117,11 @@ public class RuleVotingIntegrationTest {
 
     @Test
     public void verifyUserIdNullTest() throws Exception {
-        when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(anyString())).thenReturn("ExampleUser");
-
         RuleVerificationRequestModel model = new RuleVerificationRequestModel();
         model.setUserId(null);
-        model.setCouncilMembers(this.councilMembers);
+        model.setAssociationId(1);
 
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/verify")
+        ResultActions result = mockMvc.perform(post("/association/verify-council-member")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -143,15 +135,11 @@ public class RuleVotingIntegrationTest {
 
     @Test
     public void verifyCouncilIdNullTest() throws Exception {
-        when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(anyString())).thenReturn("ExampleUser");
-
         RuleVerificationRequestModel model = new RuleVerificationRequestModel();
         model.setUserId(this.userId);
-        model.setCouncilMembers(null);
+        model.setAssociationId(null);
 
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/verify")
+        ResultActions result = mockMvc.perform(post("/association/verify-council-member")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));

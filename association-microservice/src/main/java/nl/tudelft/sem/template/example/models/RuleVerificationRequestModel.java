@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.voting.models;
+package nl.tudelft.sem.template.example.models;
 
 import java.util.List;
 import lombok.Data;
@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class RuleVerificationRequestModel {
     private Integer userId;
-    private List<Integer> councilMembers;
+    private Integer associationId;
 }

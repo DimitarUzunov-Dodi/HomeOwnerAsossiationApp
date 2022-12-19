@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.example.domain.association;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
@@ -55,22 +56,22 @@ public class Association {
     /**constructor.
      *
      * @param name name of association
-     * @param creationDate creation date of association
      * @param description description of association
      * @param councilNumber the maximum council number of the association
      */
-    public Association(String name, Date creationDate, String description, int councilNumber) {
+    public Association(String name, String description, int councilNumber) {
         this.name = name;
-        this.creationDate = creationDate;
         this.description = description;
         this.councilNumber = councilNumber;
+        this.creationDate = new Date(System.currentTimeMillis());
+        this.councilUserIds = new HashSet<>();
     }
 
     /**getter.
      *
      * @return association id
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -128,5 +129,14 @@ public class Association {
      */
     public Set<Integer> getCouncilUserIds() {
         return councilUserIds;
+    }
+
+    /**
+     * Setter for the council user ids field.
+     *
+     * @param councilUserIds The new set of council user ids.
+     */
+    public void setCouncilUserIds(Set<Integer> councilUserIds) {
+        this.councilUserIds = councilUserIds;
     }
 }
