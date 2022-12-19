@@ -60,7 +60,9 @@ public class VotingService {
     public String applyForCandidate(int userId, int associationId) {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
-            optElection.get().addCandidate(userId);
+            Election election = optElection.get();
+            election.addCandidate(userId);
+            electionRepository.save(election);
             return "The candidate with ID " + userId + " has been added.";
         } else {
             throw new IllegalArgumentException("Association with ID "
