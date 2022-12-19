@@ -85,7 +85,7 @@ public class JwtTokenVerifierTests {
         String token = generateToken(secret, expected, -10_000_000, 10_000_000);
 
         // Act
-        String actual = jwtTokenVerifier.getMemberIdFromToken(token);
+        String actual = jwtTokenVerifier.getUserIdFromToken(token);
 
         // Assert
         assertThat(actual).isEqualTo(expected);

@@ -23,7 +23,7 @@ public class JwtTokenGeneratorTests {
 
     private final String secret = "testSecret123";
 
-    private String memberId = "andy";
+    private String userId = "andy";
     private UserDetails user;
 
     /**
@@ -37,7 +37,7 @@ public class JwtTokenGeneratorTests {
         jwtTokenGenerator = new JwtTokenGenerator(timeProvider);
         this.injectSecret(secret);
 
-        user = new User(memberId, "someHash", new ArrayList<>());
+        user = new User(userId, "someHash", new ArrayList<>());
     }
 
     @Test
@@ -61,13 +61,13 @@ public class JwtTokenGeneratorTests {
     }
 
     @Test
-    public void generatedTokenHasCorrectMemberId() {
+    public void generatedTokenHasCorrectUserId() {
         // Act
         String token = jwtTokenGenerator.generateToken(user);
 
         // Assert
         Claims claims = getClaims(token);
-        assertThat(claims.getSubject()).isEqualTo(memberId);
+        assertThat(claims.getSubject()).isEqualTo(userId);
     }
 
     private Claims getClaims(String token) {
