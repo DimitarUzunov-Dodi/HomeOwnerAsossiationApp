@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.rulevoting;
 
 import java.util.ArrayList;
 import java.util.List;

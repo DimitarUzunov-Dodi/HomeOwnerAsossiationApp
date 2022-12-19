@@ -1,9 +1,10 @@
-package nl.tudelft.sem.template.voting.domain;
+package nl.tudelft.sem.template.voting.domain.election;
 
 
 import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.voting.domain.Voting;
 import org.springframework.data.util.Pair;
 
 @Entity
