@@ -82,12 +82,11 @@ public class MembershipService {
      * @param userId user id
      * @param assoId association id
      * @param addr address
-     * @param isBoard board flag
      *
      * @return if successfully updated or not
      * @throws FieldNoNullException if there is an invalid input
      */
-    public boolean updateMembership(String userId, int assoId, Address addr, boolean isBoard) throws FieldNoNullException {
+    public boolean updateMembership(String userId, int assoId, Address addr) throws FieldNoNullException {
         if (addr == null) {
             throw new FieldNoNullException();
         }
