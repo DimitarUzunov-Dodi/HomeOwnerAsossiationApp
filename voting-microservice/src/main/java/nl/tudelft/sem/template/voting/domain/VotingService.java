@@ -1,5 +1,7 @@
 package nl.tudelft.sem.template.voting.domain;
 
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import nl.tudelft.sem.template.voting.domain.election.Election;
@@ -61,9 +63,19 @@ public class VotingService {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();
+
+            //Checks if election end date is further away than 2 days
+            Date currentDate = new Date(System.currentTimeMillis());
+            Date electionEndDate = election.getEndDate();
+            Long candidateDeadline = 2L;
+            if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) < candidateDeadline) {
+                throw new IllegalArgumentException("Too late for candidate application.");
+            }
+
             election.addCandidate(userId);
             electionRepository.save(election);
             return "The candidate with ID " + userId + " has been added.";
+
         } else {
             throw new IllegalArgumentException("Association with ID "
                     + associationId + " does not have an active election.");
