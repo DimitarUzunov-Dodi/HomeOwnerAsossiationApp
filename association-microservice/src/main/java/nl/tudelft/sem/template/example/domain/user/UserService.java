@@ -15,9 +15,9 @@ public class UserService {
     /** getter.
      *
      * @param userId the userid
-     * @return the corresponding memberId
+     * @return the corresponding userId
      */
-    public Optional<User> getMemberById(String userId) {
+    public Optional<User> getUserById(String userId) {
         return userRepository.findByUserId(userId);
     }
 

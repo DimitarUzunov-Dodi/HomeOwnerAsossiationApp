@@ -91,9 +91,9 @@ public class JwtTokenVerifierTests {
         assertThat(actual).isEqualTo(expected);
     }
 
-    private String generateToken(String jwtSecret, String netid, long issuanceOffset, long expirationOffset) {
+    private String generateToken(String jwtSecret, String userid, long issuanceOffset, long expirationOffset) {
         Map<String, Object> claims = new HashMap<>();
-        return Jwts.builder().setClaims(claims).setSubject(netid)
+        return Jwts.builder().setClaims(claims).setSubject(userid)
                 .setIssuedAt(new Date(System.currentTimeMillis() + issuanceOffset))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationOffset))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
