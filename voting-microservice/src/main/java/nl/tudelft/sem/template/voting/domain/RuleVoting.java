@@ -12,6 +12,7 @@ public class RuleVoting extends Voting {
 
     @Column(name = "rule", nullable = false)
     private String rule;
+    private String amendment;
     @Column(name = "votes")
     @Convert(converter = RuleVotingVotesAttributeConverter.class)
     private List<Pair<Integer, String>> votes;
@@ -21,9 +22,10 @@ public class RuleVoting extends Voting {
      *
      * @param rule The rule on which will be voted.
      */
-    public RuleVoting(String rule) {
+    public RuleVoting(String rule, String amendment) {
         super();
         this.rule = rule;
+        this.amendment = amendment;
         this.votes = new ArrayList<>();
 
         Calendar c = Calendar.getInstance();

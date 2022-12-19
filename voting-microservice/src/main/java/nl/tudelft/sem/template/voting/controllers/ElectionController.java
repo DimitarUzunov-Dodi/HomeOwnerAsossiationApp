@@ -2,7 +2,7 @@ package nl.tudelft.sem.template.voting.controllers;
 
 import java.util.Set;
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
-import nl.tudelft.sem.template.voting.domain.ElectionService;
+import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,12 +14,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class ElectionController {
     private final transient AuthManager authManager;
-    private final transient ElectionService electionService;
+    private final transient VotingService votingService;
 
     @Autowired
-    public ElectionController(AuthManager authManager, ElectionService electionService) {
+    public ElectionController(AuthManager authManager, VotingService votingService) {
         this.authManager = authManager;
-        this.electionService = electionService;
+        this.votingService = votingService;
     }
 
 
@@ -37,7 +37,7 @@ public class ElectionController {
 
         try {
             int associationId = request.getAssociationId();
-            return ResponseEntity.ok(electionService.createElection(associationId));
+            return ResponseEntity.ok(votingService.createElection(true, associationId, null, null));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -54,7 +54,7 @@ public class ElectionController {
 
         try {
             int associationId = request.getAssociationId();
-            return ResponseEntity.ok(electionService.getCandidates(associationId));
+            return ResponseEntity.ok(votingService.getCandidates(associationId));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
