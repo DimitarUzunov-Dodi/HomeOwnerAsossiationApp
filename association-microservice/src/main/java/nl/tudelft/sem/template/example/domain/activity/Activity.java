@@ -46,13 +46,13 @@ public class Activity {
 
     @Getter
     @Column(name = "participating_members_id", nullable = false)
-    @Convert(converter = MemberIdConverter.class)
-    private List<Integer> participatingMembersId;
+    @Convert(converter = UserIdConverter.class)
+    private List<Integer> participatingUserId;
 
     @Getter
     @Column(name = "interested_members_id", nullable = false)
-    @Convert(converter = MemberIdConverter.class)
-    private List<Integer> interestedMembersId;
+    @Convert(converter = UserIdConverter.class)
+    private List<Integer> interestedUserId;
 
 
     /** Constructor for the activity class.
@@ -73,53 +73,53 @@ public class Activity {
         this.expirationDate = expirationDate;
         this.associationId = associationId;
         this.publisherId = publisherId;
-        this.participatingMembersId =  new ArrayList<Integer>();
-        this.interestedMembersId = new ArrayList<Integer>();
+        this.participatingUserId =  new ArrayList<Integer>();
+        this.interestedUserId = new ArrayList<Integer>();
     }
 
     /** adds id to the interested list.
      *
-     * @param memberId id of the interested member
+     * @param userId id of the interested member
      */
-    public void addInterested(int memberId) {
-        if (interestedMembersId.contains(memberId)) {
+    public void addInterested(int userId) {
+        if (interestedUserId.contains(userId)) {
             return;
         } else {
-            removeParticipating(memberId);
-            interestedMembersId.add(memberId);
+            removeParticipating(userId);
+            interestedUserId.add(userId);
         }
     }
 
     /** removes id from the interested list if it exists.
      *
-     * @param memberId id of the interested member
+     * @param userId id of the interested member
      */
-    public void removeInterested(int memberId) {
-        if (interestedMembersId.contains(memberId)) {
-            interestedMembersId.remove(interestedMembersId.indexOf(memberId));
+    public void removeInterested(int userId) {
+        if (interestedUserId.contains(userId)) {
+            interestedUserId.remove(interestedUserId.indexOf(userId));
         }
     }
 
     /** adds id to the participating list.
      *
-     * @param memberId id of the goingTo member
+     * @param userId id of the goingTo member
      */
-    public void addParticipating(int memberId) {
-        if (participatingMembersId.contains(memberId)) {
+    public void addParticipating(int userId) {
+        if (participatingUserId.contains(userId)) {
             return;
         } else {
-            removeInterested(memberId);
-            participatingMembersId.add(memberId);
+            removeInterested(userId);
+            participatingUserId.add(userId);
         }
     }
 
     /** removes id from the participating list if it exists.
      *
-     * @param memberId id of the goingTo member
+     * @param userId id of the goingTo member
      */
-    public void removeParticipating(int memberId) {
-        if (participatingMembersId.contains(memberId)) {
-            participatingMembersId.remove(participatingMembersId.indexOf(memberId));
+    public void removeParticipating(int userId) {
+        if (participatingUserId.contains(userId)) {
+            participatingUserId.remove(participatingUserId.indexOf(userId));
         }
     }
 

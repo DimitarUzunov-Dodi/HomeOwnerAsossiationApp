@@ -50,20 +50,20 @@ public class ActivityService {
                 expirationDate, associationId, publisherId));
     }
 
-    public void addInterested(int activityId, int memberId) {
-        activityRepository.findByActivityId(activityId).get().addInterested(memberId);
+    public void addInterested(int activityId, int userId) {
+        activityRepository.findByActivityId(activityId).get().addInterested(userId);
     }
 
-    public void addParticipating(int activityId, int memberId) {
-        activityRepository.findByActivityId(activityId).get().addParticipating(memberId);
+    public void addParticipating(int activityId, int userId) {
+        activityRepository.findByActivityId(activityId).get().addParticipating(userId);
     }
 
-    public void removeInterested(int activityId, int memberId) {
-        activityRepository.findByActivityId(activityId).get().removeInterested(memberId);
+    public void removeInterested(int activityId, int userId) {
+        activityRepository.findByActivityId(activityId).get().removeInterested(userId);
     }
 
-    public void removeParticipating(int activityId, int memberId) {
-        activityRepository.findByActivityId(activityId).get().removeParticipating(memberId);
+    public void removeParticipating(int activityId, int userId) {
+        activityRepository.findByActivityId(activityId).get().removeParticipating(userId);
     }
 
 

@@ -44,24 +44,24 @@ public class ActivitiesController {
                 associationId, publisherId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/addInterested/{activityId}")
-    public void addInterested(@PathVariable int activityId, @PathVariable int memberId) {
-        activityService.addInterested(activityId, memberId);
+    @PostMapping("/{userId}/noticeBoard/addInterested/{activityId}")
+    public void addInterested(@PathVariable int activityId, @PathVariable int userId) {
+        activityService.addInterested(activityId, userId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/addParticipating/{activityId}")
-    public void addParticipating(@PathVariable int activityId, @PathVariable int memberId) {
-        activityService.addParticipating(activityId, memberId);
+    @PostMapping("/{userId}/noticeBoard/addParticipating/{activityId}")
+    public void addParticipating(@PathVariable int activityId, @PathVariable int userId) {
+        activityService.addParticipating(activityId, userId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/removeInterested/{activityId}")
-    public void removeInterested(@PathVariable int activityId, @PathVariable int memberId) {
-        activityService.removeInterested(activityId, memberId);
+    @PostMapping("/{userId}/noticeBoard/removeInterested/{activityId}")
+    public void removeInterested(@PathVariable int activityId, @PathVariable int userId) {
+        activityService.removeInterested(activityId, userId);
     }
 
-    @PostMapping("/{memberId}/noticeBoard/removeParticipating/{activityId}")
-    public void removeParticipating(@PathVariable int activityId, @PathVariable int memberId) {
-        activityService.removeParticipating(activityId, memberId);
+    @PostMapping("/{userId}/noticeBoard/removeParticipating/{activityId}")
+    public void removeParticipating(@PathVariable int activityId, @PathVariable int userId) {
+        activityService.removeParticipating(activityId, userId);
     }
 
 

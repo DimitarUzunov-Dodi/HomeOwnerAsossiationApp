@@ -25,27 +25,27 @@ class ActivityTest {
 
     @Test
     void addInterested() {
-        assertTrue(activity.getInterestedMembersId().isEmpty());
+        assertTrue(activity.getInterestedUserId().isEmpty());
         activity.addParticipating(2);
         activity.addInterested(2);
-        assertFalse(activity.getInterestedMembersId().isEmpty());
-        assertTrue(activity.getParticipatingMembersId().isEmpty());
+        assertFalse(activity.getInterestedUserId().isEmpty());
+        assertTrue(activity.getParticipatingUserId().isEmpty());
     }
 
     @Test
     void removeInterested() {
         activity.addInterested(2);
         activity.removeInterested(2);
-        assertTrue(activity.getInterestedMembersId().isEmpty());
+        assertTrue(activity.getInterestedUserId().isEmpty());
         activity.removeInterested(2);
-        assertTrue(activity.getInterestedMembersId().isEmpty());
+        assertTrue(activity.getInterestedUserId().isEmpty());
     }
 
     @Test
     void addGoingTo() {
-        assertTrue(activity.getParticipatingMembersId().isEmpty());
+        assertTrue(activity.getParticipatingUserId().isEmpty());
         activity.addParticipating(2);
-        assertFalse(activity.getParticipatingMembersId().isEmpty());
+        assertFalse(activity.getParticipatingUserId().isEmpty());
 
     }
 
@@ -53,7 +53,7 @@ class ActivityTest {
     void removeGoingTo() {
         activity.addParticipating(2);
         activity.removeParticipating(2);
-        assertTrue(activity.getInterestedMembersId().isEmpty());
+        assertTrue(activity.getInterestedUserId().isEmpty());
 
     }
 
@@ -61,17 +61,17 @@ class ActivityTest {
     void getGoingToMembersId() {
         List<Integer> result = new ArrayList<Integer>();
         result.add(1);
-        assertEquals(activity.getParticipatingMembersId(), Collections.emptyList());
+        assertEquals(activity.getParticipatingUserId(), Collections.emptyList());
         activity.addParticipating(1);
-        assertEquals(activity.getParticipatingMembersId(), result);
+        assertEquals(activity.getParticipatingUserId(), result);
     }
 
     @Test
     void getInterestedMembersId() {
         List<Integer> result = new ArrayList<Integer>();
         result.add(1);
-        assertEquals(activity.getInterestedMembersId(), Collections.emptyList());
+        assertEquals(activity.getInterestedUserId(), Collections.emptyList());
         activity.addInterested(1);
-        assertEquals(activity.getInterestedMembersId(), result);
+        assertEquals(activity.getInterestedUserId(), result);
     }
 }

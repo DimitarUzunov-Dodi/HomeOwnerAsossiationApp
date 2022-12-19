@@ -8,9 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-class MemberIdConverterTest {
+class UserIdConverterTest {
     List<Integer> ids;
-    MemberIdConverter converter;
+    UserIdConverter converter;
 
     @BeforeEach
     void setUp() {
@@ -18,7 +18,7 @@ class MemberIdConverterTest {
         ids.add(1);
         ids.add(2);
         ids.add(3);
-        converter = new MemberIdConverter();
+        converter = new UserIdConverter();
     }
 
     @Test

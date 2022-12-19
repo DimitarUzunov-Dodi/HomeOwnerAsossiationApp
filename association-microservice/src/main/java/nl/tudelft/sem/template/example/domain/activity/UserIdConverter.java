@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.AttributeConverter;
 
-public class MemberIdConverter implements AttributeConverter<List<Integer>, String> {
+public class UserIdConverter implements AttributeConverter<List<Integer>, String> {
 
     @Override
     public String convertToDatabaseColumn(List<Integer> ids) {
