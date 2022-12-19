@@ -51,4 +51,20 @@ public class VotingService {
                     + associationId + " does not have an active election.");
         }
     }
+
+    /**
+     * Registers a candidate for the upcoming election, if the date is 2 or more days before the election.
+     *
+     * @return a confirmation message.
+     */
+    public String applyForCandidate(int userId, int associationId) {
+        Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
+        if (optElection.isPresent()) {
+            optElection.get().addCandidate(userId);
+            return "The candidate with ID " + userId + " has been added.";
+        } else {
+            throw new IllegalArgumentException("Association with ID "
+                    + associationId + " does not have an active election.");
+        }
+    }
 }
