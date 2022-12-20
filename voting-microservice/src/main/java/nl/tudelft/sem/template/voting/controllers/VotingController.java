@@ -86,7 +86,6 @@ public class VotingController {
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.getCandidates(associationId));
         } catch (IllegalArgumentException e) {
-            System.out.println("EXCEPTION CAUGHT");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
