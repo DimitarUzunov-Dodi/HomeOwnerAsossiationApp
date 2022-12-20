@@ -27,6 +27,7 @@ public class AmendRuleVotingServiceTest {
     private int userId;
     private String rule;
     private String amendment;
+    private VotingType type;
 
     /**
      * Initialize the associationId, userId, rule and amendment variables before each test.
@@ -37,12 +38,13 @@ public class AmendRuleVotingServiceTest {
         this.userId = 42;
         this.rule = "One should not murder the other members!";
         this.amendment = "One should be allowed to murder the other members!";
+        this.type = VotingType.AMENDMENT;
     }
 
     @Test
     public void proposeAmendmentTest() throws RuleTooLongException, InvalidRuleException, InvalidIdException {
         String result = votingService
-                .amendmentRule("Amendment", this.associationId, this.userId, this.rule, this.amendment);
+                .amendmentRule(this.type, this.associationId, this.userId, this.rule, this.amendment);
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
         Calendar cal = null;
         if (voting.isPresent()) {
@@ -61,21 +63,21 @@ public class AmendRuleVotingServiceTest {
     @Test
     public void nullAssociationIdTest() {
         assertThatThrownBy(() -> {
-            votingService.amendmentRule("Amendment", null, this.userId, this.rule, this.amendment);
+            votingService.amendmentRule(this.type, null, this.userId, this.rule, this.amendment);
         }).isInstanceOf(InvalidIdException.class);
     }
 
     @Test
     public void nullUserIdTest() {
         assertThatThrownBy(() -> {
-            votingService.amendmentRule("Amendment", this.associationId, null, this.rule, this.amendment);
+            votingService.amendmentRule(this.type, this.associationId, null, this.rule, this.amendment);
         }).isInstanceOf(InvalidIdException.class);
     }
 
     @Test
     public void nullAmendmentTest() {
         assertThatThrownBy(() -> {
-            votingService.amendmentRule("Amendment", this.associationId, this.userId, this.rule, null);
+            votingService.amendmentRule(this.type, this.associationId, this.userId, this.rule, null);
         }).isInstanceOf(InvalidRuleException.class);
     }
 
@@ -83,7 +85,7 @@ public class AmendRuleVotingServiceTest {
     public void emptyAmendmentTest() {
         this.amendment = "";
         assertThatThrownBy(() -> {
-            votingService.amendmentRule("Amendment", this.associationId, this.userId, this.rule, this.amendment);
+            votingService.amendmentRule(this.type, this.associationId, this.userId, this.rule, this.amendment);
         }).isInstanceOf(InvalidRuleException.class);
     }
 
@@ -92,7 +94,7 @@ public class AmendRuleVotingServiceTest {
         this.amendment = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         assertThatThrownBy(() -> {
-            votingService.amendmentRule("Amendment", this.associationId, this.userId, this.rule, this.amendment);
+            votingService.amendmentRule(this.type, this.associationId, this.userId, this.rule, this.amendment);
         }).isInstanceOf(RuleTooLongException.class);
     }
 
@@ -100,7 +102,7 @@ public class AmendRuleVotingServiceTest {
     public void equalAmendmentTest() {
         this.amendment = this.rule;
         assertThatThrownBy(() -> {
-            votingService.amendmentRule("Amendment", this.associationId, this.userId, this.rule, this.amendment);
+            votingService.amendmentRule(this.type, this.associationId, this.userId, this.rule, this.amendment);
         }).isInstanceOf(InvalidRuleException.class);
     }
 }
