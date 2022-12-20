@@ -1,10 +1,9 @@
-package nl.tudelft.sem.template.example.domain.history;
+package nl.tudelft.sem.template.association.domain.history;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Table(name = "histories")

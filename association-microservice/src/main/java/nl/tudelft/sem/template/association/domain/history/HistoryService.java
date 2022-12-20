@@ -1,9 +1,8 @@
-package nl.tudelft.sem.template.example.domain.history;
+package nl.tudelft.sem.template.association.domain.history;
 
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
-
 
 @Service
 public class HistoryService {
@@ -30,14 +29,30 @@ public class HistoryService {
 
         if (optionalHistory.isPresent()) {
             History history = optionalHistory.get();
-
-            List<Event> events = history.getEvents();
-
-            return events;
+            return history.getEvents();
         } else {
             throw new Exception("NOT FOUND");
         }
     }
+
+    /**
+     * Adds an event to the history of an association.
+     *
+     * @param associationId associationId of history repo
+     * @param event event to be added
+     * @throws Exception if the history or association don't exist
+     */
+    public void addEvent(int associationId, Event event) throws Exception {
+        Optional<History> optionalHistory = historyRepository.findByAssociationId(associationId);
+
+        if (optionalHistory.isPresent()) {
+            History history = optionalHistory.get();
+            history.addEvent(event);
+        } else {
+            throw new Exception("NOT FOUND");
+        }
+    }
+
 
     /**
      * Getter for the list of events in string format in an association's history.
@@ -51,10 +66,7 @@ public class HistoryService {
 
         if (optionalHistory.isPresent()) {
             History history = optionalHistory.get();
-
-            List<String> formattedEvents = history.getFormattedEvents();
-
-            return formattedEvents;
+            return history.getFormattedEvents();
         } else {
             throw new Exception("NOT FOUND");
         }

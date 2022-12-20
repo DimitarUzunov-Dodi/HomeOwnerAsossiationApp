@@ -1,7 +1,9 @@
-package nl.tudelft.sem.template.example.domain.history;
+package nl.tudelft.sem.template.association.domain.history;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
@@ -34,6 +36,8 @@ public class Event {
 
     @Override
     public String toString() {
-        return date.toString() + System.lineSeparator() + description;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        String dateString = sdf.format(date);
+        return dateString + " | " + description;
     }
 }

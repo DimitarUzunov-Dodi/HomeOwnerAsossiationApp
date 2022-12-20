@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.domain.history;
+package nl.tudelft.sem.template.association.domain.history;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,18 +14,21 @@ public class EventListAttributeConverter implements AttributeConverter<List<Even
 
     @Override
     public String convertToDatabaseColumn(List<Event> events) {
-        List<String> res = new ArrayList<>();
+        List<String> list = new ArrayList<>();
 
         for (Event e : events) {
-            res.add(e.toString());
+            list.add(e.toString());
         }
 
-        return res.toString();
+        String str = list.toString();
+        str = str.substring(1, str.length() - 1);
+
+        return str;
     }
 
     @Override
     public List<Event> convertToEntityAttribute(String dbData) {
-        String[] strings = dbData.split(", ");
+        String[] strings = dbData.substring(1, dbData.length() - 1).split(", ");
         List<Event> res = new ArrayList<>();
 
         for (String str : strings) {
@@ -43,10 +46,15 @@ public class EventListAttributeConverter implements AttributeConverter<List<Even
      */
     public Event convertStringToEvent(String str) {
         try {
-            String[] strings = str.split(System.lineSeparator());
-            SimpleDateFormat parser = new SimpleDateFormat("YYYY-MM-DD HH:HH", Locale.ENGLISH);
+            String[] strings = str.split(" \\| ");
+
             String description = strings[1];
-            Date date = parser.parse(strings[0].substring(0, strings[0].length() - 1));
+
+            String pattern = "yyyy-MM-dd";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.ENGLISH);
+
+            Date date = sdf.parse(strings[0]);
+
             return new Event(description, date);
         } catch (ParseException e) {
             throw new RuntimeException(e);
