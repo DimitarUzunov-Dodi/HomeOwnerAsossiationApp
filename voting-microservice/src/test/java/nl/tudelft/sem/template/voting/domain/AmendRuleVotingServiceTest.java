@@ -18,7 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class VotingServiceTest {
+public class AmendRuleVotingServiceTest {
     @Autowired
     private transient VotingService votingService;
     @Autowired
