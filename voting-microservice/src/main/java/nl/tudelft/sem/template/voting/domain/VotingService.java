@@ -106,17 +106,17 @@ public class VotingService {
                 throw new IllegalArgumentException("The election has ended.");
             }
 
+            //Checks if the candidate exists
+            if (!election.getCandidateIds().contains(candidateId)) {
+                throw new IllegalArgumentException("Candidate with ID "
+                        + candidateId + " does not exist.");
+            }
+
             //If the voter already voted, remove previous vote
             for (Pair vote : election.getVotes()) {
                 if ((int) vote.getFirst() == voterId) {
                     election.getVotes().remove(vote);
                 }
-            }
-
-            //Checks if the candidate exists
-            if (!election.getCandidateIds().contains(candidateId)) {
-                throw new IllegalArgumentException("Candidate with ID "
-                        + candidateId + " does not exist.");
             }
 
             Pair<Integer, Integer> vote = Pair.of(voterId, candidateId);
