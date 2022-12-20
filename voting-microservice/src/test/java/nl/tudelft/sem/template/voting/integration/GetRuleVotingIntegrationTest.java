@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.ResultActions;
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class VotingIntegrationTest {
+public class GetRuleVotingIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
