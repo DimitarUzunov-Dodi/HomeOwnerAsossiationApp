@@ -35,7 +35,7 @@ public class VotingService {
      *
      * @return a message confirming the creation.
      */
-    public String createElection(String type, int associationId, Integer userId, String rule, String amendment) {
+    public String createElection(VotingType type, int associationId, Integer userId, String rule, String amendment) {
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         return "Voting was created for association " + associationId
                 + " and will be held on " + voting.getEndDate().toString() + ".";
@@ -65,7 +65,7 @@ public class VotingService {
      * @param rule          The rule that is being proposed.
      * @return              A message confirming the creation of the rule vote.
      */
-    public String proposeRule(String type, Integer associationId, Integer userId, String rule)
+    public String proposeRule(VotingType type, Integer associationId, Integer userId, String rule)
             throws InvalidIdException, InvalidRuleException, RuleTooLongException {
         if (associationId == null) {
             throw new InvalidIdException("The associationID is invalid.");
@@ -76,7 +76,8 @@ public class VotingService {
         } else if (rule.equals("")) {
             throw new InvalidRuleException("The rule's description is empty.");
         } else if (rule.length() > this.maxRuleLength) {
-            throw new RuleTooLongException("The rule description exceeds the maximum length of 100 characters.");
+            throw new RuleTooLongException("The rule description exceeds the maximum length of "
+                    + this.maxRuleLength + " characters.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);

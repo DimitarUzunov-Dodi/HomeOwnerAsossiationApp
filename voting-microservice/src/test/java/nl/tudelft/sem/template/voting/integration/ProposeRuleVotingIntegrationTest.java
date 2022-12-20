@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-public class VotingIntegrationTest {
+public class ProposeRuleVotingIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired

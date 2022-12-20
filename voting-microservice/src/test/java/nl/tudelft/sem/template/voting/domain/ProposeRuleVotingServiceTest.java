@@ -18,7 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class VotingServiceTest {
+public class ProposeRuleVotingServiceTest {
     @Autowired
     private transient VotingService votingService;
     @Autowired
@@ -26,6 +26,7 @@ public class VotingServiceTest {
     private int associationId;
     private int userId;
     private String rule;
+    private VotingType type;
 
     /**
      * Initialize the associationId, userId and rule variables before each test.
@@ -35,11 +36,12 @@ public class VotingServiceTest {
         this.associationId = 1;
         this.userId = 42;
         this.rule = "One should not murder the other members!";
+        this.type = VotingType.PROPOSAL;
     }
 
     @Test
     public void proposeRuleTest() throws RuleTooLongException, InvalidRuleException, InvalidIdException {
-        String result = votingService.proposeRule("Proposal", this.associationId, this.userId, this.rule);
+        String result = votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
         Calendar cal = null;
         if (voting.isPresent()) {
@@ -57,21 +59,21 @@ public class VotingServiceTest {
     @Test
     public void nullAssociationIdTest() {
         assertThatThrownBy(() -> {
-            votingService.proposeRule("Proposal", null, this.userId, this.rule);
+            votingService.proposeRule(this.type, null, this.userId, this.rule);
         }).isInstanceOf(InvalidIdException.class);
     }
 
     @Test
     public void nullUserIdTest() {
         assertThatThrownBy(() -> {
-            votingService.proposeRule("Proposal", this.associationId, null, this.rule);
+            votingService.proposeRule(this.type, this.associationId, null, this.rule);
         }).isInstanceOf(InvalidIdException.class);
     }
 
     @Test
     public void nullRuleTest() {
         assertThatThrownBy(() -> {
-            votingService.proposeRule("Proposal", this.associationId, this.userId, null);
+            votingService.proposeRule(this.type, this.associationId, this.userId, null);
         }).isInstanceOf(InvalidRuleException.class);
     }
 
@@ -79,7 +81,7 @@ public class VotingServiceTest {
     public void emptyRuleTest() {
         this.rule = "";
         assertThatThrownBy(() -> {
-            votingService.proposeRule("Proposal", this.associationId, this.userId, this.rule);
+            votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
         }).isInstanceOf(InvalidRuleException.class);
     }
 
@@ -88,7 +90,7 @@ public class VotingServiceTest {
         this.rule = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         assertThatThrownBy(() -> {
-            votingService.proposeRule("Proposal", this.associationId, this.userId, this.rule);
+            votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
         }).isInstanceOf(RuleTooLongException.class);
     }
 }

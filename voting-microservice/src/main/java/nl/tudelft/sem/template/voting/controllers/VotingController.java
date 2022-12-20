@@ -3,6 +3,7 @@ package nl.tudelft.sem.template.voting.controllers;
 import java.util.Set;
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
+import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,8 @@ public class VotingController {
 
         try {
             int associationId = request.getAssociationId();
-            return ResponseEntity.ok(votingService.createElection("Election", associationId, null, null, null));
+            return ResponseEntity.ok(votingService.createElection(VotingType.ELECTION, associationId,
+                    null, null, null));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -62,10 +64,10 @@ public class VotingController {
     public ResponseEntity<String> proposeRule(@RequestBody RuleProposalRequestModel request) {
         try {
             return ResponseEntity.ok(votingService
-                    .proposeRule("Proposal", request.getAssociationId(), request.getUserId(), request.getRule()));
+                    .proposeRule(VotingType.PROPOSAL, request.getAssociationId(),
+                            request.getUserId(), request.getRule()));
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(),
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
