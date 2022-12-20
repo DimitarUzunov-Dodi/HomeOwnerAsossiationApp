@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.*;
 import nl.tudelft.sem.template.voting.authentication.JwtTokenVerifier;
+import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVoting;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
 import nl.tudelft.sem.template.voting.integration.utils.JsonUtil;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +30,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GetRuleVotingIntegrationTest {
@@ -50,10 +52,10 @@ public class GetRuleVotingIntegrationTest {
     @BeforeAll
     public void setup() {
         this.proposalRuleVoteId = 1L;
-        this.proposalRuleVoting = new RuleVoting(11, 42, "Bleep", null, "Proposal");
+        this.proposalRuleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
         ruleVotingRepository.save(this.proposalRuleVoting);
         this.amendmentRuleVoteId = 2L;
-        this.amendmentRuleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", "Amendment");
+        this.amendmentRuleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
         ruleVotingRepository.save(this.amendmentRuleVoting);
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
         when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
