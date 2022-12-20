@@ -79,4 +79,10 @@ public class AssociationService {
         associationRepository.save(association);
     }
 
+    public void updateCouncil(int id, Set<Integer> council) throws IllegalArgumentException{
+        Association association = this.getAssociationById(id);
+        association.setCouncilUserIds(council);
+        associationRepository.save(association);
+    }
+
 }

@@ -114,6 +114,14 @@ public class Association {
         this.description = description;
     }
 
+    public void setCouncilUserIds(Set<Integer> councilUserIds) throws IllegalArgumentException{
+        if(councilUserIds.size() > councilNumber){
+            throw new IllegalArgumentException("Council has more members than allowed");
+        }
+
+        this.councilUserIds = councilUserIds;
+    }
+
     /**getter.
      *
      * @return the cap number of council
