@@ -4,6 +4,7 @@ import java.util.Set;
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
+import nl.tudelft.sem.template.voting.models.RuleVotingRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,21 @@ public class VotingController {
             return ResponseEntity.ok(votingService.createElection("Election", associationId, null, null, null));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Returns a string representation of the rule vote object corresponding to the id.
+     *
+     * @param request   The request body containing the rule vote id.
+     * @return          The string representation of the rule vote object.
+     */
+    @GetMapping("/rule-voting/get-rule-vote")
+    public ResponseEntity<String> getRuleVote(@RequestBody RuleVotingRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService.getRuleVoting(request.getRuleVotingId()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
