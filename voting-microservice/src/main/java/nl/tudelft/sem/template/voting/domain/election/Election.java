@@ -40,6 +40,26 @@ public class Election extends Voting {
         this.setEndDate(new Date(c.getTime().getTime()));
     }
 
+    /**
+     * Constructor for the election object, with the option to set the end date X days from today.
+     *
+     * @param associationId The association id of the association the election is in.
+     * @param dayOffset no. of days to move the end date from today.
+     */
+    public Election(int associationId, double dayOffset) {
+        super();
+        this.associationId = associationId;
+        this.candidateIds = new HashSet<>();
+        this.votes = new ArrayList<>();
+
+        Calendar c = Calendar.getInstance();
+        long dayInMs = 1000 * 60 * 60 * 24;
+        this.setEndDate(new Date(System.currentTimeMillis() + (int) (dayOffset * dayInMs)));
+        c.setTime(this.getEndDate());
+        c.add(Calendar.YEAR, -1);
+        this.setCreationDate(new Date(c.getTime().getTime()));
+    }
+
     public int getAssociationId() {
         return associationId;
     }
