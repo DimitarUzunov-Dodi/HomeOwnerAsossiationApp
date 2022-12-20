@@ -79,7 +79,8 @@ public class VotingService {
         } else if (rule.equals(amendment)) {
             throw new InvalidRuleException("The amendment does not change the rule.");
         } else if (amendment.length() > this.maxRuleLength) {
-            throw new RuleTooLongException("The amendment's description exceeds the maximum length of 100 characters.");
+            throw new RuleTooLongException("The amendment's description exceeds the maximum length of "
+                    + this.maxRuleLength + " characters.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
