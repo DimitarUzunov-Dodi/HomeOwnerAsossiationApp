@@ -29,7 +29,6 @@ public class CreateElectionVotingServiceTest {
      */
     @BeforeEach
     public void setup() {
-        electionRepository.deleteAll();
         associationId = 10;
     }
 

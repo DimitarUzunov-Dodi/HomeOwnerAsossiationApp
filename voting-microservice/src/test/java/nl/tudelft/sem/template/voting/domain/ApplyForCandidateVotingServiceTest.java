@@ -3,6 +3,7 @@ package nl.tudelft.sem.template.voting.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Date;
 import java.util.Optional;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
@@ -24,20 +25,21 @@ public class ApplyForCandidateVotingServiceTest {
     private transient ElectionRepository electionRepository;
     private int userId;
     private int associationId;
+    long dayInMs = 1000 * 60 * 60 * 24;
 
     /**
      * Initialize the userId and associationId variables before each test.
      */
     @BeforeEach
     public void setup() {
-        electionRepository.deleteAll();
         userId = 1;
         associationId = 10;
     }
 
     @Test
     public void applyForCandidateTest() throws IllegalArgumentException {
-        Election election = new Election(associationId, 2.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (2.5 * dayInMs)));
         electionRepository.save(election);
 
         String result = votingService.applyForCandidate(userId, associationId);
@@ -50,7 +52,8 @@ public class ApplyForCandidateVotingServiceTest {
 
     @Test
     public void electionTooCloseTest() {
-        Election election = new Election(associationId, 1.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (1.5 * dayInMs)));
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
@@ -61,7 +64,8 @@ public class ApplyForCandidateVotingServiceTest {
 
     @Test
     public void associationMissingTest() {
-        Election election = new Election(associationId + 1, 2.5);
+        Election election = new Election(associationId + 1);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (2.5 * dayInMs)));
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {

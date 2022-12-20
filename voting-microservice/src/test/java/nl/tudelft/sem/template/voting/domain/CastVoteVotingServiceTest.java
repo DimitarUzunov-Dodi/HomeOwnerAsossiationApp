@@ -3,6 +3,7 @@ package nl.tudelft.sem.template.voting.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Date;
 import java.util.Optional;
 import nl.tudelft.sem.template.voting.domain.election.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,13 +27,13 @@ public class CastVoteVotingServiceTest {
     private int voterId;
     private int associationId;
     public int candidateId;
+    long dayInMs = 1000 * 60 * 60 * 24;
 
     /**
      * Initialize the voterId, associationId and candidateId variables before each test.
      */
     @BeforeEach
     public void setup() {
-        electionRepository.deleteAll();
         voterId = 1;
         associationId = 10;
         candidateId = 2;
@@ -40,7 +41,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void castVoteTest() throws IllegalArgumentException {
-        Election election = new Election(associationId, 1.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (1.5 * dayInMs)));
         election.addCandidate(candidateId);
         electionRepository.save(election);
 
@@ -55,7 +57,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void electionTooFarAwayTest() {
-        Election election = new Election(associationId, 2.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (2.5 * dayInMs)));
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
@@ -65,7 +68,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void electionEnded() {
-        Election election = new Election(associationId, -0.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (-0.5 * dayInMs)));
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
@@ -75,7 +79,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void candidateMissingTest() {
-        Election election = new Election(associationId, 0.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (0.5 * dayInMs)));
         election.addCandidate(candidateId + 1);
         electionRepository.save(election);
 
@@ -87,7 +92,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void changeVoteTest() {
-        Election election = new Election(associationId, 0.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (0.5 * dayInMs)));
         election.addCandidate(candidateId);
         election.addCandidate(candidateId + 1);
         electionRepository.save(election);
@@ -111,7 +117,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void changeVote2Test() {
-        Election election = new Election(associationId, 0.5);
+        Election election = new Election(associationId);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (0.5 * dayInMs)));
         election.addCandidate(candidateId);
         election.addCandidate(candidateId + 1);
         electionRepository.save(election);
@@ -136,7 +143,8 @@ public class CastVoteVotingServiceTest {
 
     @Test
     public void associationMissingTest() {
-        Election election = new Election(associationId + 1, 2.5);
+        Election election = new Election(associationId + 1);
+        election.setEndDate(new Date(System.currentTimeMillis() + (int) (2.5 * dayInMs)));
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
