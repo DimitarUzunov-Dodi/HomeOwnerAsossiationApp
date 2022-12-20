@@ -1,9 +1,6 @@
 package nl.tudelft.sem.template.association.domain.association;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -58,25 +55,49 @@ public class AssociationService {
     /**add new associaiton.
      *
      * @param name name of the association
-     * @param electionDate election date of the association
      * @param description description of the association
      * @param councilNumber add new association to the repo
      */
-    public void addAssociation(String name, Date electionDate, String description, int councilNumber) {
-        associationRepository.save(new Association(name, electionDate, description, councilNumber));
+    public void addAssociation(String name, String description, int councilNumber) {
+        associationRepository.save(new Association(name, description, councilNumber));
     }
 
-    /**update the association.
+    /**
+     * Updates the association with the corresponding id.
      *
-     * @param id for finding the association to update
-     * @param electionDate update the election date
-     * @param description update the description
+     * @param id                The association's id.
+     * @param description       The description of the association.
+     * @param councilUserIds    The set of user id's of the council members.
      */
-    public void updateAssociation(int id, Date electionDate, String description) {
+    public void updateAssociation(int id, String description, HashSet<Integer> councilUserIds) {
         Association association = this.getAssociationById(id);
         association.setDescription(description);
-        association.setCreationDate(electionDate);
+        association.setCouncilUserIds(councilUserIds);
         associationRepository.save(association);
+    }
+
+    /**
+     * Checks whether a certain user is part of the association's council.
+     *
+     * @param userId            The user's id.
+     * @param associationId     The association id.
+     * @return                  True if the user is part of the association's council.
+     */
+    public boolean verifyCouncilMember(Integer userId, Integer associationId) {
+        if (userId == null || associationId == null) {
+            return false;
+        }
+
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isPresent()) {
+            Set<Integer> councilMembers = optionalAssociation.get().getCouncilUserIds();
+            for (Integer i : councilMembers) {
+                if (i.equals(userId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
