@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.voting.domain.election;
+package nl.tudelft.sem.template.association.domain.membership;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -6,7 +6,7 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 @Converter
-public class CandidateAttributeConverter implements AttributeConverter<Set<Integer>, String> {
+public class CouncilUserIdsAttributeConverter implements AttributeConverter<Set<Integer>, String> {
 
     @Override
     public String convertToDatabaseColumn(Set<Integer> attribute) {
@@ -18,15 +18,15 @@ public class CandidateAttributeConverter implements AttributeConverter<Set<Integ
 
     @Override
     public Set<Integer> convertToEntityAttribute(String dbData) {
-        HashSet<Integer> candidates = new HashSet<>();
-        if (dbData == null || dbData.isEmpty()) {
-            return candidates;
+        HashSet<Integer> councilUserIds = new HashSet<>();
+        if (dbData == null) {
+            return councilUserIds;
         }
 
         String[] split = dbData.split(", ");
         for (String s : split) {
-            candidates.add(Integer.parseInt(s));
+            councilUserIds.add(Integer.parseInt(s));
         }
-        return candidates;
+        return councilUserIds;
     }
 }

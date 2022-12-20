@@ -28,7 +28,7 @@ public class RuleVotingVotesAttributeConverter implements AttributeConverter<Lis
     @Override
     public List<Pair<Integer, String>> convertToEntityAttribute(String dbData) {
         List<Pair<Integer, String>> votes = new ArrayList<>();
-        if (dbData == null) {
+        if (dbData == null || dbData.isEmpty()) {
             return votes;
         }
         String[] split = dbData.split(",");
