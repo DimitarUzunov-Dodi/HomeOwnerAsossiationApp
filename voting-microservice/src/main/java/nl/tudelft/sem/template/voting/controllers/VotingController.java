@@ -5,6 +5,7 @@ import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
+import nl.tudelft.sem.template.voting.models.RuleAmendmentRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
 import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.VoteRequestModel;
@@ -71,6 +72,24 @@ public class VotingController {
                             request.getUserId(), request.getRule()));
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Creates a new rule vote for the proposed amendment.
+     *
+     * @param request   The request body containing the association's id, proposer's id, rule and amendment to propose.
+     * @return          A message confirming the creation.
+     */
+    @PostMapping("/rule-voting/amend-rule")
+    public ResponseEntity<String> amendRule(@RequestBody RuleAmendmentRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService
+                    .amendmentRule(VotingType.AMENDMENT, request.getAssociationId(), request.getUserId(),
+                            request.getRule(), request.getAmendment()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
