@@ -1,6 +1,8 @@
 package nl.tudelft.sem.template.voting.domain;
 
+import java.rmi.NoSuchObjectException;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -9,6 +11,7 @@ import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidIdException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidRuleException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleTooLongException;
+import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVoting;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -195,5 +198,45 @@ public class VotingService {
         return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
                 + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
                 + voting.getEndDate();
+    }
+
+    /**
+     * Returns a string representation of the rule vote object
+     * corresponding to the provided id together with the current status.
+     *
+     * @param ruleVotingId              The id of the rule vote object.
+     * @return                          A string representation of the rule vote object and the current status.
+     * @throws NoSuchObjectException    Thrown when the rule vote object does not exist.
+     */
+    public String getRuleVoting(Long ruleVotingId) throws NoSuchObjectException, InvalidIdException {
+        if (ruleVotingId == null) {
+            throw new InvalidIdException("The rule vote id is null.");
+        }
+        Optional<RuleVoting> optionalRuleVoting = ruleVotingRepository.findById(ruleVotingId);
+        String res;
+        if (optionalRuleVoting.isPresent()) {
+            res = optionalRuleVoting.get().toString();
+        } else {
+            throw new NoSuchObjectException("There is no open rule vote with the provided ID.");
+        }
+
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date votingDate = optionalRuleVoting.get().getEndDate();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(votingDate);
+        cal.add(Calendar.DAY_OF_MONTH, 2);
+
+        if (ChronoUnit.SECONDS.between(currentDate.toInstant(), votingDate.toInstant()) > 0) {
+            cal.setTime(votingDate);
+            return res + System.lineSeparator() + "The voting procedure is still in reviewing."
+                    + System.lineSeparator() + "The voting will start on: " + cal.getTime();
+        } else if (ChronoUnit.SECONDS.between(currentDate.toInstant(), cal.getTime().toInstant()) > 0) {
+            return res + System.lineSeparator() + "You can cast your vote now."
+                    + System.lineSeparator() + "The voting will end on: " + cal.getTime();
+        } else {
+            return res += System.lineSeparator() + "Voting has ended." + System.lineSeparator()
+                    + "The results can be accessed through the association.";
+        }
+
     }
 }

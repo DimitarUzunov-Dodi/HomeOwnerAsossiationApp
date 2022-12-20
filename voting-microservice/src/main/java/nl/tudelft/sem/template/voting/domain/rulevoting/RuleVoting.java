@@ -93,4 +93,20 @@ public class RuleVoting extends Voting {
         votes.add(vote);
     }
 
+    /**
+     * Converts the rule voting object to a string.
+     *
+     * @return  The string representation of the rule voting object.
+     */
+    @Override
+    public String toString() {
+        if (getType() == VotingType.PROPOSAL) {
+            return "The user: " + getUserId() + " proposes to add the rule:" + System.lineSeparator()
+                    + "\"" + getRule() + "\".";
+        } else {
+            return "The user: " + getUserId() + " proposes to change the rule:" + System.lineSeparator()
+                    + "\"" + getRule() + "\"." + System.lineSeparator() + "into:" + System.lineSeparator()
+                    + "\"" + getAmendment() + "\".";
+        }
+    }
 }
