@@ -10,6 +10,7 @@ import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidIdException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidRuleException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleTooLongException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 
@@ -48,7 +49,7 @@ public class VotingService {
      *
      * @return a set of User IDs of candidates.
      */
-    public Set<Integer> getCandidates(int associationId) {
+    public Set<Integer> getCandidates(int associationId) throws IllegalArgumentException {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             return optElection.get().getCandidateIds();
@@ -79,6 +80,54 @@ public class VotingService {
             election.addCandidate(userId);
             electionRepository.save(election);
             return "The candidate with ID " + userId + " has been added.";
+
+        } else {
+            throw new IllegalArgumentException("Association with ID "
+                    + associationId + " does not have an active election.");
+        }
+    }
+
+    /**
+     * Casts a vote for a candidate in the upcoming election, if the date is less than 2 days before the election end.
+     *
+     * @return a confirmation message.
+     */
+    public String castVote(int voterId, int associationId, int candidateId) {
+        Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
+        if (optElection.isPresent()) {
+            Election election = optElection.get();
+
+            //Checks if election end date is closer than 2 days
+            Date currentDate = new Date(System.currentTimeMillis());
+            Date electionEndDate = election.getEndDate();
+            Long candidateDeadline = 2L;
+            if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) >= candidateDeadline) {
+                throw new IllegalArgumentException("Too early to cast a vote.");
+            }
+
+            //Checks if election has ended
+            if (currentDate.compareTo(electionEndDate) > 0) {
+                throw new IllegalArgumentException("The election has ended.");
+            }
+
+            //Checks if the candidate exists
+            if (!election.getCandidateIds().contains(candidateId)) {
+                throw new IllegalArgumentException("Candidate with ID "
+                        + candidateId + " does not exist.");
+            }
+
+            //If the voter already voted, remove previous vote
+            for (Pair vote : election.getVotes()) {
+                if ((int) vote.getFirst() == voterId) {
+                    election.getVotes().remove(vote);
+                    break;
+                }
+            }
+
+            Pair<Integer, Integer> vote = Pair.of(voterId, candidateId);
+            election.addVote(vote);
+            electionRepository.save(election);
+            return "The voter with ID " + voterId + " voted for the candidate with ID " + candidateId + ".";
 
         } else {
             throw new IllegalArgumentException("Association with ID "

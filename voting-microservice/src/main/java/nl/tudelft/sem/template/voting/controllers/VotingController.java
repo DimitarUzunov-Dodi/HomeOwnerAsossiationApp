@@ -7,6 +7,7 @@ import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
 import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
+import nl.tudelft.sem.template.voting.models.VoteRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,8 @@ public class VotingController {
      * @return a message confirming the creation.
      */
     @PostMapping("/election/create-election")
-    public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request) throws Exception {
+    public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request)
+            throws ResponseStatusException {
         //We could add the part where we check if it has been 1 year since the last election
         // or just check if another election is ongoing
 
@@ -48,8 +50,8 @@ public class VotingController {
 
         try {
             int associationId = request.getAssociationId();
-            return ResponseEntity.ok(votingService.createElection(VotingType.ELECTION, associationId,
-                    null, null, null));
+            return ResponseEntity.ok(votingService
+                    .createElection(VotingType.ELECTION, associationId, null, null, null));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -78,11 +80,13 @@ public class VotingController {
      * @return a set of User IDs of candidates.
      */
     @GetMapping("/election/get-candidates")
-    public ResponseEntity<Set<Integer>> getCandidates(@RequestBody AssociationRequestModel request) throws Exception {
+    public ResponseEntity<Set<Integer>> getCandidates(@RequestBody AssociationRequestModel request)
+            throws ResponseStatusException {
         try {
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.getCandidates(associationId));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            System.out.println("EXCEPTION CAUGHT");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -100,6 +104,23 @@ public class VotingController {
             return ResponseEntity.ok(votingService.applyForCandidate(userId, associationId));
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Casts a vote for a candidate in the upcoming election, if the date is less than 2 days before the election end.
+     *
+     * @return a confirmation message.
+     */
+    @PostMapping("/election/cast-vote")
+    public ResponseEntity<String> castVote(@RequestBody VoteRequestModel request) throws ResponseStatusException {
+        try {
+            int voterId = request.getVoterId();
+            int associationId = request.getAssociationId();
+            int candidateId = request.getCandidateId();
+            return ResponseEntity.ok(votingService.castVote(voterId, associationId, candidateId));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
