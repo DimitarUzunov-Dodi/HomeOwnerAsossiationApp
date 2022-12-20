@@ -19,7 +19,7 @@ public class CandidateAttributeConverter implements AttributeConverter<Set<Integ
     @Override
     public Set<Integer> convertToEntityAttribute(String dbData) {
         HashSet<Integer> candidates = new HashSet<>();
-        if (dbData == null) {
+        if (dbData == null || dbData.isEmpty()) {
             return candidates;
         }
 

@@ -56,6 +56,20 @@ public class Election extends Voting {
         return votes;
     }
 
+    /**
+     * Checks whether the userId has voted in the election.
+     *
+     * @return a boolean 'voted'.
+     */
+    public boolean voted(int voterId) {
+        for (Pair vote : getVotes()) {
+            if ((int) vote.getFirst() == voterId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addVote(Pair<Integer, Integer> vote) {
         votes.add(vote);
     }
