@@ -73,13 +73,13 @@ public class VotingController {
      * @return a confirmation message.
      */
     @PostMapping("/election/apply-for-candidate")
-    public ResponseEntity<String> applyForCandidate(@RequestBody UserAssociationRequestModel request) throws Exception {
+    public ResponseEntity<String> applyForCandidate(@RequestBody UserAssociationRequestModel request) {
         try {
             int userId = request.getUserId();
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.applyForCandidate(userId, associationId));
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
