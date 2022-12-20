@@ -3,7 +3,9 @@ package nl.tudelft.sem.template.voting.controllers;
 import java.util.Set;
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
+import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
+import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
 import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.VoteRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +51,26 @@ public class VotingController {
         try {
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService
-                    .createElection("Election", associationId, null, null, null));
+                    .createElection(VotingType.ELECTION, associationId, null, null, null));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Creates a new rule vote for the proposed rule.
+     *
+     * @param request   The request body containing the association's id, proposer's id and the rule to propose.
+     * @return          A message confirming the creation.
+     */
+    @PostMapping("/rule-voting/propose-rule")
+    public ResponseEntity<String> proposeRule(@RequestBody RuleProposalRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService
+                    .proposeRule(VotingType.PROPOSAL, request.getAssociationId(),
+                            request.getUserId(), request.getRule()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -67,7 +86,6 @@ public class VotingController {
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.getCandidates(associationId));
         } catch (IllegalArgumentException e) {
-            System.out.println("EXCEPTION CAUGHT");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
