@@ -116,6 +116,7 @@ public class VotingService {
             for (Pair vote : election.getVotes()) {
                 if ((int) vote.getFirst() == voterId) {
                     election.getVotes().remove(vote);
+                    break;
                 }
             }
 
