@@ -1,10 +1,11 @@
 package nl.tudelft.sem.template.authentication.domain.user;
 
-import org.junit.jupiter.api.Test;
-
 import static nl.tudelft.sem.template.authentication.domain.user.FieldValidation.validateField;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 
 public class FieldTests {
 
