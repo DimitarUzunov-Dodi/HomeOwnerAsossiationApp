@@ -106,10 +106,11 @@ public class VotingService {
                 throw new IllegalArgumentException("The election has ended.");
             }
 
-            //Checks if the voter already voted
-            if (election.voted(voterId)) {
-                throw new IllegalArgumentException("Voter with ID "
-                        + voterId + " has already voted.");
+            //If the voter already voted, remove previous vote
+            for (Pair vote : election.getVotes()) {
+                if ((int) vote.getFirst() == voterId) {
+                    election.getVotes().remove(vote);
+                }
             }
 
             //Checks if the candidate exists
