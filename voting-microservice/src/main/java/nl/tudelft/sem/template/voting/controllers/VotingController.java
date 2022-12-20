@@ -5,6 +5,7 @@ import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
+import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -78,13 +79,27 @@ public class VotingController {
      */
     @GetMapping("/election/get-candidates")
     public ResponseEntity<Set<Integer>> getCandidates(@RequestBody AssociationRequestModel request) throws Exception {
-        //Check for correct associationId will happen in Association before calling this
-
         try {
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.getCandidates(associationId));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Registers a candidate for the upcoming election, if the date is 2 or more days before the election.
+     *
+     * @return a confirmation message.
+     */
+    @PostMapping("/election/apply-for-candidate")
+    public ResponseEntity<String> applyForCandidate(@RequestBody UserAssociationRequestModel request) {
+        try {
+            int userId = request.getUserId();
+            int associationId = request.getAssociationId();
+            return ResponseEntity.ok(votingService.applyForCandidate(userId, associationId));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
