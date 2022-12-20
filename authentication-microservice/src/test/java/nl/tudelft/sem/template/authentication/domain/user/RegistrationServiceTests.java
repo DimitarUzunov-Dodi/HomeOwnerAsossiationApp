@@ -49,7 +49,7 @@ public class RegistrationServiceTests {
     }
 
     @Test
-    public void createUser_withExistingUser_throwsException() {
+    public void createUser_withExistingUser_throwsException() throws InvalidFieldException {
         // Arrange
         final UserId testUser = new UserId("SomeUser");
         final HashedPassword existingTestPassword = new HashedPassword("password123");
@@ -72,63 +72,48 @@ public class RegistrationServiceTests {
     }
 
     @Test
-    public void createUser_withInvalidData_throwsException() {
-        final UserId invalidUser = new UserId("");
-        final Password invalidPassword = new Password("");
+    public void createUser_withInvalidData_throwsException() throws InvalidFieldException {
+
 
         final UserId validUser = new UserId("clairo");
         final Password validPassword = new Password("north");
 
         try {
+            final UserId invalidUser = new UserId("");
+            final Password invalidPassword = new Password("");
             registrationService.registerUser(invalidUser, invalidPassword);
             fail("User register or hash should've thrown an exception!");
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("EMPTY_USER");
+            assertThat(e.getMessage()).isNotEmpty();
         }
 
         try {
+            final UserId invalidUser = new UserId("");
             registrationService.registerUser(invalidUser, validPassword);
             fail("User registration should've thrown an exception!");
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("EMPTY_USER");
+            assertThat(e.getMessage()).isNotEmpty();
         }
 
         try {
+            final Password invalidPassword = new Password("");
             registrationService.registerUser(validUser, invalidPassword);
             fail("Hash should've thrown an exception!");
         } catch (Exception e) {
-            assertThat(e.getMessage()).isNotNull();
+            assertThat(e.getMessage()).isNotEmpty();
         }
     }
 
     @Test
-    public void changePass_withNonExistingUser_throwsException() {
-        final UserId nonExistingUser = new UserId("");
-        final Password newPassword = new Password("newPassword");
+    public void changePass_withNonExistingUser_throwsException() throws Exception {
+        UserId nonExistingUser = new UserId("hey");
+        Password newPassword = new Password("newPassword");
 
         try {
             registrationService.changePassword(nonExistingUser, newPassword);
             fail("Change password should've thrown an exception!");
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("CREDENTIALS_NOT_MATCHING");
-        }
-    }
-
-    @Test
-    public void changePass_withInvalidPass_throwsException() throws Exception {
-        final UserId testUser = new UserId("victim");
-        final Password correctPassword = new Password("correctPassword");
-        final Password invalidPass = new Password("");
-        final HashedPassword correctHashedPassword = new HashedPassword("correctPassword");
-
-        when(mockPasswordEncoder.hash(correctPassword)).thenReturn(correctHashedPassword);
-        registrationService.registerUser(testUser, correctPassword);
-
-        try {
-            registrationService.changePassword(testUser, invalidPass);
-            fail("Change password should've thrown an exception!");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("INVALID_PASSWORD");
         }
     }
 
