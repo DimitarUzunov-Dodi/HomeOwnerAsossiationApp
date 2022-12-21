@@ -4,12 +4,7 @@ import java.util.Set;
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.domain.VotingType;
-import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
-import nl.tudelft.sem.template.voting.models.RuleAmendmentRequestModel;
-import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
-import nl.tudelft.sem.template.voting.models.RuleVotingRequestModel;
-import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
-import nl.tudelft.sem.template.voting.models.VoteRequestModel;
+import nl.tudelft.sem.template.voting.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -147,14 +142,30 @@ public class VotingController {
      * @return a confirmation message.
      */
     @PostMapping("/election/cast-vote")
-    public ResponseEntity<String> castVote(@RequestBody VoteRequestModel request) throws ResponseStatusException {
+    public ResponseEntity<String> castElectionVote(@RequestBody ElectionVoteRequestModel request)
+            throws ResponseStatusException {
         try {
             int voterId = request.getVoterId();
             int associationId = request.getAssociationId();
             int candidateId = request.getCandidateId();
-            return ResponseEntity.ok(votingService.castVote(voterId, associationId, candidateId));
+            return ResponseEntity.ok(votingService.castElectionVote(voterId, associationId, candidateId));
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Casts a vote for a rule in a rule vote, if the reviewing period has passed.
+     *
+     * @return a confirmation message.
+     */
+    @PostMapping("/rule-voting/cast-vote")
+    public ResponseEntity<String> castRuleVotingVote(@RequestBody RuleVoteRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService
+                    .castRuleVote(request.getRuleVoteId(), request.getUserId(), request.getVote()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

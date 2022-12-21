@@ -13,9 +13,8 @@ import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVoting;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
 import nl.tudelft.sem.template.voting.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.voting.models.RuleVotingRequestModel;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,9 +29,8 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GetRuleVotingIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -49,7 +47,7 @@ public class GetRuleVotingIntegrationTest {
     /**
      * Create the stubs for authentication and initialize variables.
      */
-    @BeforeAll
+    @BeforeEach
     public void setup() {
         this.proposalRuleVoteId = 1L;
         this.proposalRuleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
