@@ -44,7 +44,7 @@ public class ReportService {
      *                                     if not, the report will be saved to the repo
      */
     public void addReport(int associationId, String reporterId, String violatorId, String rule)
-                            throws FieldNoNullException, ReportInconsistentException,NoSuchRuleException {
+                            throws FieldNoNullException, ReportInconsistentException, NoSuchRuleException {
         if (reporterId == null || violatorId == null) {
             throw new FieldNoNullException();
         }

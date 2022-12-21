@@ -1,20 +1,19 @@
 package nl.tudelft.sem.template.association.domain.association;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
 @Converter
 public class RulesAttributeConverter implements AttributeConverter<List<String>, String> {
     @Override
     public String convertToDatabaseColumn(List<String> attribute) {
         String rt = "";
-        for(String r : attribute){
-            if (rt.equals("")){
+        for (String r : attribute) {
+            if (rt.equals("")) {
                 rt = r;
-            }else {
+            } else {
                 rt = rt + "@@@" + r;
             }
         }

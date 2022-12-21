@@ -78,7 +78,7 @@ public class Association {
         this.councilNumber = councilNumber;
         this.creationDate = new Date(System.currentTimeMillis());
         this.councilUserIds = new HashSet<>();
-        this.rules=new ArrayList<>();
+        this.rules = new ArrayList<>();
     }
 
     /**getter.
