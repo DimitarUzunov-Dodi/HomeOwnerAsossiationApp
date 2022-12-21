@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class Report {
     @Id
     @GeneratedValue
-    @Column(name = "id", nullable = false, unique = true)
+    @Column(name = "id", unique = true)
     private int id;
 
     @Column(name = "association_id")
