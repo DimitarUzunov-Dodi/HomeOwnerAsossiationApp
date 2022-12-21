@@ -150,7 +150,7 @@ public class AssociationService {
         Date currentDate = new Date(System.currentTimeMillis());
         Date joinDate = optionalMembership.get().getJoinDate();
         Long candidateYearLimit = 3L;
-        if (ChronoUnit.YEARS.between(currentDate.toInstant(), joinDate.toInstant()) < candidateYearLimit) {
+        if (ChronoUnit.YEARS.between(joinDate.toInstant(), currentDate.toInstant()) < candidateYearLimit) {
             return false;
         }
 
