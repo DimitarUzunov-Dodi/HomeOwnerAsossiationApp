@@ -1,9 +1,7 @@
 package nl.tudelft.sem.template.association.domain.report;
 
 import java.util.List;
-
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
-import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +23,8 @@ public class ReportService {
      * @param membershipRepository the repository for membership
      * @param associationRepository the repository for association
      */
-    public ReportService(ReportRepository reportRepository, MembershipRepository membershipRepository, AssociationRepository associationRepository) {
+    public ReportService(ReportRepository reportRepository,
+                         MembershipRepository membershipRepository, AssociationRepository associationRepository) {
         this.reportRepository = reportRepository;
         this.membershipRepository = membershipRepository;
         this.associationRepository = associationRepository;
@@ -77,9 +76,9 @@ public class ReportService {
      * @throws IllegalArgumentException the association doesn't exist
      */
     public List<Report> reportsInAssociation(int associationId) throws IllegalArgumentException {
-        if (associationRepository.findById(associationId).isEmpty()){
+        if (associationRepository.findById(associationId).isEmpty()) {
             throw new IllegalArgumentException("there is no such association");
-        };
+        }
         return reportRepository.findByAssociationId(associationId);
     }
 
