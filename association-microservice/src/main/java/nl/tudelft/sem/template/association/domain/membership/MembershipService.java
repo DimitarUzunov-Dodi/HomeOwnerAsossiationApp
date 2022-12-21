@@ -72,7 +72,7 @@ public class MembershipService {
         if (membershipRepository.existsByUserIdAndAssociationId(userId, assoId)) {
             return false;
         }
-        membershipRepository.save(new Membership(userId, assoId, address, joinDate));
+        membershipRepository.save(new Membership(userId, assoId, address));
         return true;
     }
 

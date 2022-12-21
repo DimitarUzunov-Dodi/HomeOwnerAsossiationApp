@@ -6,7 +6,7 @@ import lombok.Data;
  * Model representing a rule voting verification request.
  */
 @Data
-public class RuleVerificationRequestModel {
+public class UserAssociationRequestModel {
     private Integer userId;
     private Integer associationId;
 }

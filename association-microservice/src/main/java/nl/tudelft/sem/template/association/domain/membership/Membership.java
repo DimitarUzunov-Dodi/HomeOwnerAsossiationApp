@@ -30,18 +30,20 @@ unique id for different memberships
     @Column(name = "join_date", nullable = false)
     private Date joinDate;
 
+    @Column(name = "leave_date", nullable = false)
+    private Date leaveDate;
+
     /**constructor.
      *
      * @param userId user id
      * @param associationId association id
      * @param address address
-     * @param joinDate join date
      */
-    public Membership(String userId, int associationId, Address address, Date joinDate) {
+    public Membership(String userId, int associationId, Address address) {
         this.userId = userId;
         this.associationId = associationId;
         this.address = address;
-        this.joinDate = joinDate;
+        this.joinDate = new Date(System.currentTimeMillis());
     }
 
     /**getter.
@@ -90,5 +92,17 @@ unique id for different memberships
      */
     public Date getJoinDate() {
         return joinDate;
+    }
+
+    /**getter.
+     *
+     * @return get leave date
+     */
+    public Date getLeaveDate() {
+        return joinDate;
+    }
+
+    public void leave() {
+        this.leaveDate = new Date(System.currentTimeMillis());
     }
 }

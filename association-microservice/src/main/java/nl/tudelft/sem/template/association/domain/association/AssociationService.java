@@ -1,14 +1,26 @@
 package nl.tudelft.sem.template.association.domain.association;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import nl.tudelft.sem.template.association.domain.membership.*;
+import nl.tudelft.sem.template.association.domain.user.*;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AssociationService {
     private final transient AssociationRepository associationRepository;
+    private final transient UserRepository userRepository;
+    private final transient MembershipRepository membershipRepository;
 
-    public AssociationService(AssociationRepository associationRepository) {
+    /**
+     * Instantiates a AssociationService object which provides methods to the Association endpoints,
+     * while handling the databases.
+     */
+    public AssociationService(AssociationRepository associationRepository, UserRepository userRepository,
+                              MembershipRepository membershipRepository) {
         this.associationRepository = associationRepository;
+        this.userRepository = userRepository;
+        this.membershipRepository = membershipRepository;
     }
 
     /**getter.
@@ -98,6 +110,53 @@ public class AssociationService {
             }
         }
         return false;
+    }
+
+    /**
+     * Verify whether the provided user can be a candidate for the board.
+     *
+     * @param userId            The user's id.
+     * @param associationId     The association id.
+     * @return                  True if the user can be a candidate.
+     */
+    public boolean verifyCandidate(Integer userId, Integer associationId) {
+        if (userId == null || associationId == null) {
+            return false;
+        }
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return false;
+        }
+        String userIdString = optionalUser.get().getUserId();
+
+        List<Membership> memberships = membershipRepository.findAllByUserId(userIdString);
+
+        //Check for council membership in all of user's associations
+        for (Membership m : memberships) {
+            Optional<Association> optionalAssociation = associationRepository.findById(m.getAssociationId());
+            if (optionalAssociation.isEmpty() || optionalAssociation.get().getCouncilUserIds().contains(userId)) {
+                return false;
+            }
+        }
+
+        //Check if the member has been in the HOA for 3 years
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userIdString, associationId, null);
+        if (optionalMembership.isEmpty()) {
+            return false;
+        }
+
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date joinDate = optionalMembership.get().getJoinDate();
+        Long candidateYearLimit = 3L;
+        if (ChronoUnit.YEARS.between(currentDate.toInstant(), joinDate.toInstant()) < candidateYearLimit) {
+            return false;
+        }
+
+        //TODO: Check for 10 year board membership
+
+        return true;
     }
 
 }
