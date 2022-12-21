@@ -25,7 +25,7 @@ public class ElectionVotesAttributeConverter implements AttributeConverter<List<
     public List<Pair<Integer, Integer>> convertToEntityAttribute(String dbData) {
         List<Pair<Integer, Integer>> votes = new ArrayList<>();
 
-        if (dbData == null) {
+        if (dbData == null || dbData.isEmpty()) {
             return votes;
         }
 
