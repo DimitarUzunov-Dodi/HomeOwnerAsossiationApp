@@ -42,7 +42,7 @@ public class JwtUserDetailsService implements UserDetailsService {
                 throw new UsernameNotFoundException("User does not exist");
             }
 
-            var user = optionalUser.get();
+            AppUser user = optionalUser.get();
 
             return new User(user.getUserId().toString(), user.getPassword().toString(),
                     new ArrayList<>()); // no authorities/roles
