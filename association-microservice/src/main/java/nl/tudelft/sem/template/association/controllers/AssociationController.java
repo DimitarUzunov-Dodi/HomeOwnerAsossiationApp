@@ -4,6 +4,7 @@ import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
+import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
 import nl.tudelft.sem.template.association.domain.report.ReportInconsistentException;
 import nl.tudelft.sem.template.association.domain.report.ReportService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
@@ -79,6 +80,9 @@ public class AssociationController {
                     HttpStatus.BAD_REQUEST);
         } catch (ReportInconsistentException r) {
             return new ResponseEntity<>("Either the reporter or the violator is not in the association!",
+                    HttpStatus.BAD_REQUEST);
+        } catch (NoSuchRuleException e) {
+            return new ResponseEntity<>("No such rule in the association!",
                     HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Report received!");

@@ -44,13 +44,16 @@ public class ReportService {
      *                                     if not, the report will be saved to the repo
      */
     public void addReport(int associationId, String reporterId, String violatorId, String rule)
-                            throws FieldNoNullException, ReportInconsistentException {
+                            throws FieldNoNullException, ReportInconsistentException,NoSuchRuleException {
         if (reporterId == null || violatorId == null) {
             throw new FieldNoNullException();
         }
         if (!membershipRepository.existsByUserIdAndAssociationId(violatorId, associationId)
                 || !membershipRepository.existsByUserIdAndAssociationId(reporterId, associationId)) {
             throw new ReportInconsistentException();
+        }
+        if (!associationRepository.findById(associationId).get().getRules().contains(rule)) {
+            throw new NoSuchRuleException();
         }
         reportRepository.save(new Report(associationId, reporterId, violatorId, rule));
     }
