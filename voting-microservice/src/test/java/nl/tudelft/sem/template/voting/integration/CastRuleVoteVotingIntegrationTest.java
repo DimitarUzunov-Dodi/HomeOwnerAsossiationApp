@@ -61,7 +61,9 @@ public class CastRuleVoteVotingIntegrationTest {
     @Test
     public void castRuleVoteInFavourTest() throws Exception {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         RuleVoteRequestModel model = new RuleVoteRequestModel();
@@ -85,7 +87,9 @@ public class CastRuleVoteVotingIntegrationTest {
     @Test
     public void castRuleVoteAbstainTest() throws Exception {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         RuleVoteRequestModel model = new RuleVoteRequestModel();
@@ -109,7 +113,9 @@ public class CastRuleVoteVotingIntegrationTest {
     @Test
     public void castRuleVoteAgainstTest() throws Exception {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         RuleVoteRequestModel model = new RuleVoteRequestModel();
@@ -254,7 +260,9 @@ public class CastRuleVoteVotingIntegrationTest {
     @Test
     public void changeVoteTest() throws Exception {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         RuleVoteRequestModel model = new RuleVoteRequestModel();

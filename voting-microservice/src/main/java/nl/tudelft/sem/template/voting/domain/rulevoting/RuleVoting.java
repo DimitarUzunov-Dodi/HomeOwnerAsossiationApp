@@ -41,7 +41,7 @@ public class RuleVoting extends Voting {
 
         Calendar c = Calendar.getInstance();
         c.setTime(this.getCreationDate());
-        c.add(Calendar.DATE, 14);
+        c.add(Calendar.DATE, 16);
         this.setEndDate(new Date(c.getTime().getTime()));
     }
 
