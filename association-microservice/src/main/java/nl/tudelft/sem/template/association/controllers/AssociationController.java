@@ -4,6 +4,7 @@ import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
+import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,13 +59,13 @@ public class AssociationController {
     /**
      * Dummy endpoint for updating the council.
      *
-     * @param newCouncil string with the new council to be parsed
+     * @param electionResult request body containing all the info regarding the election
      * @return 200 if OK
      */
     @PostMapping("/update-council-dummy")
-    public ResponseEntity<String> updateCouncilDummy(String newCouncil) {
+    public ResponseEntity<String> updateCouncilDummy(@RequestBody ElectionResultRequestModel electionResult) {
 
-        System.out.println(newCouncil);
+        System.out.println(electionResult.getDate() + " | " + electionResult.getResult());
 
         return ResponseEntity.ok("Council updated!");
     }

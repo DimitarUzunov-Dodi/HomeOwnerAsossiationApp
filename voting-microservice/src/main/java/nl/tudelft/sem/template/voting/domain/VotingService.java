@@ -53,7 +53,7 @@ public class VotingService {
     @Async
     @Scheduled(fixedRate = 3000, initialDelay = 0)
     public void forwardElectionResults() {
-        System.out.println("Executed at : " + new Date());
+        //System.out.println("Executed at : " + new Date());
 
         // Here we get the first election in the repository by its end date ascendingly.
         Optional<Election> optElection = electionRepository.findFirstByOrderByEndDateAsc();
@@ -65,7 +65,7 @@ public class VotingService {
                 String forward = election.getEndDate() + "| ELECTION | " + election.getResults();
 
                 // TODO : replace this with real endpoint
-                final String url = "http://localhost:8082/association/update-council-dummy";
+                final String url = "http://localhost:8084/association/update-council-dummy";
                 RestTemplate restTemplate = new RestTemplate();
                 ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, forward, String.class);
 
@@ -75,6 +75,7 @@ public class VotingService {
             }
         }
     }
+
 
     /**
      * Creates a board election for an association with a given ID.

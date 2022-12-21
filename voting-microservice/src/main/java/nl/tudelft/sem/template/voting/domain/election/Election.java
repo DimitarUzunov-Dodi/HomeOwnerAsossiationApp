@@ -19,6 +19,10 @@ public class Election extends Voting {
     @Convert(converter = CandidateAttributeConverter.class)
     private Set<Integer> candidateIds;
 
+    /**
+     * Each pair represents a UserId, along with a CandidateID.
+     * Think of this as a list of who voted for what candidate.
+     */
     @Column(name = "votes")
     @Convert(converter = ElectionVotesAttributeConverter.class)
     private List<Pair<Integer, Integer>> votes;
@@ -67,11 +71,9 @@ public class Election extends Voting {
      * @return election results
      */
     public String getResults() {
-        // TODO : implement getResults()
         HashMap<Integer, Integer> hm = this.tallyVotes();
         String str = hm.toString();
-        hm.clear();
-        return str;
+        return str.substring(1, str.length() - 1);
     }
 
 
@@ -81,8 +83,18 @@ public class Election extends Voting {
      * @return HashMap containing each candidateId along with its respective number of votes
      */
     public HashMap<Integer, Integer> tallyVotes() {
-        HashMap<Integer, Integer> res = new HashMap<Integer, Integer>();
-        // TODO : implement tallyVotes()
+        HashMap<Integer, Integer> res = new HashMap<>();
+
+        for (Integer candidateId : this.candidateIds) {
+            res.put(candidateId, 0);
+        }
+
+        for (Pair pair : this.votes) {
+            int candidateId = (Integer) pair.getSecond();
+            int candidateTally = (Integer) res.get(candidateId);
+            res.put(candidateId, candidateTally + 1);
+        }
+
         return res;
     }
 
