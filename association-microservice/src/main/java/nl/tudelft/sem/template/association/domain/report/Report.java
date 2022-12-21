@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 public class Report {
     @Id
     @GeneratedValue
-    @Column(name = "id", unique = true)
+    @Column(name = "id", nullable = false, unique = true)
     private int id;
 
-    @Column(name = "association_id")
+    @Column(name = "association_id", nullable = false)
     private int associationId;
 
     @Column(name = "reporter_id", nullable = false)
