@@ -7,6 +7,7 @@ import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.AssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleAmendmentRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleProposalRequestModel;
+import nl.tudelft.sem.template.voting.models.RuleVotingRequestModel;
 import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.models.VoteRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,21 @@ public class VotingController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(),
                     HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Returns a string representation of the rule vote object corresponding to the id.
+     *
+     * @param request   The request body containing the rule vote id.
+     * @return          The string representation of the rule vote object.
+     */
+    @GetMapping("/rule-voting/get-rule-vote")
+    public ResponseEntity<String> getRuleVote(@RequestBody RuleVotingRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService.getRuleVoting(request.getRuleVotingId()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
