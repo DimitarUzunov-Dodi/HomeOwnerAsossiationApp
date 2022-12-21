@@ -30,7 +30,7 @@ unique id for different memberships
     @Column(name = "join_date", nullable = false)
     private Date joinDate;
 
-    @Column(name = "leave_date", nullable = false)
+    @Column(name = "leave_date")
     private Date leaveDate;
 
     /**constructor.
