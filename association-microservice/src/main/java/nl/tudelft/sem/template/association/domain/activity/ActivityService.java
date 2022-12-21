@@ -46,20 +46,48 @@ public class ActivityService {
                 expirationDate, associationId, publisherId));
     }
 
+    /** Adds interested user to the activity, if he is already participating he is removed from the participating list.
+     *
+     * @param activityId Id of the activity
+     * @param userId id of the user
+     */
     public void addInterested(int activityId, int userId) {
-        activityRepository.findByActivityId(activityId).get().addInterested(userId);
+        Activity  activity = activityRepository.findByActivityId(activityId).get();
+        activity.addInterested(userId);
+        activityRepository.save(activity);
     }
 
+    /** Adds participating user to the activity, if he is already interested he is removed from the interested list.
+     *
+     * @param activityId Id of the activity
+     * @param userId id of the user
+     */
     public void addParticipating(int activityId, int userId) {
-        activityRepository.findByActivityId(activityId).get().addParticipating(userId);
+        Activity  activity = activityRepository.findByActivityId(activityId).get();
+        activity.addParticipating(userId);
+        activityRepository.save(activity);
     }
 
+    /** removes interested user from the activity if he exists in the database.
+     *
+     * @param activityId Id of the activity
+     * @param userId id of the user
+     */
     public void removeInterested(int activityId, int userId) {
-        activityRepository.findByActivityId(activityId).get().removeInterested(userId);
+        Activity  activity = activityRepository.findByActivityId(activityId).get();
+        activity.removeInterested(userId);
+        activityRepository.save(activity);
     }
 
+    /** removes participating user from the activity if he exists in the database.
+     *
+     * @param activityId id of the activity
+     * @param userId id of the user
+     */
     public void removeParticipating(int activityId, int userId) {
-        activityRepository.findByActivityId(activityId).get().removeParticipating(userId);
+        Activity  activity = activityRepository.findByActivityId(activityId).get();
+        activity.removeParticipating(userId);
+        activityRepository.save(activity);
     }
 
 

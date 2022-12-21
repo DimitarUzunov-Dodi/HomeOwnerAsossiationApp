@@ -15,6 +15,10 @@ public class UserIdConverter implements AttributeConverter<List<Integer>, String
     public List<Integer> convertToEntityAttribute(String dbData) {
         List<Integer> ids = new ArrayList<>();
 
+        if (dbData.isEmpty()) {
+            return ids;
+        }
+
         String[] split = dbData.split(", ");
         for (String s : split) {
             ids.add(Integer.parseInt(s));

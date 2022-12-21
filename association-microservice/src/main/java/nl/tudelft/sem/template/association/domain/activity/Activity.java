@@ -4,6 +4,7 @@ import java.util.*;
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Repository template of the activities class.
@@ -43,11 +44,13 @@ public class Activity {
     private int publisherId;
 
     @Getter
+    @Setter
     @Column(name = "participating_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
     private List<Integer> participatingUserId;
 
     @Getter
+    @Setter
     @Column(name = "interested_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
     private List<Integer> interestedUserId;
