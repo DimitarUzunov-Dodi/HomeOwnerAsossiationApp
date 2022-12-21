@@ -46,14 +46,13 @@ public class AmendRuleVotingServiceTest {
         String result = votingService
                 .amendmentRule(this.type, this.associationId, this.userId, this.rule, this.amendment);
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
-        Calendar cal = null;
+        Calendar cal = Calendar.getInstance();
         if (voting.isPresent()) {
             Date date = voting.get().getEndDate();
-            cal = Calendar.getInstance();
             cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, -2);
         }
 
-        assert cal != null;
         assertThat(result)
                 .isEqualTo("The user: 42 proposes to change the rule: \"One should not murder the other members!\""
                         + System.lineSeparator() + "to: \"One should be allowed to murder the other members!\""

@@ -160,8 +160,11 @@ public class VotingService {
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(voting.getEndDate());
+        cal.add(Calendar.DAY_OF_MONTH, -2);
         return "Rule: \"" + rule + "\" has been proposed by: " + userId + "." +  System.lineSeparator()
-                + "The vote will be held on: " + voting.getEndDate();
+                + "The vote will be held on: " + cal.getTime();
     }
 
     /**
@@ -192,9 +195,12 @@ public class VotingService {
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(voting.getEndDate());
+        cal.add(Calendar.DAY_OF_MONTH, -2);
         return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
                 + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
-                + voting.getEndDate();
+                + cal.getTime();
     }
 
     /**
@@ -218,21 +224,21 @@ public class VotingService {
         }
 
         Date currentDate = new Date(System.currentTimeMillis());
-        Date votingDate = optionalRuleVoting.get().getEndDate();
+        Date endDate = optionalRuleVoting.get().getEndDate();
         Calendar cal = Calendar.getInstance();
-        cal.setTime(votingDate);
-        cal.add(Calendar.DAY_OF_MONTH, 2);
+        cal.setTime(endDate);
+        cal.add(Calendar.DAY_OF_MONTH, -2);
 
-        if (ChronoUnit.SECONDS.between(currentDate.toInstant(), votingDate.toInstant()) > 0) {
-            cal.setTime(votingDate);
-            return res + System.lineSeparator() + "The voting procedure is still in reviewing."
-                    + System.lineSeparator() + "The voting will start on: " + cal.getTime();
-        } else if (ChronoUnit.SECONDS.between(currentDate.toInstant(), cal.getTime().toInstant()) > 0) {
+        if (ChronoUnit.SECONDS.between(currentDate.toInstant(), endDate.toInstant()) <= 0) {
+            return res + System.lineSeparator() + "Voting has ended." + System.lineSeparator()
+                    + "The results can be accessed through the association.";
+        } else if (ChronoUnit.SECONDS.between(currentDate.toInstant(), cal.toInstant()) <= 0) {
+            cal.setTime(endDate);
             return res + System.lineSeparator() + "You can cast your vote now."
                     + System.lineSeparator() + "The voting will end on: " + cal.getTime();
         } else {
-            return res += System.lineSeparator() + "Voting has ended." + System.lineSeparator()
-                    + "The results can be accessed through the association.";
+            return res + System.lineSeparator() + "The voting procedure is still in reviewing."
+                    + System.lineSeparator() + "The voting will start on: " + cal.getTime();
         }
 
     }
@@ -260,16 +266,14 @@ public class VotingService {
 
         Date currentDate = new Date(System.currentTimeMillis());
         Date ruleVoteEndDate = ruleVoting.getEndDate();
+        int daysForVoting = 2;
 
-        if (ChronoUnit.DAYS.between(currentDate.toInstant(), ruleVoteEndDate.toInstant()) > 0) {
+        if (ChronoUnit.DAYS.between(currentDate.toInstant(), ruleVoteEndDate.toInstant()) >= daysForVoting) {
             throw new IllegalArgumentException("The rule vote is still in reviewing. It is too early to cast a vote.");
         }
 
         //Checks if rule vote has ended
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(ruleVoteEndDate);
-        cal.add(Calendar.DAY_OF_MONTH, 2);
-        if (currentDate.compareTo(cal.getTime()) > 0) {
+        if (currentDate.compareTo(ruleVoteEndDate) > 0) {
             throw new IllegalArgumentException("The rule vote has ended.");
         }
 

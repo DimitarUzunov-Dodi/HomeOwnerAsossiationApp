@@ -73,11 +73,11 @@ public class AmendRuleVotingIntegrationTest {
         String response = result.andReturn().getResponse().getContentAsString();
 
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
-        Calendar cal = null;
+        Calendar cal = Calendar.getInstance();
         if (voting.isPresent()) {
             Date date = voting.get().getEndDate();
-            cal = Calendar.getInstance();
             cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, -2);
         }
 
         assert cal != null;
