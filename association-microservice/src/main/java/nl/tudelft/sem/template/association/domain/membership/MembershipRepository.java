@@ -15,6 +15,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      */
     boolean existsByUserIdAndAssociationId(String userId, int associationId);
 
+
     /**findByAssociationId.
      *
      * @param associationId the association id

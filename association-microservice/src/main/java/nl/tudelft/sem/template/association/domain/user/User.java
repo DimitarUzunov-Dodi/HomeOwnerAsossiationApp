@@ -36,6 +36,15 @@ public class User {
         this.name = name;
     }
 
+    /**
+     * getter.
+     *
+     * @return id
+     */
+    public int getId() {
+        return id;
+    }
+
     /**getter.
      *
      * @return userid
