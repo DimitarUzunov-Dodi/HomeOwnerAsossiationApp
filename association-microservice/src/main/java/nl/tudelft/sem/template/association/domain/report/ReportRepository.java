@@ -14,7 +14,7 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
      *
      * @return list of reports accordingly
      */
-    List<Report> findByViolatorIdAndAssociationId(String violatorId, int associationId);
+    List<Report> findByViolatorIdAndAssociationId(int violatorId, int associationId);
 
     /**findByAssociationId.
      *

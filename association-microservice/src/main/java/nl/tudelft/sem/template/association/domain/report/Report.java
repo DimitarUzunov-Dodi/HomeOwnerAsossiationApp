@@ -17,10 +17,10 @@ public class Report {
     private int associationId;
 
     @Column(name = "reporter_id", nullable = false)
-    private String reporterId;
+    private int reporterId;
 
     @Column(name = "violator_id", nullable = false)
-    private String violatorId;
+    private int violatorId;
 
     @Column(name = "report_date", nullable = false)
     private Date reportDate;
@@ -35,7 +35,7 @@ public class Report {
      * @param violatorId violator id
      * @param rule rule
      */
-    public Report(int associationId, String reporterId, String violatorId, String rule) {
+    public Report(int associationId, int reporterId, int violatorId, String rule) {
         this.associationId = associationId;
         this.reporterId = reporterId;
         this.violatorId = violatorId;
@@ -63,7 +63,7 @@ public class Report {
      *
      * @return reporter id
      */
-    public String getReporterId() {
+    public int getReporterId() {
         return reporterId;
     }
 
@@ -71,7 +71,7 @@ public class Report {
      *
      * @return violator id
      */
-    public String getViolatorId() {
+    public int getViolatorId() {
         return violatorId;
     }
 

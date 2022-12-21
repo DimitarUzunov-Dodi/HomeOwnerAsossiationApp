@@ -43,11 +43,8 @@ public class ReportService {
      *                                     and raise an exception otherwise
      *                                     if not, the report will be saved to the repo
      */
-    public void addReport(int associationId, String reporterId, String violatorId, String rule)
+    public void addReport(int associationId, int reporterId, int violatorId, String rule)
                             throws FieldNoNullException, ReportInconsistentException, NoSuchRuleException {
-        if (reporterId == null || violatorId == null) {
-            throw new FieldNoNullException();
-        }
         if (!membershipRepository.existsByUserIdAndAssociationId(violatorId, associationId)
                 || !membershipRepository.existsByUserIdAndAssociationId(reporterId, associationId)) {
             throw new ReportInconsistentException();
@@ -93,7 +90,7 @@ public class ReportService {
      * @return all reports that reported the user violating rules
      * @throws IllegalArgumentException the user is not in the association
      */
-    public List<Report> checkViolation(String userId, int associationId) throws IllegalArgumentException {
+    public List<Report> checkViolation(int userId, int associationId) throws IllegalArgumentException {
         if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
             throw new IllegalArgumentException("The user " + userId + " is not in the association with id "
                     + associationId + ".");

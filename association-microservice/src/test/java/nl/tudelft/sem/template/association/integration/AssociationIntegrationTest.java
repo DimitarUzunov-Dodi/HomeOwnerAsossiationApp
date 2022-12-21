@@ -51,7 +51,7 @@ public class AssociationIntegrationTest {
         }
 
         this.userId = 10;
-        this.association = new Association("test", "test", 10);
+        this.association = new Association("test", "test", "test", "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         mockAssociationRepository.save(this.association);
 

@@ -1,79 +1,79 @@
 package nl.tudelft.sem.template.association.domain.association;
 
 import java.util.*;
+import nl.tudelft.sem.template.association.domain.membership.Membership;
+import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AssociationService {
     private final transient AssociationRepository associationRepository;
+    private final transient MembershipRepository membershipRepository;
 
-    public AssociationService(AssociationRepository associationRepository) {
+    public AssociationService(AssociationRepository associationRepository, MembershipRepository membershipRepository) {
         this.associationRepository = associationRepository;
-    }
-
-    /**getter.
-     *
-     * @param associationId the id of the association
-     * @return Association correspondingly
-     */
-    public Association getAssociationById(int associationId) {
-        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
-        if (optionalAssociation.isPresent()) {
-            return optionalAssociation.get();
-        } else {
-            throw new IllegalArgumentException("Association with ID "
-                    + associationId + " does not exist.");
-        }
-    }
-
-    /**getter.
-     *
-     * @param name the name of the association
-     * @return all possible association with the name
-     */
-    public List<Association> getAssociationByName(String name) {
-        return associationRepository.findAllByName(name);
-    }
-
-    /**getter.
-     *
-     * @param associationId the association
-     * @return council of the association
-     */
-    public Set<Integer> getCouncil(int associationId) {
-        return getAssociationById(associationId).getCouncilUserIds();
-    }
-
-    /**getter.
-     *
-     * @return all associations in the repo
-     */
-    public List<Association> getAllAssociation() {
-        return associationRepository.findBy();
-    }
-
-    /**add new associaiton.
-     *
-     * @param name name of the association
-     * @param description description of the association
-     * @param councilNumber add new association to the repo
-     */
-    public void addAssociation(String name, String description, int councilNumber) {
-        associationRepository.save(new Association(name, description, councilNumber));
+        this.membershipRepository = membershipRepository;
     }
 
     /**
-     * Updates the association with the corresponding id.
+     * Creates an association.
      *
-     * @param id                The association's id.
-     * @param description       The description of the association.
-     * @param councilUserIds    The set of user id's of the council members.
+     * @return a message confirming the creation.
      */
-    public void updateAssociation(int id, String description, HashSet<Integer> councilUserIds) {
-        Association association = this.getAssociationById(id);
-        association.setDescription(description);
-        association.setCouncilUserIds(councilUserIds);
+    public String createAssociation(String name, String country, String city, String description,
+                                    int councilNumber) {
+        Association association = new Association(name, country, city, description, councilNumber);
+        int associationId = associationRepository.save(association).getId();
+        return "Association was created:\nID: " + associationId + "\nName: " + name + "\nCountry: " + country
+                + "\nDescription: " + description + "\nMax council members: " + councilNumber;
+    }
+
+    /**
+     * User joins an association.
+     *
+     * @return a message confirming the join.
+     */
+    public String joinAssociation(int userId, int associationId, String country, String city, String street,
+                                  String houseNumber, String postalCode) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isEmpty()) {
+            throw new IllegalArgumentException("Association with ID " + associationId + " does not exist.");
+        }
+        Association association = optionalAssociation.get();
+
+        //Check if user has an address in the right city and country
+        if (!association.getCity().equals(city) || !association.getCountry().equals(country)) {
+            throw new IllegalArgumentException("You don't live in the right city or country to join this association.");
+        }
+
+        association.addMember(userId);
+        Membership membership = new Membership(userId, associationId, country, city, street, houseNumber, postalCode);
         associationRepository.save(association);
+        membershipRepository.save(membership);
+
+        return "User " + userId + " successfully joined association " + associationId;
+    }
+
+    /**
+     * User leaves an association.
+     *
+     * @return a message confirming the leave.
+     */
+    public String leaveAssociation(int userId, int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
+        if (optionalAssociation.isEmpty() || optionalMembership.isEmpty()) {
+            throw new IllegalArgumentException("Association/membership does not exist.");
+        }
+
+        Association association = optionalAssociation.get();
+        association.removeMember(userId);
+        Membership membership = optionalMembership.get();
+        membership.leave();
+        associationRepository.save(association);
+        membershipRepository.save(membership);
+        return "User " + userId + " left association " + associationId;
     }
 
     /**
