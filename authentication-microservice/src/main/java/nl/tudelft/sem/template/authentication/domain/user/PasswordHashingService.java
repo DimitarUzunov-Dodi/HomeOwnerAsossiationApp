@@ -13,7 +13,18 @@ public class PasswordHashingService {
         this.encoder = encoder;
     }
 
-    public HashedPassword hash(Password password) {
-        return new HashedPassword(encoder.encode(password.toString()));
+    /**
+     * Hashes a password.
+     *
+     * @param password The password to be hashed
+     * @return The encoded password
+     * @throws Exception if the password is null or empty
+     */
+    public HashedPassword hash(Password password) throws Exception {
+        if (password != null && !password.toString().isEmpty()) {
+            return new HashedPassword(encoder.encode(password.toString()));
+        } else {
+            throw new Exception("INVALID_PASSWORD");
+        }
     }
 }
