@@ -1,8 +1,6 @@
 package nl.tudelft.sem.template.association.domain.association;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.association.domain.membership.CouncilUserIdsAttributeConverter;
@@ -53,6 +51,21 @@ public class Association {
     @Convert(converter = CouncilUserIdsAttributeConverter.class)
     private Set<Integer> councilUserIds;
 
+    /*
+    rules for the association
+     */
+    @Column(name = "rules")
+    @Convert(converter = RulesAttributeConverter.class)
+    private List<String> rules;
+
+    /**getter.
+     *
+     * @return rules
+     */
+    public List<String> getRules() {
+        return rules;
+    }
+
     /**constructor.
      *
      * @param name name of association
@@ -65,6 +78,7 @@ public class Association {
         this.councilNumber = councilNumber;
         this.creationDate = new Date(System.currentTimeMillis());
         this.councilUserIds = new HashSet<>();
+        this.rules = new ArrayList<>();
     }
 
     /**getter.

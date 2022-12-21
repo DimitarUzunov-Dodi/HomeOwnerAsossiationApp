@@ -15,6 +15,7 @@ import nl.tudelft.sem.template.authentication.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.authentication.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authentication.models.AuthenticationResponseModel;
 import nl.tudelft.sem.template.authentication.models.RegistrationRequestModel;
+import nl.tudelft.sem.template.authentication.models.UpdatePasswordRequestModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,5 +218,115 @@ public class UsersTests {
                         && wrongPassword.equals(authentication.getCredentials())));
 
         verify(mockJwtTokenGenerator, times(0)).generateToken(any());
+    }
+
+    @Test
+    public void changePass_withValidPass_worksCorrectly() throws Exception {
+        // Arrange
+        final UserId testUser = new UserId("SomeUser");
+        final Password testPassword = new Password("password123");
+        final Password newTestPassword = new Password("newpass");
+        final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
+        final HashedPassword newTestHashedPassword = new HashedPassword("newpass");
+
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+        when(mockPasswordEncoder.hash(newTestPassword)).thenReturn(newTestHashedPassword);
+
+        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        userRepository.save(appUser);
+
+        UpdatePasswordRequestModel model = new UpdatePasswordRequestModel();
+        model.setUserId(testUser.toString());
+        model.setPassword(testPassword.toString());
+        model.setNewPassword(newTestPassword.toString());
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/changepass")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
+
+        // Assert
+        resultActions.andExpect(status().isOk());
+
+        AppUser savedUser = userRepository.findByUserId(testUser).orElseThrow();
+
+        assertThat(savedUser.getUserId()).isEqualTo(testUser);
+        assertThat(savedUser.getPassword()).isEqualTo(newTestHashedPassword);
+    }
+
+    @Test
+    public void changePass_withInvalidCredentials_throwsException() throws Exception {
+        // Arrange
+        final UserId testUser = new UserId("SomeUser");
+        final Password testPassword = new Password("password");
+        final Password incorrectTestPassword = new Password("incorrect");
+        final Password newTestPassword = new Password("newpass");
+        final HashedPassword testHashedPassword = new HashedPassword("password");
+        final HashedPassword incorrectTestHashedPassword = new HashedPassword("incorrect");
+        final HashedPassword newTestHashedPassword = new HashedPassword("newpass");
+
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+        when(mockPasswordEncoder.hash(newTestPassword)).thenReturn(newTestHashedPassword);
+        when(mockPasswordEncoder.hash(incorrectTestPassword)).thenReturn(incorrectTestHashedPassword);
+
+        when(mockAuthenticationManager.authenticate(argThat(authentication ->
+                testUser.equals(authentication.getPrincipal())
+                        && incorrectTestPassword.equals(authentication.getCredentials())
+        ))).thenThrow(new BadCredentialsException("Invalid password"));
+
+        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        userRepository.save(appUser);
+
+        UpdatePasswordRequestModel model = new UpdatePasswordRequestModel();
+        model.setUserId(testUser.toString());
+        model.setPassword(incorrectTestPassword.toString());
+        model.setNewPassword(newTestPassword.toString());
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/changepass")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
+
+        // Assert
+
+        resultActions.andExpect(status().isBadRequest());
+
+        AppUser savedUser = userRepository.findByUserId(testUser).orElseThrow();
+
+        assertThat(savedUser.getUserId()).isEqualTo(testUser);
+        assertThat(savedUser.getPassword()).isEqualTo(testHashedPassword);
+    }
+
+    @Test
+    public void changePass_withSamePass_throwsException() throws Exception {
+        // Arrange
+        final UserId testUser = new UserId("SomeUser");
+        final Password testPassword = new Password("password");
+        final Password newTestPassword = new Password("newpass");
+        final HashedPassword testHashedPassword = new HashedPassword("password");
+        final HashedPassword newTestHashedPassword = new HashedPassword("newpass");
+
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+        when(mockPasswordEncoder.hash(newTestPassword)).thenReturn(newTestHashedPassword);
+
+        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        userRepository.save(appUser);
+
+        UpdatePasswordRequestModel model = new UpdatePasswordRequestModel();
+        model.setUserId(testUser.toString());
+        model.setPassword(newTestPassword.toString());
+        model.setNewPassword(newTestPassword.toString());
+
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/changepass")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
+
+        // Assert
+
+        resultActions.andExpect(status().isBadRequest());
+
+        AppUser savedUser = userRepository.findByUserId(testUser).orElseThrow();
+
+        assertThat(savedUser.getUserId()).isEqualTo(testUser);
+        assertThat(savedUser.getPassword()).isEqualTo(testHashedPassword);
     }
 }

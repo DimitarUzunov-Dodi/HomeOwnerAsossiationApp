@@ -3,10 +3,7 @@ package nl.tudelft.sem.template.voting.domain;
 import java.rmi.NoSuchObjectException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidIdException;
@@ -136,7 +133,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String castVote(int voterId, int associationId, int candidateId) {
+    public String castElectionVote(int voterId, int associationId, int candidateId) {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();
@@ -279,5 +276,65 @@ public class VotingService {
                     + "The results can be accessed through the association.";
         }
 
+    }
+
+    /**
+     * Returns a message indicating what the user voted.
+     *
+     * @param ruleVoteId            The id of the rule voting object to vote for.
+     * @param userId                The id of the user voting.
+     * @param vote                  The vote of the user voting.
+     * @return                      A message confirming what the user voted.
+     * @throws InvalidIdException   Thrown when the rule vote id is invalid.
+     */
+    public String castRuleVote(Long ruleVoteId, int userId, String vote) throws InvalidIdException {
+        List<String> validVotes = List.of("for", "against", "abstain");
+        if (vote == null || !(validVotes.contains(vote))) {
+            throw new IllegalArgumentException("The vote is not valid, please pick from: for/against/abstain.");
+        } else if (ruleVoteId == null) {
+            throw new InvalidIdException("The rule vote id is null.");
+        }
+
+        Optional<RuleVoting> optionalRuleVoting = ruleVotingRepository.findById(ruleVoteId);
+        RuleVoting ruleVoting = optionalRuleVoting
+                .orElseThrow(() -> new InvalidIdException("There is no rule vote ongoing with the id: " + ruleVoteId));
+
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date ruleVoteEndDate = ruleVoting.getEndDate();
+
+        if (ChronoUnit.DAYS.between(currentDate.toInstant(), ruleVoteEndDate.toInstant()) > 0) {
+            throw new IllegalArgumentException("The rule vote is still in reviewing. It is too early to cast a vote.");
+        }
+
+        //Checks if rule vote has ended
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(ruleVoteEndDate);
+        cal.add(Calendar.DAY_OF_MONTH, 2);
+        if (currentDate.compareTo(cal.getTime()) > 0) {
+            throw new IllegalArgumentException("The rule vote has ended.");
+        }
+
+        //If the voter already voted, remove previous vote
+        for (Pair v : ruleVoting.getVotes()) {
+            if ((int) v.getFirst() == userId) {
+                ruleVoting.getVotes().remove(v);
+                break;
+            }
+        }
+
+        Pair<Integer, String> submission = Pair.of(userId, vote);
+        ruleVoting.addVote(submission);
+        ruleVotingRepository.save(ruleVoting);
+
+        if (vote.equals("for")) {
+            return "The user with ID " + userId + " voted in favour of the "
+                    + "proposal under consideration in rule vote: " + ruleVoteId;
+        } else if (vote.equals("against")) {
+            return "The user with ID " + userId + " voted against the "
+                    + "proposal under consideration in rule vote: " + ruleVoteId;
+        } else {
+            return "The user with ID " + userId + " abstains from voting for the "
+                    + "proposal under consideration in rule vote: " + ruleVoteId;
+        }
     }
 }

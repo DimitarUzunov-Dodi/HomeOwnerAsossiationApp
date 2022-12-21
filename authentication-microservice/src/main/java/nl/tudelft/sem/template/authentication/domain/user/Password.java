@@ -1,5 +1,7 @@
 package nl.tudelft.sem.template.authentication.domain.user;
 
+import static nl.tudelft.sem.template.authentication.domain.user.FieldValidation.validateField;
+
 import lombok.EqualsAndHashCode;
 
 /**
@@ -9,9 +11,18 @@ import lombok.EqualsAndHashCode;
 public class Password {
     private final transient String passwordValue;
 
-    public Password(String password) {
-        // Validate input
-        this.passwordValue = password;
+    /**
+     * Constructor for passwords.
+     *
+     * @param password password in string format
+     * @throws InvalidFieldException if the password is invalid
+     */
+    public Password(String password) throws InvalidFieldException {
+        if (validateField(password)) {
+            this.passwordValue = password;
+        } else {
+            throw new InvalidFieldException();
+        }
     }
 
     @Override
