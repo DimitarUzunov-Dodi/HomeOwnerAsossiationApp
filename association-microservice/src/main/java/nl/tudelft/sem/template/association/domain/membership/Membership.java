@@ -99,7 +99,7 @@ unique id for different memberships
      * @return get leave date
      */
     public Date getLeaveDate() {
-        return joinDate;
+        return leaveDate;
     }
 
     public void leave() {
