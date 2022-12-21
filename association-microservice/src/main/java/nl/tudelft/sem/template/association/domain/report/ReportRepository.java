@@ -5,15 +5,30 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository("reportRepository")
-public interface ReportRepository extends JpaRepository<Report,Integer> {
+public interface ReportRepository extends JpaRepository<Report, Integer> {
 
-    List<Report> findByReporterIdAndAssociationId(String reporterId,int associationId);
+    /**findByViolatorIdAndAssociationId.
+     *
+     * @param violatorId violator id
+     * @param associationId association id
+     *
+     * @return list of reports accordingly
+     */
+    List<Report> findByViolatorIdAndAssociationId(String violatorId, int associationId);
 
-    List<Report> findByViolatorIdAndAssociationId(String violatorId,int associationId);
-
-    List<Report> findByRuleIdAndAssociationId(int ruleId,int associationId);
-
+    /**findByAssociationId.
+     *
+     * @param associationId association id
+     *
+     * @return list of reports accordingly
+     */
     List<Report> findByAssociationId(int associationId);
 
-    boolean existsById(int Id);
+    /**if the report exists.
+     *
+     * @param id the id of the report
+     *
+     * @return the existence of the report
+     */
+    boolean existsById(int id);
 }
