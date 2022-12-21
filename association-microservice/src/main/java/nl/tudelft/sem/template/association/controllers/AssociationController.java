@@ -55,8 +55,14 @@ public class AssociationController {
         }
     }
 
+    /**
+     * Dummy endpoint for updating the council.
+     *
+     * @param newCouncil string with the new council to be parsed
+     * @return 200 if OK
+     */
     @PostMapping("/update-council-dummy")
-    public ResponseEntity<String> updateCouncilDummy(String newCouncil){
+    public ResponseEntity<String> updateCouncilDummy(String newCouncil) {
 
         System.out.println(newCouncil);
 
