@@ -24,7 +24,7 @@ public class PasswordHashingService {
         if (password != null && !password.toString().isEmpty()) {
             return new HashedPassword(encoder.encode(password.toString()));
         } else {
-            throw new Exception("INVALID_PASS");
+            throw new Exception("INVALID_PASSWORD");
         }
     }
 }

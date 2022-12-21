@@ -31,6 +31,36 @@ public class RegistrationServiceTests {
     private transient UserRepository userRepository;
 
     @Test
+    public void createUser_withNullUserId_throwsException() throws Exception {
+        final UserId testUser = null;
+        final Password testPassword = new Password("password123");
+        final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+
+        try {
+            registrationService.registerUser(testUser, testPassword);
+            fail("Registration should've failed!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isNotEmpty();
+        }
+    }
+
+    @Test
+    public void createUser_withNullPassword_throwsException() throws Exception {
+        final UserId testUser = new UserId("JEFFERY");
+        final Password testPassword = null;
+        final HashedPassword testHashedPassword = null;
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+
+        try {
+            registrationService.registerUser(testUser, testPassword);
+            fail("Registration should've failed!");
+        } catch (Exception e) {
+            assertThat(e.getMessage()).isNotEmpty();
+        }
+    }
+
+    @Test
     public void createUser_withValidData_worksCorrectly() throws Exception {
         // Arrange
         final UserId testUser = new UserId("SomeUser");
