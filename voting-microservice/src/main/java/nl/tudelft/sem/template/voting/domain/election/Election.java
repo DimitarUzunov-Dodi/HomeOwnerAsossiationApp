@@ -60,4 +60,30 @@ public class Election extends Voting {
         votes.add(vote);
     }
 
+
+    /**
+     * Gets the result of this election then turns them into readable string.
+     *
+     * @return election results
+     */
+    public String getResults() {
+        // TODO : implement getResults()
+        HashMap<Integer, Integer> hm = this.tallyVotes();
+        String str = hm.toString();
+        hm.clear();
+        return str;
+    }
+
+
+    /**
+     * Tallies the votes from this election.
+     *
+     * @return HashMap containing each candidateId along with its respective number of votes
+     */
+    public HashMap<Integer, Integer> tallyVotes() {
+        HashMap<Integer, Integer> res = new HashMap<Integer, Integer>();
+        // TODO : implement tallyVotes()
+        return res;
+    }
+
 }

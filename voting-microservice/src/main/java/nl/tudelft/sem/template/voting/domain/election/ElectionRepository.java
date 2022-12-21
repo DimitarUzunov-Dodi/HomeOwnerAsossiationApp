@@ -10,4 +10,6 @@ public interface ElectionRepository extends JpaRepository<Election, Long> {
      * Find election by AssociationID.
      */
     Optional<Election> findByAssociationId(int associationId);
+
+    Optional<Election> findFirstByOrderByEndDateAsc();
 }

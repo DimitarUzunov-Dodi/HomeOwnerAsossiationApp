@@ -55,4 +55,12 @@ public class AssociationController {
         }
     }
 
+    @PostMapping("/update-council-dummy")
+    public ResponseEntity<String> updateCouncilDummy(String newCouncil){
+
+        System.out.println(newCouncil);
+
+        return ResponseEntity.ok("Council updated!");
+    }
+
 }

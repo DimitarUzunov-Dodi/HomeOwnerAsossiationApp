@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A DDD repository for quering and persisting user aggregate roots.
+ * A DDD repository for querying and persisting user aggregate roots.
  */
 @Repository
 public interface UserRepository extends JpaRepository<AppUser, String> {
