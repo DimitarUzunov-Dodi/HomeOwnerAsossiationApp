@@ -97,19 +97,43 @@ class RequestUtilTest {
         assertThat(entity.getBody()).isEqualTo(null);
     }
 
+    public <M, R> void genericTestGetRequest(M data, Class<R> responseClass, R responseData,
+                                             String token, int port, String parameters, String expectedServerAddress) {
+        ArgumentCaptor<HttpEntity<M>> captureEntity = ArgumentCaptor.forClass(HttpEntity.class);
+
+        doReturn(ResponseEntity.ok(responseData)).when(restTemplate)
+                .exchange(eq(expectedServerAddress), eq(HttpMethod.GET), any(HttpEntity.class), eq(responseClass));
+
+        assertThat(requestUtil.getRequest(data, responseClass, token, port, parameters))
+                .isEqualTo(ResponseEntity.ok(responseData));
+
+        verify(restTemplate, times(2))
+                .exchange(eq(expectedServerAddress), eq(HttpMethod.GET), captureEntity.capture(), eq(responseClass));
+
+        HttpEntity<M> entity = captureEntity.getValue();
+
+        assertThat(entity.getHeaders().containsKey("Authorization")).isTrue();
+        assertThat(entity.getHeaders().get("Authorization")).containsExactly(("Bearer " + token));
+
+        assertThat(entity.getBody()).isEqualTo(data);
+    }
+
     @Test
     public void getRequestIntTest() {
         genericTestGetRequest(Integer.class, 295839, "token", 8080, "some/endpoint", "http://localhost:8080/some/endpoint");
+        genericTestGetRequest(3849384, Integer.class, 295839, "token", 8080, "some/endpoint", "http://localhost:8080/some/endpoint");
     }
 
     @Test
     public void getRequesStringTest() {
         genericTestGetRequest(String.class, "Some weird string29835390852\":?>';][.}{>}{<>}(*&90&*&^%$'", "other Token", 8085, "some/endpoint", "http://localhost:8085/some/endpoint");
+        genericTestGetRequest("someDataString289393482::}>?>+_)(*&^%#@", String.class, "Some weird string29835390852\":?>';][.}{>}{<>}(*&90&*&^%$'", "other Token", 8085, "some/endpoint", "http://localhost:8085/some/endpoint");
     }
 
     @Test
     public void getRequestDoubleTest() {
         genericTestGetRequest(Double.class, 295839.48304839, "token", 8082, "some/endpoint\":?>/;''][';/..\":\"}{*&__++_+_']", "http://localhost:8082/some/endpoint\":?>/;''][';/..\":\"}{*&__++_+_']");
+        genericTestGetRequest(39530.903940, Double.class, 295839.48304839, "token", 8082, "some/endpoint\":?>/;''][';/..\":\"}{*&__++_+_']", "http://localhost:8082/some/endpoint\":?>/;''][';/..\":\"}{*&__++_+_']");
     }
 
     public <M> void genericTestConvertToModel(M data, Class<M> typeClass) {

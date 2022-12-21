@@ -6,14 +6,13 @@ import javax.servlet.http.HttpServletRequest;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.domain.membership.MembershipService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
-import nl.tudelft.sem.template.association.models.RuleVoteRequestModel;
-import nl.tudelft.sem.template.association.models.RuleVoteRequestModelInternal;
+import nl.tudelft.sem.template.association.models.*;
 import nl.tudelft.sem.template.association.utils.RequestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class RuleService {
 
     private final transient AssociationService associationService;
@@ -27,7 +26,7 @@ public class RuleService {
     private static final int PORT = 8083;
 
     /**
-     * RuleService constructor, what autowire it's dependencies.
+     * RuleService constructor, which autowire it's dependencies.
      *
      * @param associationService the association service
      * @param membershipService the membership service
@@ -46,17 +45,24 @@ public class RuleService {
     }
 
     /**
-     * Checks the input if the user is in the association, and if the user is a council member,
-     * If so then it sends a request to the voting microservice.
+     * Votes on a rule, by calling the voting microservice
+     *
+     * <p>Checks the input if the user is in the association, and if the user is a council member,
+     * if so then the request wil be forwarded to the voting microservice.
      *
      * @param request the request made from the user
      * @return the response made by the voting microservice
-     * @throws IOException If HttpRequest given does not contain the correct information
+     * @throws IOException If the HttpServletRequest given does not contain the correct information
      * @throws NoSuchElementException If the database does not contain the user
+     * @throws IllegalArgumentException If the user is not a part of the association
      */
-    public ResponseEntity<String> voteOnRule(HttpServletRequest request) throws IOException, NoSuchElementException {
+    public ResponseEntity<String> voteOnRule(HttpServletRequest request)
+            throws IOException, NoSuchElementException, IllegalArgumentException {
         RuleVoteRequestModel model = requestUtil.convertToModel(request, RuleVoteRequestModel.class);
-        membershipService.isInAssociation(model.getUserId(), model.getAssociationId());
+
+        if (!membershipService.isInAssociation(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User was not part of that association");
+        }
 
         RuleVoteRequestModelInternal internalModel = new RuleVoteRequestModelInternal();
         internalModel.setAssociationId(model.getAssociationId());
@@ -66,18 +72,84 @@ public class RuleService {
         associationService.verifyCouncilMember(internalModel.getUserId(), model.getAssociationId());
 
         return requestUtil.postRequest(internalModel, String.class,
-                requestUtil.getToken(request), PORT, "/rule-voting/vote-rule");
+                requestUtil.getToken(request), PORT, "rule-voting/vote-rule");
     }
 
-    public void proposeRule() {
-        // TODO
+
+    /**
+     * Proposes a rule by calling the voting microservice.
+     *
+     * <p>Checks the input if the user is in the association,
+     * if so then the request wil be forwarded to the voting microservice.
+     *
+     * @param request the request made from the user
+     * @return the response made by the voting microservice
+     * @throws IOException If the HttpServletRequest given does not contain the correct information
+     * @throws NoSuchElementException If the database does not contain the user
+     * @throws IllegalArgumentException If the user is not a part of the association
+     */
+    public ResponseEntity<String> proposeRule(HttpServletRequest request)
+            throws IOException, NoSuchElementException, IllegalArgumentException {
+        RuleProposalRequestModel model = requestUtil.convertToModel(request, RuleProposalRequestModel.class);
+
+        if (!membershipService.isInAssociation(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User was not part of that association");
+        }
+
+        RuleProposalRequestModelInternal internalModel = new RuleProposalRequestModelInternal();
+        internalModel.setAssociationId(model.getAssociationId());
+        internalModel.setUserId(userService.getUserById(model.getUserId()).get().getId());
+        internalModel.setRule(model.getRule());
+
+        return requestUtil.postRequest(internalModel, String.class,
+                requestUtil.getToken(request), PORT, "rule-voting/propose-rule");
     }
 
-    public void amendRule() {
-        // TODO
+    /**
+     * Amends a rule by calling the voting microservice.
+     *
+     * <p>Checks the input if the user is in the association,
+     * if so then the request wil be forwarded to the voting microservice.
+     *
+     * @param request the request made from the user
+     * @return the response made by the voting microservice
+     * @throws IOException If the HttpServletRequest given does not contain the correct information
+     * @throws NoSuchElementException If the database does not contain the user
+     * @throws IllegalArgumentException If the user is not a part of the association
+     */
+    public ResponseEntity<String> amendRule(HttpServletRequest request)
+            throws IOException, NoSuchElementException, IllegalArgumentException {
+        RuleAmendRequestModel model = requestUtil.convertToModel(request, RuleAmendRequestModel.class);
+
+        if (!membershipService.isInAssociation(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User was not part of that association");
+        }
+
+        RuleAmendRequestModelInternal internalModel = new RuleAmendRequestModelInternal();
+        internalModel.setAssociationId(model.getAssociationId());
+        internalModel.setUserId(userService.getUserById(model.getUserId()).get().getId());
+        internalModel.setRule(model.getRule());
+        internalModel.setAmendment(model.getAmendment());
+
+        return requestUtil.postRequest(internalModel, String.class,
+                requestUtil.getToken(request), PORT, "rule-voting/amend-rule");
     }
 
-    public void getRules() {
-        // TODO
+    /**
+     * Gets the rule based on the request the user gave us,
+     * the request wil be forwarded to the voting microservice.
+     *
+     * @param request the request made from the user
+     * @return the response made by the voting microservice
+     * @throws IOException If the HttpServletRequest given does not contain the correct information
+     * @throws NoSuchElementException If the database does not contain the user
+     * @throws IllegalArgumentException If the user is not a part of the association
+     */
+    public ResponseEntity<String> getRules(HttpServletRequest request)
+            throws IOException, NoSuchElementException, IllegalArgumentException {
+        RuleGetRequestModel model = requestUtil.convertToModel(request, RuleGetRequestModel.class);
+
+        return requestUtil.getRequest(model, String.class,
+                requestUtil.getToken(request), PORT, "rule-voting/get-rule-vote");
     }
 }
