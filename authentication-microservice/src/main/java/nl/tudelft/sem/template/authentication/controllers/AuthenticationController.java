@@ -92,9 +92,13 @@ public class AuthenticationController {
         try {
             UserId userId = new UserId(request.getUserId());
             Password password = new Password(request.getPassword());
-            registrationService.registerUser(userId, password);
+            try {
+                registrationService.registerUser(userId, password);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "USER_ID_TAKEN", e);
+            }
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "USER_ID_TAKEN", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_FIELDS", e);
         }
 
         return ResponseEntity.ok().build();
