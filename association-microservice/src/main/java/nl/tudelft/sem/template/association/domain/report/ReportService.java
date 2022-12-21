@@ -92,7 +92,8 @@ public class ReportService {
      */
     public List<Report> checkViolation(String userId, int associationId) throws IllegalArgumentException {
         if (!membershipRepository.existsByUserIdAndAssociationId(userId, associationId)) {
-            throw new IllegalArgumentException("The user " + userId + " is not in the association with id" + associationId);
+            throw new IllegalArgumentException("The user " + userId + " is not in the association with id "
+                    + associationId + ".");
         }
         return reportRepository.findByViolatorIdAndAssociationId(userId, associationId);
     }
