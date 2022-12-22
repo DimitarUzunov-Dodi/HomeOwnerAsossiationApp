@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class ReportModel {
     int associationId;
-    int reporterId;
-    int violatorId;
+    String reporterId;
+    String violatorId;
     String rule;
 }

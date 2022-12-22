@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class JoinAssociationRequestModel {
-    int userId;
+    String userId;
     int associationId;
     String country;
     String city;

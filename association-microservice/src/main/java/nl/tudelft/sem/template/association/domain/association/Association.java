@@ -61,14 +61,14 @@ public class Association {
      */
     @Column(name = "council_user_ids")
     @Convert(converter = UserIdsAttributeConverter.class)
-    private Set<Integer> councilUserIds;
+    private Set<String> councilUserIds;
 
     /*
     User Ids of the members
      */
     @Column(name = "member_user_ids")
     @Convert(converter = UserIdsAttributeConverter.class)
-    private Set<Integer> memberUserIds;
+    private Set<String> memberUserIds;
 
     /*
     rules for the association
@@ -159,11 +159,19 @@ public class Association {
         return councilNumber;
     }
 
+    /**setter.
+     *
+     * @param councilNumber set new councilNumber
+     */
+    public void setCouncilNumber(int councilNumber) {
+        this.councilNumber = councilNumber;
+    }
+
     /**getter.
      *
      * @return the User Ids of council members
      */
-    public Set<Integer> getCouncilUserIds() {
+    public Set<String> getCouncilUserIds() {
         return councilUserIds;
     }
 
@@ -172,7 +180,7 @@ public class Association {
      *
      * @param councilUserIds The new set of council user ids.
      */
-    public void setCouncilUserIds(Set<Integer> councilUserIds) {
+    public void setCouncilUserIds(Set<String> councilUserIds) {
         this.councilUserIds = councilUserIds;
     }
 
@@ -180,7 +188,7 @@ public class Association {
      *
      * @return the User Ids of members
      */
-    public Set<Integer> getMemberUserIds() {
+    public Set<String> getMemberUserIds() {
         return memberUserIds;
     }
 
@@ -189,15 +197,15 @@ public class Association {
      *
      * @param memberUserIds Set of member user ids.
      */
-    public void setMemberUserIds(Set<Integer> memberUserIds) {
+    public void setMemberUserIds(Set<String> memberUserIds) {
         this.memberUserIds = memberUserIds;
     }
 
-    public void addMember(int userId) {
+    public void addMember(String userId) {
         this.memberUserIds.add(userId);
     }
 
-    public void removeMember(int userId) {
+    public void removeMember(String userId) {
         this.memberUserIds.remove(userId);
     }
 

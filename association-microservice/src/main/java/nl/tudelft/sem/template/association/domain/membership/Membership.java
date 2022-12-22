@@ -14,7 +14,7 @@ public class Membership {
     private Integer id;
 
     @Column(name = "user_id", nullable = false)
-    private int userId;
+    private String userId;
 
     @Column(name = "association_id", nullable = false)
     private int associationId;
@@ -43,7 +43,7 @@ public class Membership {
     /**
      * Constructor for Membership class.
      */
-    public Membership(int userId, int associationId, String country, String city, String street,
+    public Membership(String userId, int associationId, String country, String city, String street,
                       String houseNumber, String postalCode) {
         this.userId = userId;
         this.associationId = associationId;
@@ -59,7 +59,7 @@ public class Membership {
         return id;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 

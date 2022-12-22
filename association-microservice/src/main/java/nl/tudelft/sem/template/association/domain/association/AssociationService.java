@@ -24,8 +24,9 @@ public class AssociationService {
                                     int councilNumber) {
         Association association = new Association(name, country, city, description, councilNumber);
         int associationId = associationRepository.save(association).getId();
-        return "Association was created:\nID: " + associationId + "\nName: " + name + "\nCountry: " + country
-                + "\nDescription: " + description + "\nMax council members: " + councilNumber;
+        return "Association was created:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + name + System.lineSeparator() + "Country: " + country + System.lineSeparator()
+                + "Description: " + description + System.lineSeparator() + "Max council members: " + councilNumber;
     }
 
     /**
@@ -33,7 +34,7 @@ public class AssociationService {
      *
      * @return a message confirming the join.
      */
-    public String joinAssociation(int userId, int associationId, String country, String city, String street,
+    public String joinAssociation(String userId, int associationId, String country, String city, String street,
                                   String houseNumber, String postalCode) {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isEmpty()) {
@@ -59,7 +60,7 @@ public class AssociationService {
      *
      * @return a message confirming the leave.
      */
-    public String leaveAssociation(int userId, int associationId) {
+    public String leaveAssociation(String userId, int associationId) {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         Optional<Membership> optionalMembership = membershipRepository
                 .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
@@ -83,16 +84,16 @@ public class AssociationService {
      * @param associationId     The association id.
      * @return                  True if the user is part of the association's council.
      */
-    public boolean verifyCouncilMember(Integer userId, Integer associationId) {
+    public boolean verifyCouncilMember(String userId, Integer associationId) {
         if (userId == null || associationId == null) {
             return false;
         }
 
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isPresent()) {
-            Set<Integer> councilMembers = optionalAssociation.get().getCouncilUserIds();
-            for (Integer i : councilMembers) {
-                if (i.equals(userId)) {
+            Set<String> councilMembers = optionalAssociation.get().getCouncilUserIds();
+            for (String s : councilMembers) {
+                if (s.equals(userId)) {
                     return true;
                 }
             }

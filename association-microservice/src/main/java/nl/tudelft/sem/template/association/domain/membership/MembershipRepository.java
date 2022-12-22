@@ -14,7 +14,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      * @param associationId the association id
      * @return if a membership exists
      */
-    boolean existsByUserIdAndAssociationId(int userId, int associationId);
+    boolean existsByUserIdAndAssociationId(String userId, int associationId);
 
     /**findByAssociationId.
      *
@@ -29,14 +29,14 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      * @param associationId the association id condition
      * @return the membership with the key conditions
      */
-    Optional<Membership> findByUserIdAndAssociationId(int userId, int associationId);
+    Optional<Membership> findByUserIdAndAssociationId(String userId, int associationId);
 
     /**findAllByUserId.
      *
      * @param userId the user id
      * @return the corresponding memberships
      */
-    List<Membership> findAllByUserId(int userId);
+    List<Membership> findAllByUserId(String userId);
 
     /**findByUserIdAndAssociationIdAndLeaveDate.
      *
@@ -45,5 +45,5 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      * @param leaveDate the leave date
      * @return the membership with the key conditions
      */
-    Optional<Membership> findByUserIdAndAssociationIdAndLeaveDate(int userId, int associationId, Date leaveDate);
+    Optional<Membership> findByUserIdAndAssociationIdAndLeaveDate(String userId, int associationId, Date leaveDate);
 }
