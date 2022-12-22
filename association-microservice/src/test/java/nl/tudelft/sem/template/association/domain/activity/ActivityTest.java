@@ -3,7 +3,6 @@ package nl.tudelft.sem.template.association.domain.activity;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
