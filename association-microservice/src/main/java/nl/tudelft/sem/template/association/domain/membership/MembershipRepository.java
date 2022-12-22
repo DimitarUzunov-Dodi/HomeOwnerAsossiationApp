@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.association.domain.membership;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,5 +31,19 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      */
     Optional<Membership> findByUserIdAndAssociationId(String userId, int associationId);
 
+    /**findAllByUserId.
+     *
+     * @param userId the user id
+     * @return the corresponding memberships
+     */
+    List<Membership> findAllByUserId(String userId);
 
+    /**findByUserIdAndAssociationIdAndLeaveDate.
+     *
+     * @param userId the user id condition
+     * @param associationId the association id condition
+     * @param leaveDate the leave date
+     * @return the membership with the key conditions
+     */
+    Optional<Membership> findByUserIdAndAssociationIdAndLeaveDate(String userId, int associationId, Date leaveDate);
 }

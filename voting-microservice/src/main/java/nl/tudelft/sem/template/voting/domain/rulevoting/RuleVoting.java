@@ -13,24 +13,32 @@ import org.springframework.data.util.Pair;
 public class RuleVoting extends Voting {
     @Column(name = "association_id", nullable = false)
     private int associationId;
+
     @Column(name = "user_id", nullable = false)
-    private int userId;
+    private String userId;
+
     @Column(name = "rule", nullable = false)
     private String rule;
+
     @Column(name = "amendment")
     private String amendment;
+
     @Column(name = "type", nullable = false)
     private VotingType type;
+
+    /**
+     * Vote is a Pair of voterId, vote (for/against/abstain) in this order.
+     */
     @Column(name = "votes")
     @Convert(converter = RuleVotingVotesAttributeConverter.class)
-    private List<Pair<Integer, String>> votes;
+    private List<Pair<String, String>> votes;
 
     /**
      * Constructor for the RuleVoting object.
      *
      * @param rule The rule on which will be voted.
      */
-    public RuleVoting(int associationId, int userId, String rule, String amendment, VotingType type) {
+    public RuleVoting(int associationId, String userId, String rule, String amendment, VotingType type) {
         super();
         this.associationId = associationId;
         this.userId = userId;
@@ -53,11 +61,11 @@ public class RuleVoting extends Voting {
         this.associationId = associationId;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -85,11 +93,11 @@ public class RuleVoting extends Voting {
         this.type = type;
     }
 
-    public List<Pair<Integer, String>> getVotes() {
+    public List<Pair<String, String>> getVotes() {
         return votes;
     }
 
-    public void addVote(Pair<Integer, String> vote) {
+    public void addVote(Pair<String, String> vote) {
         votes.add(vote);
     }
 

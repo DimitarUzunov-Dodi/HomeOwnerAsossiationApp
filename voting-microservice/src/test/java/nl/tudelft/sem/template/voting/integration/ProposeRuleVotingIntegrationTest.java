@@ -38,7 +38,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
 
     /**
@@ -53,7 +53,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void proposeRuleTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         RuleProposalRequestModel model = new RuleProposalRequestModel();
         model.setUserId(this.userId);
@@ -83,7 +83,7 @@ public class ProposeRuleVotingIntegrationTest {
 
     @Test
     public void nullAssociationIdTest() throws Exception {
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         RuleProposalRequestModel model = new RuleProposalRequestModel();
         model.setUserId(this.userId);
@@ -127,7 +127,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void nullRuleTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
 
         RuleProposalRequestModel model = new RuleProposalRequestModel();
         model.setUserId(this.userId);
@@ -149,7 +149,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void emptyRuleTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "";
 
         RuleProposalRequestModel model = new RuleProposalRequestModel();
@@ -172,7 +172,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void ruleTooLongTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 

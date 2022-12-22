@@ -6,10 +6,10 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 @Converter
-public class CouncilUserIdsAttributeConverter implements AttributeConverter<Set<Integer>, String> {
+public class UserIdsAttributeConverter implements AttributeConverter<Set<String>, String> {
 
     @Override
-    public String convertToDatabaseColumn(Set<Integer> attribute) {
+    public String convertToDatabaseColumn(Set<String> attribute) {
         if (attribute.size() == 0) {
             return null;
         }
@@ -17,16 +17,16 @@ public class CouncilUserIdsAttributeConverter implements AttributeConverter<Set<
     }
 
     @Override
-    public Set<Integer> convertToEntityAttribute(String dbData) {
-        HashSet<Integer> councilUserIds = new HashSet<>();
-        if (dbData == null) {
-            return councilUserIds;
+    public Set<String> convertToEntityAttribute(String dbData) {
+        HashSet<String> userIds = new HashSet<>();
+        if (dbData == null || dbData.isEmpty()) {
+            return userIds;
         }
 
         String[] split = dbData.split(", ");
         for (String s : split) {
-            councilUserIds.add(Integer.parseInt(s));
+            userIds.add(s);
         }
-        return councilUserIds;
+        return userIds;
     }
 }

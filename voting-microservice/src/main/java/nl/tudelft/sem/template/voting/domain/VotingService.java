@@ -227,7 +227,7 @@ public class VotingService {
      *
      * @return a message confirming the creation.
      */
-    public String createElection(VotingType type, int associationId, Integer userId, String rule, String amendment) {
+    public String createElection(VotingType type, int associationId, String userId, String rule, String amendment) {
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         return "Voting was created for association " + associationId
                 + " and will be held on " + voting.getEndDate().toString() + ".";
@@ -238,7 +238,7 @@ public class VotingService {
      *
      * @return a set of User IDs of candidates.
      */
-    public Set<Integer> getCandidates(int associationId) throws IllegalArgumentException {
+    public Set<String> getCandidates(int associationId) throws IllegalArgumentException {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             return optElection.get().getCandidateIds();
@@ -253,7 +253,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String applyForCandidate(int userId, int associationId) {
+    public String applyForCandidate(String userId, int associationId) {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();
@@ -281,7 +281,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String castElectionVote(int voterId, int associationId, int candidateId) {
+    public String castElectionVote(String voterId, int associationId, String candidateId) {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();
@@ -307,13 +307,13 @@ public class VotingService {
 
             //If the voter already voted, remove previous vote
             for (Pair vote : election.getVotes()) {
-                if ((int) vote.getFirst() == voterId) {
+                if (vote.getFirst().equals(voterId)) {
                     election.getVotes().remove(vote);
                     break;
                 }
             }
 
-            Pair<Integer, Integer> vote = Pair.of(voterId, candidateId);
+            Pair<String, String> vote = Pair.of(voterId, candidateId);
             election.addVote(vote);
             electionRepository.save(election);
             return "The voter with ID " + voterId + " voted for the candidate with ID " + candidateId + ".";
@@ -333,7 +333,7 @@ public class VotingService {
      * @param rule          The rule that is being proposed.
      * @return              A message confirming the creation of the rule vote.
      */
-    public String proposeRule(VotingType type, Integer associationId, Integer userId, String rule)
+    public String proposeRule(VotingType type, Integer associationId, String userId, String rule)
             throws InvalidIdException, InvalidRuleException, RuleTooLongException {
         if (associationId == null) {
             throw new InvalidIdException("The associationID is invalid.");
@@ -366,7 +366,7 @@ public class VotingService {
      * @param amendment     The amendment for the original rule.
      * @return              A message confirming the creation of the rule vote.
      */
-    public String amendmentRule(VotingType type, Integer associationId, Integer userId, String rule, String amendment)
+    public String amendmentRule(VotingType type, Integer associationId, String userId, String rule, String amendment)
             throws InvalidIdException, InvalidRuleException, RuleTooLongException {
         if (associationId == null) {
             throw new InvalidIdException("The associationID is invalid.");
@@ -441,7 +441,7 @@ public class VotingService {
      * @return                      A message confirming what the user voted.
      * @throws InvalidIdException   Thrown when the rule vote id is invalid.
      */
-    public String castRuleVote(Long ruleVoteId, int userId, String vote) throws InvalidIdException {
+    public String castRuleVote(Long ruleVoteId, String userId, String vote) throws InvalidIdException {
         List<String> validVotes = List.of("for", "against", "abstain");
         if (vote == null || !(validVotes.contains(vote))) {
             throw new IllegalArgumentException("The vote is not valid, please pick from: for/against/abstain.");
@@ -468,13 +468,13 @@ public class VotingService {
 
         //If the voter already voted, remove previous vote
         for (Pair v : ruleVoting.getVotes()) {
-            if ((int) v.getFirst() == userId) {
+            if (v.getFirst().equals(userId)) {
                 ruleVoting.getVotes().remove(v);
                 break;
             }
         }
 
-        Pair<Integer, String> submission = Pair.of(userId, vote);
+        Pair<String, String> submission = Pair.of(userId, vote);
         ruleVoting.addVote(submission);
         ruleVotingRepository.save(ruleVoting);
 
