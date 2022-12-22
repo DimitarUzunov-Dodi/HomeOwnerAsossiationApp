@@ -18,23 +18,23 @@ public class ElectionGetResultsTest {
     @BeforeEach
     public void setup() {
         election = new Election(0);
-        election.addVote(Pair.of(1, 2));
-        election.addVote(Pair.of(2, 3));
-        election.addVote(Pair.of(3, 1));
-        election.addVote(Pair.of(4, 2));
-        election.addVote(Pair.of(5, 2));
+        election.addVote(Pair.of("1", "2"));
+        election.addVote(Pair.of("2", "3"));
+        election.addVote(Pair.of("3", "1"));
+        election.addVote(Pair.of("4", "2"));
+        election.addVote(Pair.of("5", "2"));
 
         for (int i = 1; i <= 5; i++) {
-            election.addCandidate(i);
+            election.addCandidate(String.valueOf(i));
         }
     }
 
     @Test
     public void tallyVotesTest() {
-        HashMap<Integer, Integer> hm = election.tallyVotes();
+        HashMap<String, Integer> hm = election.tallyVotes();
 
-        assertThat(hm.get(2)).isEqualTo(3);
-        assertThat(hm.get(3)).isEqualTo(1);
+        assertThat(hm.get("2")).isEqualTo(3);
+        assertThat(hm.get("3")).isEqualTo(1);
     }
 
     @Test

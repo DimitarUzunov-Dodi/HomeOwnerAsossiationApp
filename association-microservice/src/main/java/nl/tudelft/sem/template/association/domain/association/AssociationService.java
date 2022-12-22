@@ -3,6 +3,9 @@ package nl.tudelft.sem.template.association.domain.association;
 import java.util.*;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
+import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
+import nl.tudelft.sem.template.association.models.RuleVoteResultRequestListModel;
+import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -99,6 +102,63 @@ public class AssociationService {
             }
         }
         return false;
+    }
+
+    /**
+     * Processes all the information received about a past election
+     * and updates the association's council.
+     *
+     * @param model model containing all important info pertaining
+     *              to a past election
+     */
+    public void processElection(ElectionResultRequestModel model) {
+        Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
+
+        if (optionalAssociation.isPresent()) {
+            Association association = optionalAssociation.get();
+
+            HashMap hm = model.getStandings();
+
+            List<Map.Entry<String, Integer>> list = new LinkedList<>(hm.entrySet());
+
+            Collections.sort(list, Map.Entry.comparingByValue());
+
+            Set<String> council = new HashSet<>();
+
+            for (int i = 0; i < list.size() && i < association.getCouncilNumber(); i++) {
+                council.add(list.get(i).getKey());
+            }
+
+            association.setCouncilUserIds(council);
+            associationRepository.save(association);
+        }
+    }
+
+    /**
+     * Processes all the information received about a past rule vote
+     * and updates the association's rule set by either updating a rule
+     * or adding it.
+     *
+     * @param model model containing all important info pertaining
+     *              to a past rule vote
+     */
+    public void processRuleVote(RuleVoteResultRequestModel model) {
+        Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
+
+        if (optionalAssociation.isPresent() && model.isPassed()) {
+            Association association = optionalAssociation.get();
+            List<String> rules = association.getRules();
+
+            if (model.isAmendment()) {
+                Integer index = rules.indexOf(rules);
+                rules.set(index, model.getAmendment());
+            } else {
+                rules.add(model.getRule());
+            }
+
+            association.setRules(rules);
+            associationRepository.save(association);
+        }
     }
 
 }

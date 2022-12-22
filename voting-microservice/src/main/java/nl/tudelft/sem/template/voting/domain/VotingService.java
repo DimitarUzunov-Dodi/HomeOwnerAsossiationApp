@@ -147,8 +147,9 @@ public class VotingService {
 
                 ElectionResultRequestModel model = new ElectionResultRequestModel();
                 model.setDate(election.getEndDate());
-                model.setResult(election.getResults());
                 model.setAssociationId(election.getAssociationId());
+                model.setStandings(election.tallyVotes());
+                model.setResult(election.getResults());
 
                 String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
 
@@ -198,6 +199,7 @@ public class VotingService {
                 model.setPassed(ruleVoting.passedMotion());
                 model.setResult(ruleVoting.getResults());
                 model.setAssociationId(ruleVoting.getAssociationId());
+                model.setAmendment(ruleVoting.getType() == VotingType.AMENDMENT);
 
                 String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
 

@@ -1,7 +1,6 @@
 package nl.tudelft.sem.template.association.controllers;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
@@ -14,12 +13,6 @@ import nl.tudelft.sem.template.association.domain.report.ReportInconsistentExcep
 import nl.tudelft.sem.template.association.domain.report.ReportService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.*;
-import nl.tudelft.sem.template.association.models.ElectionResultRequestListModel;
-import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.association.models.ReportModel;
-import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
-import nl.tudelft.sem.template.association.models.RuleVoteResultRequestListModel;
-import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 import org.springframework.web.server.ResponseStatusException;
+
 
 @RestController
 @RequestMapping("/association")
@@ -243,14 +236,14 @@ public class AssociationController {
 
         Event event = new Event(electionResult.getResult(), electionResult.getDate());
 
+        associationService.processElection(electionResult);
+
         try {
             historyService.addEvent(electionResult.getAssociationId(), event);
         } catch (Exception e) {
             return new ResponseEntity<>("Adding the log in history failed!",
                     HttpStatus.BAD_REQUEST);
         }
-
-        // TODO : update council
 
         return ResponseEntity.ok("Council updated!");
     }
@@ -271,14 +264,14 @@ public class AssociationController {
 
         Event event = new Event(ruleVoteResult.getResult(), ruleVoteResult.getDate());
 
+        associationService.processRuleVote(ruleVoteResult);
+
         try {
             historyService.addEvent(ruleVoteResult.getAssociationId(), event);
         } catch (Exception e) {
             return new ResponseEntity<>("Adding the log in history failed!",
                     HttpStatus.BAD_REQUEST);
         }
-
-        // TODO : update rules
 
         return ResponseEntity.ok("Rules updated!");
     }

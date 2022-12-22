@@ -129,7 +129,7 @@ public class RuleVoting extends Voting {
     }
 
     /**
-     * Gets the result of this rulevoting then turns them into readable string.
+     * Gets the result of this rulevoting then turns them into a readable string.
      *
      * @return rulevoting results
      */

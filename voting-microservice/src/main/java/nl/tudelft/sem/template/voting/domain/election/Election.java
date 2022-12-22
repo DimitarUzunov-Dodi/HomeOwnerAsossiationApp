@@ -69,7 +69,7 @@ public class Election extends Voting {
      * @return election results
      */
     public String getResults() {
-        HashMap<Integer, Integer> hm = this.tallyVotes();
+        HashMap<String, Integer> hm = this.tallyVotes();
         String str = hm.toString();
         return str.substring(1, str.length() - 1);
     }
@@ -80,15 +80,15 @@ public class Election extends Voting {
      *
      * @return HashMap containing each candidateId along with its respective number of votes
      */
-    public HashMap<Integer, Integer> tallyVotes() {
-        HashMap<Integer, Integer> res = new HashMap<>();
+    public HashMap<String, Integer> tallyVotes() {
+        HashMap<String, Integer> res = new HashMap<>();
 
-        for (Integer candidateId : this.candidateIds) {
+        for (String candidateId : this.candidateIds) {
             res.put(candidateId, 0);
         }
 
         for (Pair pair : this.votes) {
-            int candidateId = (Integer) pair.getSecond();
+            String candidateId = (String) pair.getSecond();
             int candidateTally = (Integer) res.get(candidateId);
             res.put(candidateId, candidateTally + 1);
         }

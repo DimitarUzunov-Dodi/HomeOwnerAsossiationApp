@@ -16,13 +16,13 @@ public class RuleVotingGetResultsTest {
      */
     @BeforeEach
     public void setup() {
-        ruleVoting = new RuleVoting(0, 0, "new rule", "none", VotingType.PROPOSAL);
-        ruleVoting.addVote(Pair.of(1, "for"));
-        ruleVoting.addVote(Pair.of(2, "for"));
-        ruleVoting.addVote(Pair.of(3, "against"));
-        ruleVoting.addVote(Pair.of(4, "against"));
-        ruleVoting.addVote(Pair.of(4, "against"));
-        ruleVoting.addVote(Pair.of(5, "abstain"));
+        ruleVoting = new RuleVoting(0, "0", "new rule", "none", VotingType.PROPOSAL);
+        ruleVoting.addVote(Pair.of("1", "for"));
+        ruleVoting.addVote(Pair.of("2", "for"));
+        ruleVoting.addVote(Pair.of("3", "against"));
+        ruleVoting.addVote(Pair.of("4", "against"));
+        ruleVoting.addVote(Pair.of("5", "against"));
+        ruleVoting.addVote(Pair.of("6", "abstain"));
     }
 
     @Test
