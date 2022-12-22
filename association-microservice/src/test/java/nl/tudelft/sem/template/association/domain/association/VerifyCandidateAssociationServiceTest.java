@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.association;
+package nl.tudelft.sem.template.association.domain.association;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class VerifyCandidateTest {
+public class VerifyCandidateAssociationServiceTest {
     @Autowired
     private transient AssociationService associationService;
     @Autowired
