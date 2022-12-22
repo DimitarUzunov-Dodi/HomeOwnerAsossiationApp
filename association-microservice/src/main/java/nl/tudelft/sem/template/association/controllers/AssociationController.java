@@ -1,5 +1,7 @@
 package nl.tudelft.sem.template.association.controllers;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
@@ -11,6 +13,7 @@ import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.association.models.ReportModel;
 import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
+import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequestMapping("/association")
@@ -97,10 +101,28 @@ public class AssociationController {
      */
     @PostMapping("/update-council-dummy")
     public ResponseEntity<String> updateCouncilDummy(@RequestBody ElectionResultRequestModel electionResult) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        String historyEntry = sdf.format(electionResult.getDate()) + " | " + electionResult.getResult();
 
-        System.out.println(electionResult.getDate() + " | " + electionResult.getResult());
+        System.out.println(historyEntry);
 
         return ResponseEntity.ok("Council updated!");
+    }
+
+    /**
+     * Dummy endpoint for updating the rules.
+     *
+     * @param ruleVoteResult request body containing all the info regarding the rule vote
+     * @return 200 if OK
+     */
+    @PostMapping("/update-rules-dummy")
+    public ResponseEntity<String> updateRulesDummy(@RequestBody RuleVoteResultRequestModel ruleVoteResult) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        String historyEntry = sdf.format(ruleVoteResult.getDate() + " | " + ruleVoteResult.getResult());
+
+        System.out.println(historyEntry);
+
+        return ResponseEntity.ok("Rules updated!");
     }
 
 }

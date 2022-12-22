@@ -64,7 +64,6 @@ public class Election extends Voting {
         votes.add(vote);
     }
 
-
     /**
      * Gets the result of this election then turns them into readable string.
      *

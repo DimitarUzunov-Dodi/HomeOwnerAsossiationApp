@@ -6,20 +6,28 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
+import nl.tudelft.sem.template.voting.domain.models.ElectionResultRequestModel;
+import nl.tudelft.sem.template.voting.domain.models.RuleVoteResultRequestModel;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidIdException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidRuleException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleTooLongException;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVoting;
 import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 
+@EnableScheduling
 @Service
 public class VotingService {
 
@@ -39,6 +47,7 @@ public class VotingService {
         this.votingFactory = new VotingFactory(electionRepository, ruleVotingRepository);
     }
 
+
     /**
      * This is the scheduler to update an association's council.
      * The method checks for the first entry in the election repository.
@@ -48,26 +57,83 @@ public class VotingService {
      * If an OK response status is received then the election entry is deleted.
      */
     @Async
-    @Scheduled(fixedRate = 3000, initialDelay = 0)
+    @Scheduled(fixedRate = 2000, initialDelay = 0)
     public void forwardElectionResults() {
-        //System.out.println("Executed at : " + new Date());
-
-        // Here we get the first election in the repository by its end date ascendingly.
+        System.out.println("Executed at : " + new Date());
         Optional<Election> optElection = electionRepository.findFirstByOrderByEndDateAsc();
 
         if (optElection.isPresent()) {
             Election election = optElection.get();
 
             if (Instant.now().isAfter(election.getEndDate().toInstant())) {
-                String forward = election.getEndDate() + "| ELECTION | " + election.getResults();
-
                 // TODO : replace this with real endpoint
                 final String url = "http://localhost:8084/association/update-council-dummy";
-                RestTemplate restTemplate = new RestTemplate();
-                ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, forward, String.class);
 
-                if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-                    electionRepository.delete(election);
+                ElectionResultRequestModel model = new ElectionResultRequestModel();
+                model.setDate(new Date());
+                model.setResult(election.getResults());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer "
+                        + SecurityContextHolder.getContext().getAuthentication().getCredentials());
+                HttpEntity<ElectionResultRequestModel> request = new HttpEntity<>(model, headers);
+
+                RestTemplate restTemplate = new RestTemplate();
+
+                try {
+                    ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
+
+                    if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+                        electionRepository.delete(election);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * This is the scheduler to update an association's rule set.
+     * The method checks for the first entry in the rulevote repository.
+     * If it exists, it checks if the rulevote's end date is past due.
+     * If it is, then the rulevote results are parsed and sent over
+     * to the association microservice which then also updates its history.
+     * If an OK response status is received then the rulevote entry is deleted.
+     */
+    @Async
+    @Scheduled(fixedRate = 2000, initialDelay = 0)
+    public void forwardRuleVoteResults() {
+        Optional<RuleVoting> optRuleVoting = ruleVotingRepository.findFirstByOrderByEndDateAsc();
+
+        if (optRuleVoting.isPresent()) {
+            RuleVoting ruleVoting = optRuleVoting.get();
+
+            if (Instant.now().isAfter(ruleVoting.getEndDate().toInstant())) {
+                // TODO : replace this with real endpoint
+                final String url = "http://localhost:8084/association/update-rules-dummy";
+
+                RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
+                model.setDate(new Date());
+                model.setType(ruleVoting.getType().toString());
+                model.setPassed(ruleVoting.passedMotion());
+                model.setResult(ruleVoting.getResults());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer "
+                        + SecurityContextHolder.getContext().getAuthentication().getCredentials());
+                HttpEntity<RuleVoteResultRequestModel> request = new HttpEntity<>(model, headers);
+
+                RestTemplate restTemplate = new RestTemplate();
+
+                try {
+                    ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
+
+                    if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+                        ruleVotingRepository.delete(ruleVoting);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
             }
         }
