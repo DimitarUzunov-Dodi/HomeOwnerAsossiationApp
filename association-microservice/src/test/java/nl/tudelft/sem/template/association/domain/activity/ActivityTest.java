@@ -2,10 +2,8 @@ package nl.tudelft.sem.template.association.domain.activity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,18 +57,18 @@ class ActivityTest {
 
     @Test
     void getGoingToMembersId() {
-        List<String> result = new ArrayList<String>();
+        Set<String> result = new HashSet<>();
         result.add("Bob");
-        assertEquals(activity.getParticipatingUserId(), Collections.emptyList());
+        assertEquals(activity.getParticipatingUserId(), Collections.emptySet());
         activity.addParticipating("Bob");
         assertEquals(activity.getParticipatingUserId(), result);
     }
 
     @Test
     void getInterestedMembersId() {
-        List<String> result = new ArrayList<String>();
+        Set<String> result = new HashSet<>();
         result.add("Bob");
-        assertEquals(activity.getInterestedUserId(), Collections.emptyList());
+        assertEquals(activity.getInterestedUserId(), Collections.emptySet());
         activity.addInterested("Bob");
         assertEquals(activity.getInterestedUserId(), result);
     }

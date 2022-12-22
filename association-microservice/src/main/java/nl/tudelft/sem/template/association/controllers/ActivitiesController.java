@@ -147,7 +147,7 @@ public class ActivitiesController {
                     HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
-            return new ResponseEntity<>("Association does not exist.",
+            return new ResponseEntity<>("Association does not exist, you can't be interested.",
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -182,7 +182,7 @@ public class ActivitiesController {
             return new ResponseEntity<>("That activity does not exits for you to be participating in it.",
                     HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("Association does not exist.",
+            return new ResponseEntity<>("Association does not exist, you can't be participating.",
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -219,7 +219,7 @@ public class ActivitiesController {
                     HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
-            return new ResponseEntity<>("Association does not exist.",
+            return new ResponseEntity<>("Association does not exist, you couldn't have been interested.",
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -255,7 +255,7 @@ public class ActivitiesController {
                     HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
-            return new ResponseEntity<>("Association does not exist.",
+            return new ResponseEntity<>("Association does not exist, you couldn't have been participating.",
                     HttpStatus.BAD_REQUEST);
         }
     }
