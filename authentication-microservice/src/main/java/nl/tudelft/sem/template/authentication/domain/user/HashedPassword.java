@@ -19,7 +19,7 @@ public class HashedPassword {
      * @throws InvalidFieldException if the hash is invalid
      */
     public HashedPassword(String hash) throws InvalidFieldException {
-        if (validateField(hash)) {
+        if (hash != null && !hash.isEmpty()) {
             this.hash = hash;
         } else {
             throw new InvalidFieldException();
