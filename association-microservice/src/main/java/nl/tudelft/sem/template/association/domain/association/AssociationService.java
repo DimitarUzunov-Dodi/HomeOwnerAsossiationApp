@@ -147,4 +147,19 @@ public class AssociationService {
         return true;
     }
 
+    /**
+     * Returns whether the proposal does not exist in the existing rules.
+     *
+     * @param associationId The association this proposal is for.
+     * @param proposal      The proposal.
+     * @return              True if the proposal is unique, otherwise false
+     */
+    public boolean verifyProposal(Integer associationId, String proposal) {
+        // This method should be called in the propose rule by checking if this method returns true
+        // which means it is unique. This method should be called in the amend rule by checking if this method
+        // returns FALSE for THE ORIGINAL rule AND TRUE for the amendment.
+        return associationRepository.findById(associationId).orElse(null)
+                .getRules().stream().noneMatch(x -> x.equals(proposal));
+    }
+
 }
