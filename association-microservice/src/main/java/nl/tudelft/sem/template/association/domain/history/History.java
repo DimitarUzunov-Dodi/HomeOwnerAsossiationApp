@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.association.domain.history;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,7 @@ public class History {
     public History(int associationId) {
         this.associationId = associationId;
         this.events = new ArrayList<>();
+        this.events.add(new Event("Association was created with ID: " + associationId, new Date()));
     }
 
     /**

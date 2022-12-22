@@ -10,7 +10,11 @@ import java.util.*;
 import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
+import nl.tudelft.sem.template.association.domain.history.History;
+import nl.tudelft.sem.template.association.domain.history.HistoryRepository;
+import nl.tudelft.sem.template.association.domain.history.HistoryService;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
+import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +40,11 @@ public class AssociationIntegrationTest {
     private transient JwtTokenVerifier mockJwtTokenVerifier;
     @Autowired
     private transient AssociationRepository mockAssociationRepository;
+    @Autowired
+    private transient HistoryRepository mockHistoryRepository;
     private HashSet<String> councilMembers;
     private Association association;
+    private History history;
     private String userId;
 
     /**
@@ -54,6 +61,9 @@ public class AssociationIntegrationTest {
         this.association = new Association("test", "test", "test", "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         mockAssociationRepository.save(this.association);
+
+        history = new History(association.getId());
+        mockHistoryRepository.save(history);
 
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
         when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
@@ -150,4 +160,41 @@ public class AssociationIntegrationTest {
 
         assertThat(response).isEqualTo("You are not a member of this association's council!");
     }
+
+    @Test
+    public void updateCouncilTest() throws Exception {
+        this.association.setCouncilNumber(3);
+        mockAssociationRepository.save(association);
+
+        HashMap<String, Integer> hm = new HashMap<>();
+        hm.put("a", 4);
+        hm.put("b", 3);
+        hm.put("d", 5);
+        hm.put("e", 6);
+        hm.put("f", 10);
+
+        ElectionResultRequestModel model = new ElectionResultRequestModel();
+
+        model.setStandings(hm);
+        model.setResult("-");
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        ResultActions result = mockMvc.perform(post("/association/update-council")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertThat(response).isEqualTo("Council updated!");
+
+        Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
+
+        Association testAssociation = optionalTestAssociation.get();
+
+        assertThat(testAssociation.getCouncilUserIds()).containsExactlyInAnyOrder("f", "e", "d");
+    }
+
 }

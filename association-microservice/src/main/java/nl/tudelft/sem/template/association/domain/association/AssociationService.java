@@ -120,7 +120,7 @@ public class AssociationService {
 
             List<Map.Entry<String, Integer>> list = new LinkedList<>(hm.entrySet());
 
-            Collections.sort(list, Map.Entry.comparingByValue());
+            Collections.sort(list, (e1, e2) -> -(e1.getValue().compareTo(e2.getValue())));
 
             Set<String> council = new HashSet<>();
 

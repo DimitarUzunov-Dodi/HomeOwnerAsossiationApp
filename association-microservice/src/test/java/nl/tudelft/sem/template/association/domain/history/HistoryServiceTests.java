@@ -46,6 +46,7 @@ public class HistoryServiceTests {
         historyService.addEvent(1, event2);
 
         List<Event> events = new ArrayList<>();
+        events.add(new Event("Association was created with ID: 1", new Date()));
         events.add(event1);
         events.add(event2);
 
@@ -58,6 +59,7 @@ public class HistoryServiceTests {
         historyService.addEvent(1, event2);
 
         List<String> prettyEvents = new ArrayList<>();
+        prettyEvents.add(new Event("Association was created with ID: 1", new Date()).toString());
         prettyEvents.add(event1.toString());
         prettyEvents.add(event2.toString());
 
