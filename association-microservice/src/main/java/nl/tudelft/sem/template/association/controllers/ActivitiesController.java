@@ -131,11 +131,11 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association.",
+                return new ResponseEntity<>("You are not a member of this association to be interested in the event.",
                         HttpStatus.UNAUTHORIZED);
             }
         }
-        return new ResponseEntity<>("That activity does not exits.",
+        return new ResponseEntity<>("That activity does not exits for you to be interested in it.",
                 HttpStatus.BAD_REQUEST);
 
 
@@ -161,11 +161,11 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association.",
+                return new ResponseEntity<>("You are not a member of this association for you to participate in the event.",
                         HttpStatus.UNAUTHORIZED);
             }
         }
-        return new ResponseEntity<>("That activity does not exits.",
+        return new ResponseEntity<>("That activity does not exits for you to be participating in it.",
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -189,11 +189,12 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association.",
+                return new ResponseEntity<>("You are not a member of this association,"
+                        + " to be able to remove your interested reaction.",
                         HttpStatus.UNAUTHORIZED);
             }
         }
-        return new ResponseEntity<>("That activity does not exits.",
+        return new ResponseEntity<>("That activity does not exits, for you to remove your interested reaction.",
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -217,11 +218,12 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association.",
+                return new ResponseEntity<>("You are not a member of this association,"
+                        + " to be able to remove your interested reaction.",
                         HttpStatus.UNAUTHORIZED);
             }
         }
-        return new ResponseEntity<>("That activity does not exits.",
+        return new ResponseEntity<>("That activity does not exits, for you to remove your participating reaction.",
                 HttpStatus.BAD_REQUEST);
     }
 
