@@ -47,13 +47,13 @@ public class Activity {
     @Setter
     @Column(name = "participating_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
-    private List<String> participatingUserId;
+    private Set<String> participatingUserId;
 
     @Getter
     @Setter
     @Column(name = "interested_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
-    private List<String> interestedUserId;
+    private Set<String> interestedUserId;
 
 
     /** Constructor for the activity class.
@@ -74,8 +74,8 @@ public class Activity {
         this.expirationDate = expirationDate;
         this.associationId = associationId;
         this.publisherId = publisherId;
-        this.participatingUserId =  new ArrayList<String>();
-        this.interestedUserId = new ArrayList<String>();
+        this.participatingUserId =  new HashSet<String>();
+        this.interestedUserId = new HashSet<String>();
     }
 
     /** adds id to the interested list.
@@ -83,12 +83,10 @@ public class Activity {
      * @param userId id of the interested member
      */
     public void addInterested(String userId) {
-        if (interestedUserId.contains(userId)) {
-            return;
-        } else {
-            removeParticipating(userId);
-            interestedUserId.add(userId);
-        }
+
+        removeParticipating(userId);
+        interestedUserId.add(userId);
+
     }
 
     /** removes id from the interested list if it exists.
@@ -96,9 +94,7 @@ public class Activity {
      * @param userId id of the interested member
      */
     public void removeInterested(String userId) {
-        if (interestedUserId.contains(userId)) {
-            interestedUserId.remove(interestedUserId.indexOf(userId));
-        }
+        interestedUserId.remove(userId);
     }
 
     /** adds id to the participating list.
@@ -106,12 +102,8 @@ public class Activity {
      * @param userId id of the goingTo member
      */
     public void addParticipating(String userId) {
-        if (participatingUserId.contains(userId)) {
-            return;
-        } else {
-            removeInterested(userId);
-            participatingUserId.add(userId);
-        }
+        removeInterested(userId);
+        participatingUserId.add(userId);
     }
 
     /** removes id from the participating list if it exists.
@@ -119,9 +111,8 @@ public class Activity {
      * @param userId id of the goingTo member
      */
     public void removeParticipating(String userId) {
-        if (participatingUserId.contains(userId)) {
-            participatingUserId.remove(participatingUserId.indexOf(userId));
-        }
+        participatingUserId.remove(userId);
+
     }
 
 }

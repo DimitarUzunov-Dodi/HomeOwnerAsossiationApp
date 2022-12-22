@@ -71,26 +71,32 @@ public class ActivitiesController {
     @PostMapping("/{associationId}/{publisherId}")
     public ResponseEntity<?> addActivity(@PathVariable int associationId, @PathVariable String publisherId,
                                          @RequestBody ActivityRequestModel activityRequest) {
-        boolean isMember = associationService.verifyCouncilMember(publisherId, associationId);
+        try {
+            boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(publisherId);
 
-        if (isMember && activityRequest.isComplete()) {
-            activityService.addActivity(activityRequest.getEventName(),
-                    activityRequest.getDescription(),
-                    activityRequest.getStartingDate(),
-                    activityRequest.getExpirationDate(),
-                    associationId, publisherId);
+            if (isMember && activityRequest.isComplete()) {
+                activityService.addActivity(activityRequest.getEventName(),
+                        activityRequest.getDescription(),
+                        activityRequest.getStartingDate(),
+                        activityRequest.getExpirationDate(),
+                        associationId, publisherId);
 
-            return ResponseEntity.ok("Activity added");
+                return ResponseEntity.ok("Activity added");
 
-        } else {
-            if (!isMember) {
-                return new ResponseEntity<>("You are not a member of this association.",
-                        HttpStatus.UNAUTHORIZED);
+            } else {
+                if (!isMember) {
+                    return new ResponseEntity<>("You are not a member of this association.",
+                            HttpStatus.UNAUTHORIZED);
+                }
+                return new ResponseEntity<>("Request not full", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("Request not full", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Association does not exist.",
+                    HttpStatus.BAD_REQUEST);
         }
 
     }
+
 
     /**
      * Gets an activity corresponding to its id.
@@ -121,23 +127,29 @@ public class ActivitiesController {
     @PostMapping("/addInterested/{activityId}/{userId}")
     public ResponseEntity<?> addInterested(@PathVariable int activityId, @PathVariable String userId) {
 
-        Activity activity = activityService.getActivity(activityId);
-        if (activity != null) {
-            int associationId = activity.getAssociationId();
-            boolean isMember = associationService.verifyCouncilMember(userId, associationId);
+        try {
+            Activity activity = activityService.getActivity(activityId);
+            if (activity != null) {
 
-            if (isMember) {
-                activityService.addInterested(activityId, userId);
-                return ResponseEntity.ok().build();
+                int associationId = activity.getAssociationId();
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
 
-            } else {
-                return new ResponseEntity<>("You have to be a member of this association to be interested in the event.",
-                        HttpStatus.UNAUTHORIZED);
+                if (isMember) {
+                    activityService.addInterested(activityId, userId);
+                    return ResponseEntity.ok().build();
+
+                } else {
+                    return new ResponseEntity<>("You have to be a member of the association to be interested in the event.",
+                            HttpStatus.UNAUTHORIZED);
+                }
             }
-        }
-        return new ResponseEntity<>("That activity does not exits for you to be interested in it.",
-                HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("That activity does not exits for you to be interested in it.",
+                    HttpStatus.BAD_REQUEST);
 
+        } catch (Exception e) {
+            return new ResponseEntity<>("Association does not exist.",
+                    HttpStatus.BAD_REQUEST);
+        }
 
     }
 
@@ -151,23 +163,30 @@ public class ActivitiesController {
     @PostMapping("/addParticipating/{activityId}/{userId}")
     public ResponseEntity<?> addParticipating(@PathVariable int activityId, @PathVariable String userId) {
 
-        Activity activity = activityService.getActivity(activityId);
-        if (activity != null) {
-            int associationId = activity.getAssociationId();
-            boolean isMember = associationService.verifyCouncilMember(userId, associationId);
+        try {
+            Activity activity = activityService.getActivity(activityId);
+            if (activity != null) {
 
-            if (isMember) {
-                activityService.addParticipating(activityId, userId);
-                return ResponseEntity.ok().build();
+                int associationId = activity.getAssociationId();
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
 
-            } else {
-                return new ResponseEntity<>("You have to be a member of this association for participating in the event.",
-                        HttpStatus.UNAUTHORIZED);
+                if (isMember) {
+                    activityService.addParticipating(activityId, userId);
+                    return ResponseEntity.ok().build();
+
+                } else {
+                    return new ResponseEntity<>("You have to be a member of the association for participating in the event.",
+                            HttpStatus.UNAUTHORIZED);
+                }
             }
+            return new ResponseEntity<>("That activity does not exits for you to be participating in it.",
+                    HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Association does not exist.",
+                    HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("That activity does not exits for you to be participating in it.",
-                HttpStatus.BAD_REQUEST);
     }
+
 
     /**
      * Removes interested user from the list of the corresponding activity.
@@ -179,23 +198,30 @@ public class ActivitiesController {
     @PostMapping("/removeInterested/{activityId}/{userId}")
     public ResponseEntity<?> removeInterested(@PathVariable int activityId, @PathVariable String userId) {
 
-        Activity activity = activityService.getActivity(activityId);
-        if (activity != null) {
-            int associationId = activity.getAssociationId();
-            boolean isMember = associationService.verifyCouncilMember(userId, associationId);
+        try {
+            Activity activity = activityService.getActivity(activityId);
+            if (activity != null) {
 
-            if (isMember) {
-                activityService.removeInterested(activityId, userId);
-                return ResponseEntity.ok().build();
+                int associationId = activity.getAssociationId();
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
 
-            } else {
-                return new ResponseEntity<>("You have to be a member of this association,"
-                        + " to be able to remove your interested reaction.",
-                        HttpStatus.UNAUTHORIZED);
+                if (isMember) {
+                    activityService.removeInterested(activityId, userId);
+                    return ResponseEntity.ok().build();
+
+                } else {
+                    return new ResponseEntity<>("You have to be a member of this association,"
+                            + " to be able to remove your interested reaction.",
+                            HttpStatus.UNAUTHORIZED);
+                }
             }
+            return new ResponseEntity<>("That activity does not exits, for you to remove your interested reaction.",
+                    HttpStatus.BAD_REQUEST);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>("Association does not exist.",
+                    HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("That activity does not exits, for you to remove your interested reaction.",
-                HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -208,24 +234,30 @@ public class ActivitiesController {
     @PostMapping("/removeParticipating/{activityId}/{userId}")
     public ResponseEntity<?> removeParticipating(@PathVariable int activityId, @PathVariable String userId) {
 
-        Activity activity = activityService.getActivity(activityId);
-        if (activity != null) {
-            int associationId = activity.getAssociationId();
-            boolean isMember = associationService.verifyCouncilMember(userId, associationId);
+        try {
+            Activity activity = activityService.getActivity(activityId);
+            if (activity != null) {
 
-            if (isMember) {
-                activityService.removeParticipating(activityId, userId);
-                return ResponseEntity.ok().build();
+                int associationId = activity.getAssociationId();
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
 
-            } else {
-                return new ResponseEntity<>("You have to be a member of this association"
-                        + " to be able to remove your interested reaction.",
-                        HttpStatus.UNAUTHORIZED);
+                if (isMember) {
+                    activityService.removeParticipating(activityId, userId);
+                    return ResponseEntity.ok().build();
+
+                } else {
+                    return new ResponseEntity<>("You have to be a member of this association"
+                            + " to be able to remove your interested reaction.",
+                            HttpStatus.UNAUTHORIZED);
+                }
             }
-        }
-        return new ResponseEntity<>("That activity does not exits, for you to remove your participating reaction.",
-                HttpStatus.BAD_REQUEST);
-    }
+            return new ResponseEntity<>("That activity does not exits, for you to remove your participating reaction.",
+                    HttpStatus.BAD_REQUEST);
 
+        } catch (Exception e) {
+            return new ResponseEntity<>("Association does not exist.",
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }
