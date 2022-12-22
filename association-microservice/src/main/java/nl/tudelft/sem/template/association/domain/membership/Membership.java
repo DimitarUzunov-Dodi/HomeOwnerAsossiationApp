@@ -55,20 +55,40 @@ public class Membership {
         this.joinDate = new Date(System.currentTimeMillis());
     }
 
+    /**getter.
+     *
+     * @return membership id
+     */
     public Integer getId() {
         return id;
     }
 
+    /**getter.
+     *
+     * @return user id
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**getter.
+     *
+     * @return association id
+     */
     public int getAssociationId() {
         return associationId;
     }
 
+    /**getter.
+     *
+     * @return get join date
+     */
     public Date getJoinDate() {
         return joinDate;
+    }
+
+    public void setJoinDate(Date joinDate) {
+        this.joinDate = joinDate;
     }
 
     public Date getLeaveDate() {

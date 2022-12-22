@@ -13,6 +13,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUserId(String userId);
 
     /*
+    return the user according to id
+     */
+    Optional<User> findById(int id);
+
+    /*
     the isUser method check if a user exists
      */
     boolean existsByUserId(String userId);
