@@ -3,7 +3,7 @@ package nl.tudelft.sem.template.association.domain.election;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
-import nl.tudelft.sem.template.association.domain.membership.MembershipService;
+import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.*;
 import nl.tudelft.sem.template.association.utils.RequestUtil;
@@ -17,7 +17,7 @@ public class ElectionService {
 
     private final transient UserService userService;
 
-    private final transient MembershipService membershipService;
+    private final transient AssociationService associationService;
 
     private final transient RequestUtil requestUtil;
 
@@ -27,13 +27,13 @@ public class ElectionService {
      * Constructs the ElectionService, which autowires the dependencies.
      *
      * @param userService the user service
-     * @param membershipService the membership service
+     * @param associationService the association service
      * @param requestUtil the request util
      */
     @Autowired
-    public ElectionService(UserService userService, MembershipService membershipService, RequestUtil requestUtil) {
+    public ElectionService(UserService userService, AssociationService associationService, RequestUtil requestUtil) {
         this.userService = userService;
-        this.membershipService = membershipService;
+        this.associationService = associationService;
         this.requestUtil = requestUtil;
     }
 
@@ -81,17 +81,13 @@ public class ElectionService {
             throws IOException, NoSuchElementException, IllegalArgumentException {
         UserAssociationRequestModel model = requestUtil.convertToModel(request, UserAssociationRequestModel.class);
 
-        if (!membershipService.isInAssociation(model.getUserId(), model.getAssociationId())) {
+        if (!associationService.isMember(model.getUserId(), model.getAssociationId())) {
             throw new IllegalArgumentException("User was not part of that association");
         }
 
         //TODO: use verifyCandidate from AssociationService to check it
 
-        UserAssociationRequestModelInternal internalModel = new UserAssociationRequestModelInternal();
-        internalModel.setUserId(userService.getUserById(model.getUserId()).get().getId());
-        internalModel.setAssociationId(model.getAssociationId());
-
-        return requestUtil.postRequest(internalModel, String.class,
+        return requestUtil.postRequest(model, String.class,
                 requestUtil.getToken(request), PORT, "apply-for-candidate");
     }
 
@@ -111,20 +107,15 @@ public class ElectionService {
             throws IOException, NoSuchElementException, IllegalArgumentException {
         ElectionVoteRequestModel model = requestUtil.convertToModel(request, ElectionVoteRequestModel.class);
 
-        if (!membershipService.isInAssociation(model.getVoterId(), model.getAssociationId())) {
+        if (!associationService.isMember(model.getVoterId(), model.getAssociationId())) {
             throw new IllegalArgumentException("Voter was not part of that association");
         }
 
-        if (!membershipService.isInAssociation(model.getCandidateId(), model.getAssociationId())) {
+        if (!associationService.isMember(model.getCandidateId(), model.getAssociationId())) {
             throw new IllegalArgumentException("Candidate was not part of that association");
         }
 
-        ElectionVoteRequestModelInternal internalModel = new ElectionVoteRequestModelInternal();
-        internalModel.setVoterId(userService.getUserById(model.getVoterId()).get().getId());
-        internalModel.setAssociationId(model.getAssociationId());
-        internalModel.setCandidateId(userService.getUserById(model.getCandidateId()).get().getId());
-
-        return requestUtil.postRequest(internalModel, String.class,
+        return requestUtil.postRequest(model, String.class,
                 requestUtil.getToken(request), PORT, "apply-for-candidate");
     }
 
