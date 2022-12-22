@@ -109,18 +109,12 @@ public class AssociationService {
      * @param associationId     The association id.
      * @return                  True if the user can be a candidate.
      */
-    public boolean verifyCandidate(Integer userId, Integer associationId) {
+    public boolean verifyCandidate(String userId, Integer associationId) {
         if (userId == null || associationId == null) {
             return false;
         }
 
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            return false;
-        }
-        String userIdString = optionalUser.get().getUserId();
-
-        List<Membership> memberships = membershipRepository.findAllByUserId(userIdString);
+        List<Membership> memberships = membershipRepository.findAllByUserId(userId);
 
         //Check for council membership in all of user's associations
         for (Membership m : memberships) {
@@ -132,15 +126,19 @@ public class AssociationService {
 
         //Check if the member has been in the HOA for 3 years
         Optional<Membership> optionalMembership = membershipRepository
-                .findByUserIdAndAssociationIdAndLeaveDate(userIdString, associationId, null);
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
         if (optionalMembership.isEmpty()) {
             return false;
         }
 
-        Date currentDate = new Date(System.currentTimeMillis());
         Date joinDate = optionalMembership.get().getJoinDate();
         Long candidateYearLimit = 3L;
-        if (ChronoUnit.YEARS.between(joinDate.toInstant(), currentDate.toInstant()) < candidateYearLimit) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(System.currentTimeMillis()));
+        c.add(Calendar.YEAR, -3);
+        Date limitDate = new Date(c.getTime().getTime());
+
+        if (ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) < 0) {
             return false;
         }
 

@@ -87,6 +87,10 @@ public class Membership {
         return joinDate;
     }
 
+    public void setJoinDate(Date joinDate) {
+        this.joinDate = joinDate;
+    }
+
     public Date getLeaveDate() {
         return leaveDate;
     }

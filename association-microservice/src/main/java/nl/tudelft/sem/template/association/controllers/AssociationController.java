@@ -132,6 +132,7 @@ public class AssociationController {
             return new ResponseEntity<>("You can not be a candidate for the council.",
                     HttpStatus.UNAUTHORIZED);
         }
+    }
 
     /**report a certain violation of the rules.
      *
