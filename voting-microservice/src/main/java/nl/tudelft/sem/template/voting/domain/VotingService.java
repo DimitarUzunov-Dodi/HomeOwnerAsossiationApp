@@ -311,7 +311,7 @@ public class VotingService {
      * @return                      A string representing the status of all ongoing rule votes.
      * @throws InvalidIdException   Thrown when the association's id is null.
      */
-    public String getPendingVotes(Integer associationId, Integer userId) throws InvalidIdException {
+    public String getPendingVotes(Integer associationId, String userId) throws InvalidIdException {
         if (associationId == null) {
             throw new InvalidIdException("The association ID is null.");
         }
@@ -345,7 +345,7 @@ public class VotingService {
                 } else {
                     status += "Voting, ";
                 }
-                List<Pair<Integer, String>> votes = pendingVotes.get(0).getVotes().stream()
+                List<Pair<String, String>> votes = pendingVotes.get(0).getVotes().stream()
                         .filter(x -> x.getFirst().equals(userId))
                         .collect(Collectors.toList());
                 String vote = "Your vote: " + (votes.isEmpty() ? "No vote (abstain)" : votes.get(0).getSecond());

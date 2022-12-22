@@ -56,8 +56,8 @@ public class GetPendingVotesVotingIntegrationTest {
 
     @Test
     public void typeProposalTest() throws Exception {
-        this.ruleVoting = new RuleVoting(1, 42, "Bleep", null, VotingType.PROPOSAL);
-        this.ruleVoting.addVote(Pair.of(1, "for"));
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting.addVote(Pair.of("Gerard", "for"));
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 1);
         this.ruleVoting.setEndDate(cal.getTime());
@@ -66,7 +66,7 @@ public class GetPendingVotesVotingIntegrationTest {
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -83,13 +83,13 @@ public class GetPendingVotesVotingIntegrationTest {
 
     @Test
     public void typeAmendmentTest() throws Exception {
-        this.ruleVoting = new RuleVoting(1, 42, "Bleep", "fesfse", VotingType.AMENDMENT);
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", "fesfse", VotingType.AMENDMENT);
         ruleVotingRepository.save(this.ruleVoting);
         this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -106,15 +106,15 @@ public class GetPendingVotesVotingIntegrationTest {
 
     @Test
     public void statusEndedTest() throws Exception {
-        this.ruleVoting = new RuleVoting(1, 42, "Bleep", null, VotingType.PROPOSAL);
-        this.ruleVoting.addVote(Pair.of(1, "against"));
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting.addVote(Pair.of("Gerard", "against"));
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
         this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +133,7 @@ public class GetPendingVotesVotingIntegrationTest {
     public void pendingVotesEmptyTest() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -150,24 +150,24 @@ public class GetPendingVotesVotingIntegrationTest {
 
     @Test
     public void pendingVotesMultipleTest() throws Exception {
-        this.ruleVoting = new RuleVoting(1, 42, "Bleep", null, VotingType.PROPOSAL);
-        this.ruleVoting.addVote(Pair.of(1, "against"));
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting.addVote(Pair.of("Gerard", "against"));
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
 
-        this.ruleVoting = new RuleVoting(1, 42, "shaboop", "fessf", VotingType.AMENDMENT);
-        this.ruleVoting.addVote(Pair.of(1, "for"));
+        this.ruleVoting = new RuleVoting(1, "Jeff", "shaboop", "fessf", VotingType.AMENDMENT);
+        this.ruleVoting.addVote(Pair.of("Gerard", "for"));
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 1);
         this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
-        this.ruleVoting = new RuleVoting(1, 42, "scoop", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(1, "Jeff", "scoop", null, VotingType.PROPOSAL);
         ruleVotingRepository.save(this.ruleVoting);
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -189,14 +189,14 @@ public class GetPendingVotesVotingIntegrationTest {
 
     @Test
     public void noVoteTest() throws Exception {
-        this.ruleVoting = new RuleVoting(1, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", null, VotingType.PROPOSAL);
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
         this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -213,17 +213,17 @@ public class GetPendingVotesVotingIntegrationTest {
 
     @Test
     public void abstainVoteTest() throws Exception {
-        this.ruleVoting = new RuleVoting(1, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", null, VotingType.PROPOSAL);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 1);
         this.ruleVoting.setEndDate(cal.getTime());
-        this.ruleVoting.addVote(Pair.of(1, "abstain"));
+        this.ruleVoting.addVote(Pair.of("Gerard", "abstain"));
         ruleVotingRepository.save(this.ruleVoting);
         this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(1);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -242,7 +242,7 @@ public class GetPendingVotesVotingIntegrationTest {
     public void associationIdNullTest() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(null);
-        model.setUserId(1);
+        model.setUserId("Gerard");
 
         ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
                 .contentType(MediaType.APPLICATION_JSON)
