@@ -71,4 +71,22 @@ public class HistoryService {
             throw new Exception("NOT FOUND");
         }
     }
+
+    /**
+     * Return a string consisting the association's entire history.
+     *
+     * @param associationId         the association's ID
+     * @return                      the association's history
+     */
+    public String getHistoryString(int associationId) throws Exception {
+        List<String> formattedEvents = getFormattedEvents(associationId);
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String str : formattedEvents) {
+            sb.append(str).append(System.lineSeparator());
+        }
+
+        return sb.toString();
+    }
 }

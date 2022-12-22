@@ -142,8 +142,7 @@ public class VotingService {
             Election election = optElection.get();
 
             if (Instant.now().isAfter(election.getEndDate().toInstant())) {
-                // TODO : replace this with real endpoint
-                final String url = "http://localhost:8084/association/update-council-dummy";
+                final String url = "http://localhost:8084/association/update-council";
 
                 ElectionResultRequestModel model = new ElectionResultRequestModel();
                 model.setDate(election.getEndDate());
@@ -190,8 +189,7 @@ public class VotingService {
             RuleVoting ruleVoting = optRuleVoting.get();
 
             if (Instant.now().isAfter(ruleVoting.getEndDate().toInstant())) {
-                // TODO : replace this with real endpoint
-                final String url = "http://localhost:8084/association/update-rules-dummy";
+                final String url = "http://localhost:8084/association/update-rules";
 
                 RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
                 model.setDate(ruleVoting.getEndDate());

@@ -4,7 +4,6 @@ import java.util.*;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.association.models.RuleVoteResultRequestListModel;
 import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.springframework.stereotype.Service;
 
@@ -150,7 +149,7 @@ public class AssociationService {
             List<String> rules = association.getRules();
 
             if (model.isAmendment()) {
-                Integer index = rules.indexOf(rules);
+                int index = rules.indexOf(model.getRule());
                 rules.set(index, model.getAmendment());
             } else {
                 rules.add(model.getRule());
@@ -159,6 +158,33 @@ public class AssociationService {
             association.setRules(rules);
             associationRepository.save(association);
         }
+    }
+
+    /**
+     * Return a string consisting of all the association's rules.
+     *
+     * @param userId                the user's ID
+     * @param associationId         the association's ID
+     * @return                      the association's rules
+     */
+    public String getAssociationRules(String userId, int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
+        if (optionalAssociation.isEmpty() || optionalMembership.isEmpty()) {
+            throw new IllegalArgumentException("Association/membership does not exist.");
+        }
+
+        Association association = optionalAssociation.get();
+        List<String> rules = association.getRules();
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String str : rules) {
+            sb.append(str).append(System.lineSeparator());
+        }
+
+        return sb.toString();
     }
 
 }

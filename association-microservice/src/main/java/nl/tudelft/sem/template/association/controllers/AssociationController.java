@@ -221,25 +221,25 @@ public class AssociationController {
 
 
     /**
-     * SCHEDULER related. Dummy endpoint for updating the council.
+     * SCHEDULER related. Endpoint for updating the council.
      * Also updates the history log for association.
      *
-     * @param electionResult request body containing all the info regarding the election
+     * @param request request body containing all the info regarding the election
      * @return 200 if OK
      */
-    @PostMapping("/update-council-dummy")
-    public ResponseEntity<String> updateCouncilDummy(@RequestBody ElectionResultRequestModel electionResult) {
+    @PostMapping("/update-council")
+    public ResponseEntity<String> updateCouncilDummy(@RequestBody ElectionResultRequestModel request) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        String historyEntry = sdf.format(electionResult.getDate()) + " | " + electionResult.getResult();
+        String historyEntry = sdf.format(request.getDate()) + " | " + request.getResult();
 
         System.out.println(historyEntry);
 
-        Event event = new Event(electionResult.getResult(), electionResult.getDate());
+        Event event = new Event(request.getResult(), request.getDate());
 
-        associationService.processElection(electionResult);
+        associationService.processElection(request);
 
         try {
-            historyService.addEvent(electionResult.getAssociationId(), event);
+            historyService.addEvent(request.getAssociationId(), event);
         } catch (Exception e) {
             return new ResponseEntity<>("Adding the log in history failed!",
                     HttpStatus.BAD_REQUEST);
@@ -249,31 +249,51 @@ public class AssociationController {
     }
 
     /**
-     * SCHEDULER related. Dummy endpoint for updating the rules.
+     * SCHEDULER related. Endpoint for updating the rules.
      * Also updates the history log for association.
      *
-     * @param ruleVoteResult request body containing all the info regarding the rule vote
+     * @param request request body containing all the info regarding the rule vote
      * @return 200 if OK
      */
-    @PostMapping("/update-rules-dummy")
-    public ResponseEntity<String> updateRulesDummy(@RequestBody RuleVoteResultRequestModel ruleVoteResult) {
+    @PostMapping("/update-rules")
+    public ResponseEntity<String> updateRulesDummy(@RequestBody RuleVoteResultRequestModel request) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        String historyEntry = sdf.format(ruleVoteResult.getDate() + " | " + ruleVoteResult.getResult());
+        String historyEntry = sdf.format(request.getDate() + " | " + request.getResult());
 
         System.out.println(historyEntry);
 
-        Event event = new Event(ruleVoteResult.getResult(), ruleVoteResult.getDate());
+        Event event = new Event(request.getResult(), request.getDate());
 
-        associationService.processRuleVote(ruleVoteResult);
+        associationService.processRuleVote(request);
 
         try {
-            historyService.addEvent(ruleVoteResult.getAssociationId(), event);
+            historyService.addEvent(request.getAssociationId(), event);
         } catch (Exception e) {
             return new ResponseEntity<>("Adding the log in history failed!",
                     HttpStatus.BAD_REQUEST);
         }
 
         return ResponseEntity.ok("Rules updated!");
+    }
+
+    @PostMapping ("get-rules")
+    ResponseEntity<String> getAssociationRules(@RequestBody UserAssociationRequestModel request) {
+        try {
+            String rules = associationService.getAssociationRules(request.getUserId(), request.getAssociationId());
+            return ResponseEntity.ok(rules);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("get-history")
+    ResponseEntity<String> getAssociationHistory(@RequestBody UserAssociationRequestModel request) {
+        try {
+            String rules = historyService.getHistoryString(request.getAssociationId());
+            return ResponseEntity.ok(rules);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
