@@ -6,13 +6,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
-import nl.tudelft.sem.template.voting.domain.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.voting.domain.models.RuleVoteResultRequestModel;
-import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidIdException;
-import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidRuleException;
-import nl.tudelft.sem.template.voting.domain.rulevoting.RuleTooLongException;
-import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVoting;
-import nl.tudelft.sem.template.voting.domain.rulevoting.RuleVotingRepository;
+import nl.tudelft.sem.template.voting.domain.rulevoting.*;
+import nl.tudelft.sem.template.voting.models.ElectionResultRequestModel;
+import nl.tudelft.sem.template.voting.models.RuleVoteResultRequestModel;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,11 +18,17 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 
+/**
+ * "@EnableScheduling" enables the methods annotated with "@Scheduled".
+ * They automatically send election and rule voting results to
+ * the Association and then delete them from their respective repos.
+ * The annotation should be disabled if one opts for manual updates
+ * or if scheduling is implemented on the association's side.
+ */
 @EnableScheduling
 @Service
 public class VotingService {
@@ -47,6 +49,77 @@ public class VotingService {
         this.votingFactory = new VotingFactory(electionRepository, ruleVotingRepository);
     }
 
+    /**
+     * DEPRECATED. To be used as an alternative to the scheduler if that
+     * has any issues at some point.
+     * Finds all finished elections in the repository, turns them into models,
+     * deletes them from the repository then returns them as a list.
+     *
+     * @return list of election result request models
+     */
+    @Deprecated
+    public List<ElectionResultRequestModel> getAllElectionResults() {
+        Optional<Collection<Election>> optElections = electionRepository.findAllFinishedElections(new Date());
+        if (optElections.isPresent()) {
+            Collection<Election> elections = optElections.get();
+
+            List<ElectionResultRequestModel> res = new ArrayList<>();
+
+            for (Election election : elections) {
+                ElectionResultRequestModel model = new ElectionResultRequestModel();
+
+                model.setDate(election.getEndDate());
+                model.setResult(election.getResults());
+                model.setAssociationId(election.getAssociationId());
+
+                res.add(model);
+
+                electionRepository.delete(election);
+            }
+
+            return res;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * DEPRECATED. To be used as an alternative to the scheduler if that
+     * has any issues at some point.
+     * Finds all finished rule votes in the repository, turns them into models,
+     * deletes them from the repository then returns them as a list.
+     *
+     * @return list of rule vote result request models
+     */
+    @Deprecated
+    public List<RuleVoteResultRequestModel> getAllRuleVotingResults() {
+        Optional<Collection<RuleVoting>> optRuleVotings = ruleVotingRepository.findAllFinishedRuleVotings(new Date());
+
+        if (optRuleVotings.isPresent()) {
+            Collection<RuleVoting> ruleVotings = optRuleVotings.get();
+
+            List<RuleVoteResultRequestModel> res = new ArrayList<>();
+
+            for (RuleVoting ruleVoting : ruleVotings) {
+                RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
+
+                model.setDate(ruleVoting.getEndDate());
+                model.setResult(ruleVoting.getResults());
+                model.setPassed(ruleVoting.passedMotion());
+                model.setAssociationId(ruleVoting.getAssociationId());
+
+                res.add(model);
+
+                ruleVotingRepository.delete(ruleVoting);
+            }
+
+            return res;
+        } else {
+            return new ArrayList<>();
+        }
+
+    }
+
 
     /**
      * This is the scheduler to update an association's council.
@@ -58,7 +131,7 @@ public class VotingService {
      */
     @Async
     @Scheduled(fixedRate = 2000, initialDelay = 0)
-    public void forwardElectionResults() {
+    public void forwardElectionResultsScheduler() {
         System.out.println("Executed at : " + new Date());
         Optional<Election> optElection = electionRepository.findFirstByOrderByEndDateAsc();
 
@@ -70,7 +143,7 @@ public class VotingService {
                 final String url = "http://localhost:8084/association/update-council-dummy";
 
                 ElectionResultRequestModel model = new ElectionResultRequestModel();
-                model.setDate(new Date());
+                model.setDate(election.getEndDate());
                 model.setResult(election.getResults());
                 model.setAssociationId(election.getAssociationId());
 
@@ -104,7 +177,7 @@ public class VotingService {
      */
     @Async
     @Scheduled(fixedRate = 2000, initialDelay = 0)
-    public void forwardRuleVoteResults() {
+    public void forwardRuleVoteResultsScheduler() {
         Optional<RuleVoting> optRuleVoting = ruleVotingRepository.findFirstByOrderByEndDateAsc();
 
         if (optRuleVoting.isPresent()) {
@@ -115,7 +188,7 @@ public class VotingService {
                 final String url = "http://localhost:8084/association/update-rules-dummy";
 
                 RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
-                model.setDate(new Date());
+                model.setDate(ruleVoting.getEndDate());
                 model.setType(ruleVoting.getType().toString());
                 model.setPassed(ruleVoting.passedMotion());
                 model.setResult(ruleVoting.getResults());

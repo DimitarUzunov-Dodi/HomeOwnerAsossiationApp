@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.voting.domain.models;
+package nl.tudelft.sem.template.voting.models;
 
 import java.util.Date;
 import lombok.Data;

@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.association.controllers;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
@@ -12,17 +13,23 @@ import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
 import nl.tudelft.sem.template.association.domain.report.ReportInconsistentException;
 import nl.tudelft.sem.template.association.domain.report.ReportService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
+import nl.tudelft.sem.template.association.models.ElectionResultRequestListModel;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.association.models.ReportModel;
 import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
+import nl.tudelft.sem.template.association.models.RuleVoteResultRequestListModel;
 import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 
 @RestController
@@ -99,7 +106,76 @@ public class AssociationController {
     }
 
     /**
-     * Dummy endpoint for updating the council.
+     * DEPRECATED. To be used as an alternative to the scheduler if that
+     * has any issues at some point.
+     * Endpoint to request all the council changes for all associations then apply them.
+     *
+     * @return 200 if ok
+     */
+    @Deprecated
+    @PostMapping("/get-council-results")
+    public ResponseEntity<String> getAllCouncilResults() {
+        final String url = "http://localhost:8083/election/get-results";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + SecurityContextHolder.getContext().getAuthentication().getCredentials());
+        HttpEntity request = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<ElectionResultRequestListModel> responseEntity =
+                restTemplate.postForEntity(url, request, ElectionResultRequestListModel.class);
+
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            ElectionResultRequestListModel resultList = responseEntity.getBody();
+
+            System.out.println(resultList.toString());
+
+            // TODO : update council for each association included
+
+            return ResponseEntity.ok("Updates applied!");
+        } else {
+            return new ResponseEntity<>("Updates failed!",
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * DEPRECATED. To be used as an alternative to the scheduler if that
+     * has any issues at some point.
+     * Endpoint to request all the council changes for all associations then apply them.
+     *
+     * @return 200 if OK
+     */
+    @Deprecated
+    @PostMapping("/get-rule-vote-results")
+    public ResponseEntity<String> getAllRuleVotingResults() {
+        final String url = "http://localhost:8083/rule-voting/get-results";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + SecurityContextHolder.getContext().getAuthentication().getCredentials());
+        HttpEntity request = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<RuleVoteResultRequestListModel> responseEntity =
+                restTemplate.postForEntity(url, request, RuleVoteResultRequestListModel.class);
+
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            RuleVoteResultRequestListModel resultList = responseEntity.getBody();
+
+            System.out.println(resultList.toString());
+
+            // TODO : update rules for each association included
+
+            return ResponseEntity.ok("Updates applied!");
+        } else {
+            return new ResponseEntity<>("Updates failed!",
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    /**
+     * SCHEDULER related. Dummy endpoint for updating the council.
      * Also updates the history log for association.
      *
      * @param electionResult request body containing all the info regarding the election
@@ -127,7 +203,7 @@ public class AssociationController {
     }
 
     /**
-     * Dummy endpoint for updating the rules.
+     * SCHEDULER related. Dummy endpoint for updating the rules.
      * Also updates the history log for association.
      *
      * @param ruleVoteResult request body containing all the info regarding the rule vote
