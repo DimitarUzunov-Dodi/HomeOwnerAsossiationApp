@@ -35,7 +35,7 @@ public class RuleService {
     /**
      * Votes on a rule, by calling the voting microservice
      *
-     * <p>Checks the input if the user is in the association, and if the user is a council member,
+     * <p>Checks for the input whether the user is in the association, and whether the user is a council member,
      * if so then the request wil be forwarded to the voting microservice.
      *
      * @param request the request made from the user
@@ -62,7 +62,7 @@ public class RuleService {
     /**
      * Proposes a rule by calling the voting microservice.
      *
-     * <p>Checks the input if the user is in the association,
+     * <p>Checks for the input whether the user is in the association,
      * if so then the request wil be forwarded to the voting microservice.
      *
      * @param request the request made from the user

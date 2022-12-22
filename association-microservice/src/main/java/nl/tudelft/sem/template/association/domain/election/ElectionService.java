@@ -52,7 +52,7 @@ public class ElectionService {
     }
 
     /**
-     * Gets the candidates of a election of a specific association, by calling the voting microservice.
+     * Gets the candidates of an election of a specific association, by calling the voting microservice.
      *
      * @param request The request of the user
      * @return The response of the voting microservice

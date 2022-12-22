@@ -30,7 +30,7 @@ public class RequestUtil {
      * Builds the server address for you.
      *
      * @param port The port of the server
-     * @param parameters The parameters of the server, exampele "test/someEndpoint"
+     * @param parameters The parameters of the server, example "test/someEndpoint"
      * @return The server address
      */
     private String giveServerAddress(int port, String parameters) {

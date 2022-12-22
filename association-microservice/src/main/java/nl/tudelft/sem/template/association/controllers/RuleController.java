@@ -46,7 +46,7 @@ public class RuleController {
         return ruleService.amendRule(request);
     }
 
-    @GetMapping("/get")
+    @GetMapping("/get-rule-vote")
     public ResponseEntity<String> getRules(HttpServletRequest request)
             throws IOException, NoSuchElementException, IllegalArgumentException {
         return ruleService.getRules(request);
