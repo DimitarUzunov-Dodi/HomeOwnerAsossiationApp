@@ -132,10 +132,10 @@ public class AssociationService {
         }
 
         Date joinDate = optionalMembership.get().getJoinDate();
-        Long candidateYearLimit = 3L;
+        int candidateYearLimit = -3;
         Calendar c = Calendar.getInstance();
         c.setTime(new Date(System.currentTimeMillis()));
-        c.add(Calendar.YEAR, -3);
+        c.add(Calendar.YEAR, candidateYearLimit);
         Date limitDate = new Date(c.getTime().getTime());
 
         if (ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) < 0) {
