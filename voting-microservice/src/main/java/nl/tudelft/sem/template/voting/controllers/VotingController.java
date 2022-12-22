@@ -176,7 +176,7 @@ public class VotingController {
      *
      * @return list of election result request models
      */
-    @PostMapping("election/get-results")
+    @PostMapping("/election/get-results")
     public ResponseEntity<List<ElectionResultRequestModel>> getAllElectionResults() {
         try {
             return ResponseEntity.ok(votingService.getAllElectionResults());
