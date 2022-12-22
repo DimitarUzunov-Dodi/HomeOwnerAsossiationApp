@@ -72,6 +72,7 @@ public class VotingService {
                 ElectionResultRequestModel model = new ElectionResultRequestModel();
                 model.setDate(new Date());
                 model.setResult(election.getResults());
+                model.setAssociationId(election.getAssociationId());
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer "
@@ -118,6 +119,7 @@ public class VotingService {
                 model.setType(ruleVoting.getType().toString());
                 model.setPassed(ruleVoting.passedMotion());
                 model.setResult(ruleVoting.getResults());
+                model.setAssociationId(ruleVoting.getAssociationId());
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer "

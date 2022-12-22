@@ -5,6 +5,8 @@ import java.util.Locale;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
+import nl.tudelft.sem.template.association.domain.history.Event;
+import nl.tudelft.sem.template.association.domain.history.HistoryService;
 import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
 import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
 import nl.tudelft.sem.template.association.domain.report.ReportInconsistentException;
@@ -33,6 +35,8 @@ public class AssociationController {
 
     private final transient ReportService reportService;
 
+    private final transient HistoryService historyService;
+
     /**
      * Instantiates a new controller.
      *
@@ -44,12 +48,13 @@ public class AssociationController {
     @Autowired
     public AssociationController(AuthManager authManager, AssociationService associationService,
                                  AssociationRepository associationRepository, UserService userService,
-                                 ReportService reportService) {
+                                 ReportService reportService, HistoryService historyService) {
         this.authManager = authManager;
         this.associationService = associationService;
         this.associationRepository = associationRepository;
         this.userService = userService;
         this.reportService = reportService;
+        this.historyService = historyService;
     }
 
     /**
@@ -95,6 +100,7 @@ public class AssociationController {
 
     /**
      * Dummy endpoint for updating the council.
+     * Also updates the history log for association.
      *
      * @param electionResult request body containing all the info regarding the election
      * @return 200 if OK
@@ -106,11 +112,23 @@ public class AssociationController {
 
         System.out.println(historyEntry);
 
+        Event event = new Event(electionResult.getResult(), electionResult.getDate());
+
+        try {
+            historyService.addEvent(electionResult.getAssociationId(), event);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Adding the log in history failed!",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        // TODO : update council
+
         return ResponseEntity.ok("Council updated!");
     }
 
     /**
      * Dummy endpoint for updating the rules.
+     * Also updates the history log for association.
      *
      * @param ruleVoteResult request body containing all the info regarding the rule vote
      * @return 200 if OK
@@ -121,6 +139,17 @@ public class AssociationController {
         String historyEntry = sdf.format(ruleVoteResult.getDate() + " | " + ruleVoteResult.getResult());
 
         System.out.println(historyEntry);
+
+        Event event = new Event(ruleVoteResult.getResult(), ruleVoteResult.getDate());
+
+        try {
+            historyService.addEvent(ruleVoteResult.getAssociationId(), event);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Adding the log in history failed!",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        // TODO : update rules
 
         return ResponseEntity.ok("Rules updated!");
     }

@@ -9,4 +9,5 @@ public class RuleVoteResultRequestModel {
     private String type;
     private boolean passed;
     private String result;
+    private Integer associationId;
 }

@@ -7,4 +7,5 @@ import lombok.Data;
 public class ElectionResultRequestModel {
     private Date date;
     private String result;
+    private Integer associationId;
 }
