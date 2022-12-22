@@ -78,6 +78,56 @@ public class AssociationService {
     }
 
     /**
+     * Updates the council in a specific association.
+     *
+     * <p>Checks for the following things:
+     *  - the Association exists
+     *  - the council size is allows
+     *  - each council member is part of the association
+     *
+     * @param council the new council
+     * @param associationId the id of the association
+     */
+    public void updateCouncil(Set<String> council, int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isEmpty()) {
+            throw new IllegalArgumentException("Association does not exist");
+        }
+
+        Association association = optionalAssociation.get();
+
+        if (council.size() > association.getCouncilNumber()) {
+            throw new IllegalArgumentException("Council is bigger than allowed");
+        }
+
+        for (String councilMember : council) {
+            if (!association.getMemberUserIds().contains(councilMember)) {
+                throw new IllegalArgumentException("A Council member is not part of the association");
+            }
+        }
+
+        association.setCouncilUserIds(council);
+        associationRepository.save(association);
+    }
+
+    /**
+     * Returns the council for a specific association.
+     *
+     * @param associationId the id of the association
+     * @return the council
+     */
+    public Set<String> getCouncil(int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isEmpty()) {
+            throw new IllegalArgumentException("Association does not exist");
+        }
+
+        Association association = optionalAssociation.get();
+
+        return association.getCouncilUserIds();
+    }
+
+    /**
      * Checks whether a certain user is part of the association's council.
      *
      * @param userId            The user's id.
