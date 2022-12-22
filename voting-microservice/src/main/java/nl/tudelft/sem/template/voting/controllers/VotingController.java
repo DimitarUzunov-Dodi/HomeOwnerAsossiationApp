@@ -169,4 +169,20 @@ public class VotingController {
         }
     }
 
+    /**
+     * Returns a string representing the ongoing rule votes from the
+     * user's association and their current status for that user.
+     *
+     * @param request   The request body containing the user's id and the association in which they are a board member.
+     * @return          A string representing the status of all ongoing rule votes.
+     */
+    @GetMapping("/rule-voting/get-pending-votes")
+    public ResponseEntity<String> getPendingVotes(@RequestBody UserAssociationRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService.getPendingVotes(request.getAssociationId(), request.getUserId()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
