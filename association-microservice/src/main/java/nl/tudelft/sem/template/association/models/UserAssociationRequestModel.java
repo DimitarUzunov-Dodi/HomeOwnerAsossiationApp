@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.voting.models;
+package nl.tudelft.sem.template.association.models;
 
 import lombok.Data;
 

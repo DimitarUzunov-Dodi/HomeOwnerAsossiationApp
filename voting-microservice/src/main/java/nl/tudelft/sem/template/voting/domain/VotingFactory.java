@@ -20,7 +20,7 @@ public class VotingFactory {
      *
      * @return the created Voting object.
      */
-    public Voting createVoting(VotingType type, int associationId, Integer userId, String rule, String amendment) {
+    public Voting createVoting(VotingType type, int associationId, String userId, String rule, String amendment) {
         if (type == VotingType.ELECTION) {
             Election election = new Election(associationId);
             electionRepository.save(election);

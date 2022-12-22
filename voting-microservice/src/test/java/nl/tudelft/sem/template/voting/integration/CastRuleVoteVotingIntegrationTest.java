@@ -41,7 +41,7 @@ public class CastRuleVoteVotingIntegrationTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private Long ruleVoteId;
-    private int userId;
+    private String userId;
     private RuleVoting ruleVoting;
 
 
@@ -51,7 +51,7 @@ public class CastRuleVoteVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         this.ruleVoteId = 1L;
-        this.userId = 10;
+        this.userId = "10";
         this.ruleVoting = new RuleVoting(12, this.userId, "Bleep", null, VotingType.PROPOSAL);
         this.ruleVotingRepository.save(this.ruleVoting);
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
@@ -297,7 +297,7 @@ public class CastRuleVoteVotingIntegrationTest {
                 + "proposal under consideration in rule vote: 1");
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        List<Pair<Integer, String>> expected = new ArrayList<>();
+        List<Pair<String, String>> expected = new ArrayList<>();
         expected.add(Pair.of(this.userId, "against"));
         assertThat(this.ruleVoting.getVotes()).isEqualTo(expected);
     }

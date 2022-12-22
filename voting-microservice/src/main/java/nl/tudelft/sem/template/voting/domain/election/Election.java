@@ -17,11 +17,14 @@ public class Election extends Voting {
 
     @Column(name = "candidates")
     @Convert(converter = CandidateAttributeConverter.class)
-    private Set<Integer> candidateIds;
+    private Set<String> candidateIds;
 
+    /**
+     * Vote is a Pair of voterId, candidateId in this order.
+     */
     @Column(name = "votes")
     @Convert(converter = ElectionVotesAttributeConverter.class)
-    private List<Pair<Integer, Integer>> votes;
+    private List<Pair<String, String>> votes;
 
     /**
      * Constructor for the election object.
@@ -44,19 +47,19 @@ public class Election extends Voting {
         return associationId;
     }
 
-    public Set<Integer> getCandidateIds() {
+    public Set<String> getCandidateIds() {
         return candidateIds;
     }
 
-    public void addCandidate(int userId) {
+    public void addCandidate(String userId) {
         this.candidateIds.add(userId);
     }
 
-    public List<Pair<Integer, Integer>> getVotes() {
+    public List<Pair<String, String>> getVotes() {
         return votes;
     }
 
-    public void addVote(Pair<Integer, Integer> vote) {
+    public void addVote(Pair<String, String> vote) {
         votes.add(vote);
     }
 

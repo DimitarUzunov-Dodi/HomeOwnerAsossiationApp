@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class ElectionVoteRequestModel {
-    private int voterId;
+    private String voterId;
     private int associationId;
-    private int candidateId;
+    private String candidateId;
 }
