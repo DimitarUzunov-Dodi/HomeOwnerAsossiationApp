@@ -5,5 +5,4 @@ package nl.tudelft.sem.template.voting.domain;
  */
 public enum VotingType {
     AMENDMENT, ELECTION, PROPOSAL
-
 }

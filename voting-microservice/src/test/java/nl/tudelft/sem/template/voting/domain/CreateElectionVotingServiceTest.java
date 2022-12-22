@@ -34,7 +34,7 @@ public class CreateElectionVotingServiceTest {
 
     @Test
     public void createElectionTest() throws IllegalArgumentException {
-        String result = votingService.createElection(VotingType.ELECTION, associationId, 1, null, null);
+        String result = votingService.createElection(VotingType.ELECTION, associationId, "a", null, null);
 
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
 

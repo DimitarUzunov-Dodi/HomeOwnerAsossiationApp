@@ -24,7 +24,7 @@ public class AmendRuleVotingServiceTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
     private String amendment;
     private VotingType type;
@@ -35,7 +35,7 @@ public class AmendRuleVotingServiceTest {
     @BeforeEach
     public void setup() {
         this.associationId = 1;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         this.amendment = "One should be allowed to murder the other members!";
         this.type = VotingType.AMENDMENT;

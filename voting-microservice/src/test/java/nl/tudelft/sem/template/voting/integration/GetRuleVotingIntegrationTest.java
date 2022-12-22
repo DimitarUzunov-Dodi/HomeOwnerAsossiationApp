@@ -50,10 +50,10 @@ public class GetRuleVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         this.proposalRuleVoteId = 1L;
-        this.proposalRuleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.proposalRuleVoting = new RuleVoting(11, "42", "Bleep", null, VotingType.PROPOSAL);
         ruleVotingRepository.save(this.proposalRuleVoting);
         this.amendmentRuleVoteId = 2L;
-        this.amendmentRuleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
+        this.amendmentRuleVoting = new RuleVoting(11, "42", "Bleep", "Bloop", VotingType.AMENDMENT);
         ruleVotingRepository.save(this.amendmentRuleVoting);
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
         when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
