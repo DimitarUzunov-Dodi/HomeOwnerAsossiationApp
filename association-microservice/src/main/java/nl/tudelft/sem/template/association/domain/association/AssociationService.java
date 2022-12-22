@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.association.domain.association;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
@@ -99,6 +100,51 @@ public class AssociationService {
             }
         }
         return false;
+    }
+
+    /**
+     * Verify whether the provided user can be a candidate for the board.
+     *
+     * @param userId            The user's id.
+     * @param associationId     The association id.
+     * @return                  True if the user can be a candidate.
+     */
+    public boolean verifyCandidate(String userId, Integer associationId) {
+        if (userId == null || associationId == null) {
+            return false;
+        }
+
+        List<Membership> memberships = membershipRepository.findAllByUserId(userId);
+
+        //Check for council membership in all of user's associations
+        for (Membership m : memberships) {
+            Optional<Association> optionalAssociation = associationRepository.findById(m.getAssociationId());
+            if (optionalAssociation.isEmpty() || optionalAssociation.get().getCouncilUserIds().contains(userId)) {
+                return false;
+            }
+        }
+
+        //Check if the member has been in the HOA for 3 years
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
+        if (optionalMembership.isEmpty()) {
+            return false;
+        }
+
+        Date joinDate = optionalMembership.get().getJoinDate();
+        int candidateYearLimit = -3;
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(System.currentTimeMillis()));
+        c.add(Calendar.YEAR, candidateYearLimit);
+        Date limitDate = new Date(c.getTime().getTime());
+
+        if (ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) < 0) {
+            return false;
+        }
+
+        //TODO: Check for 10 year board membership
+
+        return true;
     }
 
 }

@@ -105,13 +105,31 @@ public class AssociationController {
      * @return          A response message in the form of string indicating the result of the verification.
      */
     @PostMapping("/verify-council-member")
-    public ResponseEntity<String> verifyCouncilMember(@RequestBody RuleVerificationRequestModel request) {
+    public ResponseEntity<String> verifyCouncilMember(@RequestBody UserAssociationRequestModel request) {
         boolean isMember = associationService.verifyCouncilMember(request.getUserId(), request.getAssociationId());
 
         if (isMember) {
             return ResponseEntity.ok("Passed council member check!");
         } else {
             return new ResponseEntity<>("You are not a member of this association's council!",
+                    HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * Verify whether the provided user can be a candidate for the board.
+     *
+     * @param request   The request body containing the user's id and the association's id.
+     * @return          A response message in the form of string indicating the result of the verification.
+     */
+    @PostMapping("/verify-candidate")
+    public ResponseEntity<String> verifyCandidate(@RequestBody UserAssociationRequestModel request) {
+        boolean isEligibleCandidate = associationService.verifyCandidate(request.getUserId(), request.getAssociationId());
+
+        if (isEligibleCandidate) {
+            return ResponseEntity.ok("You can apply for a candidate!");
+        } else {
+            return new ResponseEntity<>("You can not be a candidate for the council.",
                     HttpStatus.UNAUTHORIZED);
         }
     }
