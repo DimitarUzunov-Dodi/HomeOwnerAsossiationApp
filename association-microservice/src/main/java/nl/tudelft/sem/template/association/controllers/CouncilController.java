@@ -36,18 +36,18 @@ public class CouncilController {
         this.userService = userService;
     }
 
-    @PostMapping("/getCouncil")
+    @PostMapping("/get-council")
     public ResponseEntity<Set<String>> getCouncil(GetCouncilRequestModel request) {
         return ResponseEntity.ok(associationService.getCouncil(request.getAssociationId()));
     }
 
-    @PostMapping("/UpdateCouncil")
+    @PostMapping("/update-council")
     public ResponseEntity<String> updateCouncil(UpdateCouncilRequestModel request) throws IllegalArgumentException {
         associationService.updateCouncil(request.getCouncil(), request.getAssociationId());
         return ResponseEntity.ok().body("Updated council");
     }
 
-    @PostMapping()
+    @PostMapping("is-in-council")
     public ResponseEntity<Boolean> isInCouncil(IsInCouncilRequestModel request) {
         return ResponseEntity.ok(associationService.verifyCouncilMember(request.getUserId(), request.getAssociationId()));
     }
