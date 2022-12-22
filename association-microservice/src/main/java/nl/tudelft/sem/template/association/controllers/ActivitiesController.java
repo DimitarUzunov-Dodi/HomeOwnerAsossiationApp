@@ -131,7 +131,7 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association to be interested in the event.",
+                return new ResponseEntity<>("You have to be a member of this association to be interested in the event.",
                         HttpStatus.UNAUTHORIZED);
             }
         }
@@ -161,7 +161,7 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association for you to participate in the event.",
+                return new ResponseEntity<>("You have to be a member of this association for participating in the event.",
                         HttpStatus.UNAUTHORIZED);
             }
         }
@@ -189,7 +189,7 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association,"
+                return new ResponseEntity<>("You have to be a member of this association,"
                         + " to be able to remove your interested reaction.",
                         HttpStatus.UNAUTHORIZED);
             }
@@ -218,7 +218,7 @@ public class ActivitiesController {
                 return ResponseEntity.ok().build();
 
             } else {
-                return new ResponseEntity<>("You are not a member of this association,"
+                return new ResponseEntity<>("You have to be a member of this association"
                         + " to be able to remove your interested reaction.",
                         HttpStatus.UNAUTHORIZED);
             }
