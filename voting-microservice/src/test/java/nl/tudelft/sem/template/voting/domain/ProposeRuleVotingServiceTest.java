@@ -24,7 +24,7 @@ public class ProposeRuleVotingServiceTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
     private VotingType type;
 
@@ -34,7 +34,7 @@ public class ProposeRuleVotingServiceTest {
     @BeforeEach
     public void setup() {
         this.associationId = 1;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         this.type = VotingType.PROPOSAL;
     }
@@ -43,14 +43,13 @@ public class ProposeRuleVotingServiceTest {
     public void proposeRuleTest() throws RuleTooLongException, InvalidRuleException, InvalidIdException {
         String result = votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
-        Calendar cal = null;
+        Calendar cal = Calendar.getInstance();
         if (voting.isPresent()) {
             Date date = voting.get().getEndDate();
-            cal = Calendar.getInstance();
             cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, -2);
         }
 
-        assert cal != null;
         assertThat(result)
                 .isEqualTo("Rule: \"One should not murder the other members!\" has been proposed by: 42."
                         + System.lineSeparator() + "The vote will be held on: " + cal.getTime());

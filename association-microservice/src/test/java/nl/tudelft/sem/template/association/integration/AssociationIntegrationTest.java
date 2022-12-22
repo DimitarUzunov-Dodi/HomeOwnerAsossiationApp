@@ -36,9 +36,9 @@ public class AssociationIntegrationTest {
     private transient JwtTokenVerifier mockJwtTokenVerifier;
     @Autowired
     private transient AssociationRepository mockAssociationRepository;
-    private HashSet<Integer> councilMembers;
+    private HashSet<String> councilMembers;
     private Association association;
-    private int userId;
+    private String userId;
 
     /**
      * Initialize the councilMembers and userId variables before each test.
@@ -46,12 +46,12 @@ public class AssociationIntegrationTest {
     @BeforeEach
     public void setup() {
         this.councilMembers = new HashSet<>();
-        for (int i = 0; i < 10; i++) {
-            this.councilMembers.add(i);
-        }
+        this.councilMembers.add("a");
+        this.councilMembers.add("b");
+        this.councilMembers.add("c");
 
-        this.userId = 10;
-        this.association = new Association("test", "test", 10);
+        this.userId = "d";
+        this.association = new Association("test", "test", "test", "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         mockAssociationRepository.save(this.association);
 
@@ -61,7 +61,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyTrueTest() throws Exception {
-        this.userId = 0;
+        this.userId = "a";
 
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);

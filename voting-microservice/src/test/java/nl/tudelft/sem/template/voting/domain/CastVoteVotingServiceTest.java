@@ -24,9 +24,9 @@ public class CastVoteVotingServiceTest {
     private transient VotingService votingService;
     @Autowired
     private transient ElectionRepository electionRepository;
-    private int voterId;
+    private String voterId;
     private int associationId;
-    public int candidateId;
+    public String candidateId;
     long dayInMs = 1000 * 60 * 60 * 24;
 
     /**
@@ -34,9 +34,9 @@ public class CastVoteVotingServiceTest {
      */
     @BeforeEach
     public void setup() {
-        voterId = 1;
+        voterId = "1";
         associationId = 10;
-        candidateId = 2;
+        candidateId = "2";
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CastVoteVotingServiceTest {
         election.addCandidate(candidateId);
         electionRepository.save(election);
 
-        String result = votingService.castVote(voterId, associationId, candidateId);
+        String result = votingService.castElectionVote(voterId, associationId, candidateId);
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
 
         assert optElection.isPresent();
@@ -62,7 +62,7 @@ public class CastVoteVotingServiceTest {
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
-            votingService.castVote(voterId, associationId, candidateId);
+            votingService.castElectionVote(voterId, associationId, candidateId);
         }).hasMessage("Too early to cast a vote.");
     }
 
@@ -73,7 +73,7 @@ public class CastVoteVotingServiceTest {
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
-            votingService.castVote(voterId, associationId, candidateId);
+            votingService.castElectionVote(voterId, associationId, candidateId);
         }).hasMessage("The election has ended.");
     }
 
@@ -85,7 +85,7 @@ public class CastVoteVotingServiceTest {
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
-            votingService.castVote(voterId, associationId, candidateId);
+            votingService.castElectionVote(voterId, associationId, candidateId);
         }).hasMessage("Candidate with ID "
                 + candidateId + " does not exist.");
     }
@@ -95,24 +95,24 @@ public class CastVoteVotingServiceTest {
         Election election = new Election(associationId);
         election.setEndDate(new Date(System.currentTimeMillis() + (int) (0.5 * dayInMs)));
         election.addCandidate(candidateId);
-        election.addCandidate(candidateId + 1);
+        election.addCandidate("abc");
         electionRepository.save(election);
 
-        votingService.castVote(voterId, associationId, candidateId);
-        votingService.castVote(voterId, associationId, candidateId + 1);
+        votingService.castElectionVote(voterId, associationId, candidateId);
+        votingService.castElectionVote(voterId, associationId, "abc");
 
         Election res = electionRepository.findByAssociationId(associationId).get();
-        int resCandidate = -1;
+        String resCandidate = "";
         int count = 0;
-        for (Pair<Integer, Integer> vote : res.getVotes()) {
-            if (vote.getFirst() == voterId) {
+        for (Pair<String, String> vote : res.getVotes()) {
+            if (vote.getFirst().equals(voterId)) {
                 count++;
                 resCandidate = vote.getSecond();
             }
         }
 
         assert count == 1;
-        assert resCandidate == candidateId + 1;
+        assert resCandidate.equals("abc");
     }
 
     @Test
@@ -120,25 +120,25 @@ public class CastVoteVotingServiceTest {
         Election election = new Election(associationId);
         election.setEndDate(new Date(System.currentTimeMillis() + (int) (0.5 * dayInMs)));
         election.addCandidate(candidateId);
-        election.addCandidate(candidateId + 1);
+        election.addCandidate("abc");
         electionRepository.save(election);
 
-        votingService.castVote(voterId, associationId, candidateId);
-        votingService.castVote(voterId + 1, associationId, candidateId + 1);
-        votingService.castVote(voterId, associationId, candidateId + 1);
+        votingService.castElectionVote(voterId, associationId, candidateId);
+        votingService.castElectionVote("a", associationId, "abc");
+        votingService.castElectionVote(voterId, associationId, "abc");
 
         Election res = electionRepository.findByAssociationId(associationId).get();
-        int resCandidate = -1;
+        String resCandidate = "";
         int count = 0;
-        for (Pair<Integer, Integer> vote : res.getVotes()) {
-            if (vote.getFirst() == voterId) {
+        for (Pair<String, String> vote : res.getVotes()) {
+            if (vote.getFirst().equals(voterId)) {
                 count++;
                 resCandidate = vote.getSecond();
             }
         }
 
         assert count == 1;
-        assert resCandidate == candidateId + 1;
+        assert resCandidate.equals("abc");
     }
 
     @Test
@@ -148,7 +148,7 @@ public class CastVoteVotingServiceTest {
         electionRepository.save(election);
 
         assertThatThrownBy(() -> {
-            votingService.castVote(voterId, associationId, candidateId);
+            votingService.castElectionVote(voterId, associationId, candidateId);
         }).hasMessage("Association with ID " + associationId + " does not have an active election.");
     }
 }

@@ -1,11 +1,9 @@
 package nl.tudelft.sem.template.association.domain.association;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
-import nl.tudelft.sem.template.association.domain.membership.CouncilUserIdsAttributeConverter;
+import nl.tudelft.sem.template.association.domain.membership.UserIdsAttributeConverter;
 
 @Entity
 @Table(name = "associations")
@@ -26,6 +24,18 @@ public class Association {
      */
     @Column(name = "name", nullable = false)
     private String name;
+
+    /*
+    country of the association
+     */
+    @Column(name = "country", nullable = false)
+    private String country;
+
+    /*
+    city of the association
+     */
+    @Column(name = "city", nullable = false)
+    private String city;
 
     /*
     creation date of the association
@@ -50,8 +60,30 @@ public class Association {
     User Ids of the council members
      */
     @Column(name = "council_user_ids")
-    @Convert(converter = CouncilUserIdsAttributeConverter.class)
-    private Set<Integer> councilUserIds;
+    @Convert(converter = UserIdsAttributeConverter.class)
+    private Set<String> councilUserIds;
+
+    /*
+    User Ids of the members
+     */
+    @Column(name = "member_user_ids")
+    @Convert(converter = UserIdsAttributeConverter.class)
+    private Set<String> memberUserIds;
+
+    /*
+    rules for the association
+     */
+    @Column(name = "rules")
+    @Convert(converter = RulesAttributeConverter.class)
+    private List<String> rules;
+
+    /**getter.
+     *
+     * @return rules
+     */
+    public List<String> getRules() {
+        return rules;
+    }
 
     /**constructor.
      *
@@ -59,12 +91,16 @@ public class Association {
      * @param description description of association
      * @param councilNumber the maximum council number of the association
      */
-    public Association(String name, String description, int councilNumber) {
+    public Association(String name, String country, String city, String description, int councilNumber) {
         this.name = name;
+        this.country = country;
+        this.city = city;
         this.description = description;
         this.councilNumber = councilNumber;
         this.creationDate = new Date(System.currentTimeMillis());
         this.councilUserIds = new HashSet<>();
+        this.memberUserIds = new HashSet<>();
+        this.rules = new ArrayList<>();
     }
 
     /**getter.
@@ -123,11 +159,19 @@ public class Association {
         return councilNumber;
     }
 
+    /**setter.
+     *
+     * @param councilNumber set new councilNumber
+     */
+    public void setCouncilNumber(int councilNumber) {
+        this.councilNumber = councilNumber;
+    }
+
     /**getter.
      *
      * @return the User Ids of council members
      */
-    public Set<Integer> getCouncilUserIds() {
+    public Set<String> getCouncilUserIds() {
         return councilUserIds;
     }
 
@@ -136,7 +180,48 @@ public class Association {
      *
      * @param councilUserIds The new set of council user ids.
      */
-    public void setCouncilUserIds(Set<Integer> councilUserIds) {
+    public void setCouncilUserIds(Set<String> councilUserIds) {
         this.councilUserIds = councilUserIds;
+    }
+
+    /**getter.
+     *
+     * @return the User Ids of members
+     */
+    public Set<String> getMemberUserIds() {
+        return memberUserIds;
+    }
+
+    /**
+     * Setter for the council user ids field.
+     *
+     * @param memberUserIds Set of member user ids.
+     */
+    public void setMemberUserIds(Set<String> memberUserIds) {
+        this.memberUserIds = memberUserIds;
+    }
+
+    public void addMember(String userId) {
+        this.memberUserIds.add(userId);
+    }
+
+    public void removeMember(String userId) {
+        this.memberUserIds.remove(userId);
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }

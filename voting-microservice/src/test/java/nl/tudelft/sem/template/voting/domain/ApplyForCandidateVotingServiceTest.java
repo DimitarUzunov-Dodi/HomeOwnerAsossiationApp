@@ -23,7 +23,7 @@ public class ApplyForCandidateVotingServiceTest {
     private transient VotingService votingService;
     @Autowired
     private transient ElectionRepository electionRepository;
-    private int userId;
+    private String userId;
     private int associationId;
     long dayInMs = 1000 * 60 * 60 * 24;
 
@@ -32,7 +32,7 @@ public class ApplyForCandidateVotingServiceTest {
      */
     @BeforeEach
     public void setup() {
-        userId = 1;
+        userId = "1";
         associationId = 10;
     }
 

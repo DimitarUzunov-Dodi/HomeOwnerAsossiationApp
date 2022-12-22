@@ -3,10 +3,10 @@ package nl.tudelft.sem.template.association.models;
 import lombok.Data;
 
 /**
- * Model representing a rule voting verification request.
+ * Model representing a request with associationId.
  */
 @Data
 public class UserAssociationRequestModel {
-    private Integer userId;
-    private Integer associationId;
+    private String userId;
+    private int associationId;
 }

@@ -33,8 +33,9 @@ public class RegistrationService {
      * @throws Exception if the user already exists
      */
     public AppUser registerUser(UserId userId, Password password) throws Exception {
-
-        if (checkUserIdIsUnique(userId)) {
+        if (userId == null || password == null) {
+            throw new Exception("NULL_FIELD");
+        } else if (checkUserIdIsUnique(userId)) {
             // Hash password
             HashedPassword hashedPassword = passwordHashingService.hash(password);
 
@@ -60,6 +61,10 @@ public class RegistrationService {
 
         if (tempUser.isEmpty()) {
             throw new Exception("CREDENTIALS_NOT_MATCHING");
+        }
+
+        if (password == null) {
+            throw new Exception("INVALID_PASSWORD");
         }
 
         HashedPassword hashedPassword = passwordHashingService.hash(password);
