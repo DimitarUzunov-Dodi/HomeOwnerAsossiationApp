@@ -37,7 +37,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void getProposalRuleVoteTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", null, VotingType.PROPOSAL);
         ruleVotingRepository.save(this.ruleVoting);
 
         String result = votingService.getRuleVoting(this.ruleVoteId);
@@ -58,7 +58,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void proposalCurrentEqualsVotingDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", null, VotingType.PROPOSAL);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 2);
         this.ruleVoting.setEndDate(cal.getTime());
@@ -74,7 +74,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void proposalBetweenVotingEndDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", null, VotingType.PROPOSAL);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 1);
         this.ruleVoting.setEndDate(cal.getTime());
@@ -90,7 +90,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void proposalCurrentEqualEndDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", null, VotingType.PROPOSAL);
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
 
@@ -104,7 +104,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void proposalCurrentAfterEndDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", null, VotingType.PROPOSAL);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", null, VotingType.PROPOSAL);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -4);
         this.ruleVoting.setEndDate(cal.getTime());
@@ -120,7 +120,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void getAmendmentRuleVoteTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", "Bloop", VotingType.AMENDMENT);
         ruleVotingRepository.save(this.ruleVoting);
 
         String result = votingService.getRuleVoting(this.ruleVoteId);
@@ -142,7 +142,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void amendmentCurrentEqualsVotingDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", "Bloop", VotingType.AMENDMENT);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 2);
         this.ruleVoting.setEndDate(cal.getTime());
@@ -159,7 +159,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void amendmentBetweenVotingEndDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", "Bloop", VotingType.AMENDMENT);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 1);
         this.ruleVoting.setEndDate(cal.getTime());
@@ -176,7 +176,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void amendmentCurrentEqualEndDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", "Bloop", VotingType.AMENDMENT);
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
 
@@ -191,7 +191,7 @@ public class GetRuleVotingServiceTest {
 
     @Test
     public void amendmentCurrentAfterEndDateTest() throws NoSuchObjectException, InvalidIdException {
-        this.ruleVoting = new RuleVoting(11, 42, "Bleep", "Bloop", VotingType.AMENDMENT);
+        this.ruleVoting = new RuleVoting(11, "42", "Bleep", "Bloop", VotingType.AMENDMENT);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -4);
         this.ruleVoting.setEndDate(cal.getTime());

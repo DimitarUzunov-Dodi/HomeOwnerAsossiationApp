@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class RuleVoteRequestModel {
     private Long ruleVoteId;
-    private Integer userId;
+    private String userId;
     private String vote;
 }

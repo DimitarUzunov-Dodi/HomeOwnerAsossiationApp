@@ -38,7 +38,7 @@ public class AmendRuleVotingIntegrationTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
     private String amendment;
 
@@ -48,7 +48,7 @@ public class AmendRuleVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         this.amendment = "One should be allowed to murder the other members!";
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
