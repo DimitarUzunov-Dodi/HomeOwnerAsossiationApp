@@ -3,7 +3,10 @@ package nl.tudelft.sem.template.voting.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
+import nl.tudelft.sem.template.voting.models.AuthenticationResponseModel;
+import nl.tudelft.sem.template.voting.models.RegistrationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -114,6 +117,25 @@ public class RequestUtil {
         HttpEntity<Object> entity = new HttpEntity<>(headers);
 
         return restTemplate.exchange(giveServerAddress(port, parameters), HttpMethod.GET, entity, responseClass);
+    }
+
+    /**
+     * Generates the token for server to server communication.
+     *
+     * @param serviceUsername   The username the service is registered with.
+     * @param servicePassword   The password the service is registered with
+     * @return                  The bearer token generated through the authentication service.
+     */
+    public String authenticateService(String serviceUsername, String servicePassword) {
+        RegistrationRequestModel regModel = new RegistrationRequestModel();
+        regModel.setUserId(serviceUsername);
+        regModel.setPassword(servicePassword);
+        HttpEntity<RegistrationRequestModel> authRequest = new HttpEntity<>(regModel);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<AuthenticationResponseModel> authenticationResponse = restTemplate
+                .postForEntity("http://localhost:8081/authenticate", authRequest, AuthenticationResponseModel.class);
+        return Objects.requireNonNull(authenticationResponse.getBody()).getToken();
     }
 
 }

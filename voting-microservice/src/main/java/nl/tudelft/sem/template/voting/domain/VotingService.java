@@ -9,6 +9,7 @@ import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.*;
 import nl.tudelft.sem.template.voting.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleVoteResultRequestModel;
+import nl.tudelft.sem.template.voting.utils.RequestUtil;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,6 +36,7 @@ public class VotingService {
     private final transient ElectionRepository electionRepository;
     private final transient RuleVotingRepository ruleVotingRepository;
     private final transient VotingFactory votingFactory;
+    private final transient RequestUtil requestUtil;
     private final transient int maxRuleLength = 100;
 
 
@@ -43,10 +44,12 @@ public class VotingService {
      * Instantiates a VotingService object which provides methods to the Voting endpoints,
      * while handling the databases.
      */
-    public VotingService(ElectionRepository electionRepository, RuleVotingRepository ruleVotingRepository) {
+    public VotingService(ElectionRepository electionRepository, RuleVotingRepository ruleVotingRepository,
+                         RequestUtil requestUtil) {
         this.electionRepository = electionRepository;
         this.ruleVotingRepository = ruleVotingRepository;
         this.votingFactory = new VotingFactory(electionRepository, ruleVotingRepository);
+        this.requestUtil = requestUtil;
     }
 
     /**
@@ -147,9 +150,11 @@ public class VotingService {
                 model.setResult(election.getResults());
                 model.setAssociationId(election.getAssociationId());
 
+                String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
+
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer "
-                        + SecurityContextHolder.getContext().getAuthentication().getCredentials());
+                        + token);
                 HttpEntity<ElectionResultRequestModel> request = new HttpEntity<>(model, headers);
 
                 RestTemplate restTemplate = new RestTemplate();
@@ -194,9 +199,11 @@ public class VotingService {
                 model.setResult(ruleVoting.getResults());
                 model.setAssociationId(ruleVoting.getAssociationId());
 
+                String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
+
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer "
-                        + SecurityContextHolder.getContext().getAuthentication().getCredentials());
+                        + token);
                 HttpEntity<RuleVoteResultRequestModel> request = new HttpEntity<>(model, headers);
 
                 RestTemplate restTemplate = new RestTemplate();
