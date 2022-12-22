@@ -28,7 +28,7 @@ public class CastRuleVoteVotingServiceTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private Long ruleVoteId;
-    private int userId;
+    private String userId;
     private RuleVoting ruleVoting;
 
     /**
@@ -37,7 +37,7 @@ public class CastRuleVoteVotingServiceTest {
     @BeforeEach
     public void setup() {
         this.ruleVoteId = 1L;
-        this.userId = 10;
+        this.userId = "10";
         this.ruleVoting = new RuleVoting(12, this.userId, "Bleep", null, VotingType.PROPOSAL);
         this.ruleVotingRepository.save(this.ruleVoting);
     }
@@ -55,7 +55,7 @@ public class CastRuleVoteVotingServiceTest {
                         + "proposal under consideration in rule vote: 1");
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        List<Pair<Integer, String>> expected = new ArrayList<>();
+        List<Pair<String, String>> expected = new ArrayList<>();
         expected.add(Pair.of(this.userId, "for"));
         assertThat(this.ruleVoting.getVotes()).isEqualTo(expected);
 
@@ -74,7 +74,7 @@ public class CastRuleVoteVotingServiceTest {
                         + "proposal under consideration in rule vote: 1");
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        List<Pair<Integer, String>> expected = new ArrayList<>();
+        List<Pair<String, String>> expected = new ArrayList<>();
         expected.add(Pair.of(this.userId, "abstain"));
         assertThat(this.ruleVoting.getVotes()).isEqualTo(expected);
 
@@ -93,7 +93,7 @@ public class CastRuleVoteVotingServiceTest {
                         + "proposal under consideration in rule vote: 1");
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        List<Pair<Integer, String>> expected = new ArrayList<>();
+        List<Pair<String, String>> expected = new ArrayList<>();
         expected.add(Pair.of(this.userId, "against"));
         assertThat(this.ruleVoting.getVotes()).isEqualTo(expected);
     }
@@ -156,7 +156,7 @@ public class CastRuleVoteVotingServiceTest {
         votingService.castRuleVote(this.ruleVoteId, this.userId, "for");
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        List<Pair<Integer, String>> expected = new ArrayList<>();
+        List<Pair<String, String>> expected = new ArrayList<>();
         expected.add(Pair.of(this.userId, "for"));
         assertThat(this.ruleVoting.getVotes()).isEqualTo(expected);
     }

@@ -24,7 +24,7 @@ public class ProposeRuleVotingServiceTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
     private VotingType type;
 
@@ -34,7 +34,7 @@ public class ProposeRuleVotingServiceTest {
     @BeforeEach
     public void setup() {
         this.associationId = 1;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         this.type = VotingType.PROPOSAL;
     }

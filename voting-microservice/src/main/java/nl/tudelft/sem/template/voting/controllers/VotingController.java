@@ -110,7 +110,7 @@ public class VotingController {
      * @return a set of User IDs of candidates.
      */
     @GetMapping("/election/get-candidates")
-    public ResponseEntity<Set<Integer>> getCandidates(@RequestBody AssociationRequestModel request)
+    public ResponseEntity<Set<String>> getCandidates(@RequestBody AssociationRequestModel request)
             throws ResponseStatusException {
         try {
             int associationId = request.getAssociationId();
@@ -128,7 +128,7 @@ public class VotingController {
     @PostMapping("/election/apply-for-candidate")
     public ResponseEntity<String> applyForCandidate(@RequestBody UserAssociationRequestModel request) {
         try {
-            int userId = request.getUserId();
+            String userId = request.getUserId();
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.applyForCandidate(userId, associationId));
         } catch (Exception e) {
@@ -145,9 +145,9 @@ public class VotingController {
     public ResponseEntity<String> castElectionVote(@RequestBody ElectionVoteRequestModel request)
             throws ResponseStatusException {
         try {
-            int voterId = request.getVoterId();
+            String voterId = request.getVoterId();
             int associationId = request.getAssociationId();
-            int candidateId = request.getCandidateId();
+            String candidateId = request.getCandidateId();
             return ResponseEntity.ok(votingService.castElectionVote(voterId, associationId, candidateId));
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
