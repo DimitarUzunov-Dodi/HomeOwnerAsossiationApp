@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class RuleVerificationRequestModel {
-    private Integer userId;
+    private String userId;
     private Integer associationId;
 }
