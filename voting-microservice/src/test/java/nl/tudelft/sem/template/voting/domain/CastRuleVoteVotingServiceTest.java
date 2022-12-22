@@ -45,7 +45,9 @@ public class CastRuleVoteVotingServiceTest {
     @Test
     public void castRuleVoteInFavourTest() throws InvalidIdException {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "for"))
@@ -62,7 +64,9 @@ public class CastRuleVoteVotingServiceTest {
     @Test
     public void castRuleVoteAbstainTest() throws InvalidIdException {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "abstain"))
@@ -79,7 +83,9 @@ public class CastRuleVoteVotingServiceTest {
     @Test
     public void castRuleVoteAgainstTest() throws InvalidIdException {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "against"))
@@ -102,10 +108,7 @@ public class CastRuleVoteVotingServiceTest {
     @Test
     public void voteEnded() {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date(System.currentTimeMillis()));
-        cal.add(Calendar.DAY_OF_MONTH, -2);
-        this.ruleVoting.setEndDate(cal.getTime());
+        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
 
         assertThatThrownBy(() -> {
@@ -144,7 +147,9 @@ public class CastRuleVoteVotingServiceTest {
     @Test
     public void changeVoteTest() throws InvalidIdException {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
-        this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
         votingService.castRuleVote(this.ruleVoteId, this.userId, "against");

@@ -1,7 +1,10 @@
 package nl.tudelft.sem.template.authentication.controllers;
 
+import static nl.tudelft.sem.template.authentication.domain.user.FieldValidation.validateField;
+
 import nl.tudelft.sem.template.authentication.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authentication.authentication.JwtUserDetailsService;
+import nl.tudelft.sem.template.authentication.domain.user.InvalidFieldException;
 import nl.tudelft.sem.template.authentication.domain.user.Password;
 import nl.tudelft.sem.template.authentication.domain.user.RegistrationService;
 import nl.tudelft.sem.template.authentication.domain.user.UserId;
@@ -87,11 +90,16 @@ public class AuthenticationController {
      * @throws Exception if a user with this userid already exists
      */
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegistrationRequestModel request) throws ResponseStatusException {
+    public ResponseEntity register(@RequestBody RegistrationRequestModel request)
+            throws ResponseStatusException, InvalidFieldException {
+        if (!validateField(request.getUserId()) || !validateField(request.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_FIELDS");
+        }
+
+        UserId userId = new UserId(request.getUserId());
+        Password password = new Password(request.getPassword());
 
         try {
-            UserId userId = new UserId(request.getUserId());
-            Password password = new Password(request.getPassword());
             registrationService.registerUser(userId, password);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "USER_ID_TAKEN", e);
