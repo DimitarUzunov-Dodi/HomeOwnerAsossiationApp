@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class UserAssociationRequestModel {
-    private int userId;
-    private int associationId;
+    private Integer userId;
+    private Integer associationId;
 }

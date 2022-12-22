@@ -5,6 +5,7 @@ import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.*;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -164,6 +165,22 @@ public class VotingController {
         try {
             return ResponseEntity.ok(votingService
                     .castRuleVote(request.getRuleVoteId(), request.getUserId(), request.getVote()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Returns a string representing the ongoing rule votes from the
+     * user's association and their current status for that user.
+     *
+     * @param request   The request body containing the user's id and the association in which they are a board member.
+     * @return          A string representing the status of all ongoing rule votes.
+     */
+    @GetMapping("/rule-voting/get-pending-votes")
+    public ResponseEntity<String> getPendingVotes(@RequestBody UserAssociationRequestModel request) {
+        try {
+            return ResponseEntity.ok(votingService.getPendingVotes(request.getAssociationId(), request.getUserId()));
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
