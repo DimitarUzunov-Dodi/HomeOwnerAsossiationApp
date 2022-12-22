@@ -34,17 +34,17 @@ public class GetPendingVotesVotingServiceTest {
         cal.add(Calendar.DAY_OF_MONTH, 1);
         this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
-        this.ruleVoting = ruleVotingRepository.findByAssociationId(1).get(0);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         assertThat(votingService.getPendingVotes(1, 1)).isEqualTo("ID: " + this.ruleVoting.getId()
-                + ", Type: Proposal, Status: Voting, Vote: for" + System.lineSeparator());
+                + ", Type: Proposal, Status: Voting, Your vote: for" + System.lineSeparator());
     }
 
     @Test
     public void typeAmendmentTest() throws InvalidIdException {
         this.ruleVoting = new RuleVoting(1, 42, "Bleep", "fesfse", VotingType.AMENDMENT);
         ruleVotingRepository.save(this.ruleVoting);
-        this.ruleVoting = ruleVotingRepository.findByAssociationId(1).get(0);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         assertThat(votingService.getPendingVotes(1, 1)).isEqualTo("ID: " + this.ruleVoting.getId()
                 + ", Type: Amendment, Status: Reviewing" + System.lineSeparator());
@@ -56,10 +56,10 @@ public class GetPendingVotesVotingServiceTest {
         this.ruleVoting.addVote(Pair.of(1, "against"));
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
-        this.ruleVoting = ruleVotingRepository.findByAssociationId(1).get(0);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         assertThat(votingService.getPendingVotes(1, 1)).isEqualTo("ID: " + this.ruleVoting.getId()
-                + ", Type: Proposal, Status: Ended, Vote: against" + System.lineSeparator());
+                + ", Type: Proposal, Status: Ended, Your vote: against" + System.lineSeparator());
     }
 
     @Test
@@ -85,12 +85,12 @@ public class GetPendingVotesVotingServiceTest {
         this.ruleVoting = new RuleVoting(1, 42, "scoop", null, VotingType.PROPOSAL);
         ruleVotingRepository.save(this.ruleVoting);
 
-        List<Long> ruleVoteIds = ruleVotingRepository.findByAssociationId(1).stream()
+        List<Long> ruleVoteIds = ruleVotingRepository.findAllByAssociationId(1).stream()
                 .map(Voting::getId).collect(Collectors.toList());
 
         assertThat(votingService.getPendingVotes(1, 1)).isEqualTo("ID: " + ruleVoteIds.get(0)
-                + ", Type: Proposal, Status: Ended, Vote: against" + System.lineSeparator()
-                + "ID: " + ruleVoteIds.get(1) + ", Type: Amendment, Status: Voting, Vote: for" + System.lineSeparator()
+                + ", Type: Proposal, Status: Ended, Your vote: against" + System.lineSeparator()
+                + "ID: " + ruleVoteIds.get(1) + ", Type: Amendment, Status: Voting, Your vote: for" + System.lineSeparator()
                 + "ID: " + ruleVoteIds.get(2) + ", Type: Proposal, Status: Reviewing" + System.lineSeparator());
     }
 
@@ -99,10 +99,10 @@ public class GetPendingVotesVotingServiceTest {
         this.ruleVoting = new RuleVoting(1, 42, "Bleep", null, VotingType.PROPOSAL);
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));
         ruleVotingRepository.save(this.ruleVoting);
-        this.ruleVoting = ruleVotingRepository.findByAssociationId(1).get(0);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         assertThat(votingService.getPendingVotes(1, 1)).isEqualTo("ID: " + this.ruleVoting.getId()
-                + ", Type: Proposal, Status: Ended, Vote: No vote (abstain)" + System.lineSeparator());
+                + ", Type: Proposal, Status: Ended, Your vote: No vote (abstain)" + System.lineSeparator());
     }
 
     @Test
@@ -113,10 +113,10 @@ public class GetPendingVotesVotingServiceTest {
         this.ruleVoting.setEndDate(cal.getTime());
         this.ruleVoting.addVote(Pair.of(1, "abstain"));
         ruleVotingRepository.save(this.ruleVoting);
-        this.ruleVoting = ruleVotingRepository.findByAssociationId(1).get(0);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
 
         assertThat(votingService.getPendingVotes(1, 1)).isEqualTo("ID: " + this.ruleVoting.getId()
-                + ", Type: Proposal, Status: Voting, Vote: abstain" + System.lineSeparator());
+                + ", Type: Proposal, Status: Voting, Your vote: abstain" + System.lineSeparator());
     }
 
     @Test

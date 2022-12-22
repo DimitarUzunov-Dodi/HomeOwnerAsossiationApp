@@ -348,7 +348,7 @@ public class VotingService {
                 List<Pair<Integer, String>> votes = pendingVotes.get(0).getVotes().stream()
                         .filter(x -> x.getFirst().equals(userId))
                         .collect(Collectors.toList());
-                String vote = "Vote: " + (votes.isEmpty() ? "No vote (abstain)" : votes.get(0).getSecond());
+                String vote = "Your vote: " + (votes.isEmpty() ? "No vote (abstain)" : votes.get(0).getSecond());
                 result.append(id);
                 result.append(type);
                 result.append(status);
