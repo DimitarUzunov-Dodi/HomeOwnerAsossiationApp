@@ -41,19 +41,19 @@ public class Activity {
 
     @Getter
     @Column(name = "publisher_id", nullable = false)
-    private int publisherId;
+    private String publisherId;
 
     @Getter
     @Setter
     @Column(name = "participating_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
-    private List<Integer> participatingUserId;
+    private List<String> participatingUserId;
 
     @Getter
     @Setter
     @Column(name = "interested_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
-    private List<Integer> interestedUserId;
+    private List<String> interestedUserId;
 
 
     /** Constructor for the activity class.
@@ -67,22 +67,22 @@ public class Activity {
      *
      */
     public Activity(String eventName, String description, Date startingDate,
-                    Date expirationDate, int associationId, int publisherId) {
+                    Date expirationDate, int associationId, String publisherId) {
         this.eventName = eventName;
         this.description = description;
         this.startingDate = startingDate;
         this.expirationDate = expirationDate;
         this.associationId = associationId;
         this.publisherId = publisherId;
-        this.participatingUserId =  new ArrayList<Integer>();
-        this.interestedUserId = new ArrayList<Integer>();
+        this.participatingUserId =  new ArrayList<String>();
+        this.interestedUserId = new ArrayList<String>();
     }
 
     /** adds id to the interested list.
      *
      * @param userId id of the interested member
      */
-    public void addInterested(int userId) {
+    public void addInterested(String userId) {
         if (interestedUserId.contains(userId)) {
             return;
         } else {
@@ -95,7 +95,7 @@ public class Activity {
      *
      * @param userId id of the interested member
      */
-    public void removeInterested(int userId) {
+    public void removeInterested(String userId) {
         if (interestedUserId.contains(userId)) {
             interestedUserId.remove(interestedUserId.indexOf(userId));
         }
@@ -105,7 +105,7 @@ public class Activity {
      *
      * @param userId id of the goingTo member
      */
-    public void addParticipating(int userId) {
+    public void addParticipating(String userId) {
         if (participatingUserId.contains(userId)) {
             return;
         } else {
@@ -118,7 +118,7 @@ public class Activity {
      *
      * @param userId id of the goingTo member
      */
-    public void removeParticipating(int userId) {
+    public void removeParticipating(String userId) {
         if (participatingUserId.contains(userId)) {
             participatingUserId.remove(participatingUserId.indexOf(userId));
         }

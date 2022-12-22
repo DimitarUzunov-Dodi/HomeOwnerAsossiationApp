@@ -41,7 +41,7 @@ public class ActivityService {
      *
      */
     public void addActivity(String eventName, String description, Date startingDate,
-                            Date expirationDate, int associationId, int publisherId) {
+                            Date expirationDate, int associationId, String publisherId) {
         activityRepository.save(new Activity(eventName, description, startingDate,
                 expirationDate, associationId, publisherId));
     }
@@ -51,7 +51,7 @@ public class ActivityService {
      * @param activityId Id of the activity
      * @param userId id of the user
      */
-    public void addInterested(int activityId, int userId) {
+    public void addInterested(int activityId, String userId) {
         Activity  activity = activityRepository.findByActivityId(activityId).get();
         activity.addInterested(userId);
         activityRepository.save(activity);
@@ -62,7 +62,7 @@ public class ActivityService {
      * @param activityId Id of the activity
      * @param userId id of the user
      */
-    public void addParticipating(int activityId, int userId) {
+    public void addParticipating(int activityId, String userId) {
         Activity  activity = activityRepository.findByActivityId(activityId).get();
         activity.addParticipating(userId);
         activityRepository.save(activity);
@@ -73,7 +73,7 @@ public class ActivityService {
      * @param activityId Id of the activity
      * @param userId id of the user
      */
-    public void removeInterested(int activityId, int userId) {
+    public void removeInterested(int activityId, String userId) {
         Activity  activity = activityRepository.findByActivityId(activityId).get();
         activity.removeInterested(userId);
         activityRepository.save(activity);
@@ -84,7 +84,7 @@ public class ActivityService {
      * @param activityId id of the activity
      * @param userId id of the user
      */
-    public void removeParticipating(int activityId, int userId) {
+    public void removeParticipating(int activityId, String userId) {
         Activity  activity = activityRepository.findByActivityId(activityId).get();
         activity.removeParticipating(userId);
         activityRepository.save(activity);

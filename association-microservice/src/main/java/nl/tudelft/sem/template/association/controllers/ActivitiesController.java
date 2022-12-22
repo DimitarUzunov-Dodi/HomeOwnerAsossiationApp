@@ -69,7 +69,7 @@ public class ActivitiesController {
      * @param activityRequest JSON body holding the rest of the parameter need ed
      */
     @PostMapping("/{associationId}/{publisherId}")
-    public ResponseEntity<?> addActivity(@PathVariable int associationId, @PathVariable int publisherId,
+    public ResponseEntity<?> addActivity(@PathVariable int associationId, @PathVariable String publisherId,
                                          @RequestBody ActivityRequestModel activityRequest) {
         boolean isMember = associationService.verifyCouncilMember(publisherId, associationId);
 
@@ -119,7 +119,7 @@ public class ActivitiesController {
      * @return response from the server
      */
     @PostMapping("/addInterested/{activityId}/{userId}")
-    public ResponseEntity<?> addInterested(@PathVariable int activityId, @PathVariable int userId) {
+    public ResponseEntity<?> addInterested(@PathVariable int activityId, @PathVariable String userId) {
 
         Activity activity = activityService.getActivity(activityId);
         if (activity != null) {
@@ -149,7 +149,7 @@ public class ActivitiesController {
      * @return response from the server
      */
     @PostMapping("/addParticipating/{activityId}/{userId}")
-    public ResponseEntity<?> addParticipating(@PathVariable int activityId, @PathVariable int userId) {
+    public ResponseEntity<?> addParticipating(@PathVariable int activityId, @PathVariable String userId) {
 
         Activity activity = activityService.getActivity(activityId);
         if (activity != null) {
@@ -177,7 +177,7 @@ public class ActivitiesController {
      * @return response from the server
      */
     @PostMapping("/removeInterested/{activityId}/{userId}")
-    public ResponseEntity<?> removeInterested(@PathVariable int activityId, @PathVariable int userId) {
+    public ResponseEntity<?> removeInterested(@PathVariable int activityId, @PathVariable String userId) {
 
         Activity activity = activityService.getActivity(activityId);
         if (activity != null) {
@@ -206,7 +206,7 @@ public class ActivitiesController {
      * @return response from the server
      */
     @PostMapping("/removeParticipating/{activityId}/{userId}")
-    public ResponseEntity<?> removeParticipating(@PathVariable int activityId, @PathVariable int userId) {
+    public ResponseEntity<?> removeParticipating(@PathVariable int activityId, @PathVariable String userId) {
 
         Activity activity = activityService.getActivity(activityId);
         if (activity != null) {

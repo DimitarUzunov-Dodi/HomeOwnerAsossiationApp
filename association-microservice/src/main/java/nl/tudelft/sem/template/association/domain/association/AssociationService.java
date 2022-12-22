@@ -29,6 +29,21 @@ public class AssociationService {
                 + "Description: " + description + System.lineSeparator() + "Max council members: " + councilNumber;
     }
 
+    /**getter.
+     *
+     * @param associationId the id of the association
+     * @return Association correspondingly
+     */
+    public Association getAssociationById(int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isPresent()) {
+            return optionalAssociation.get();
+        } else {
+            throw new IllegalArgumentException("Association with ID "
+                    + associationId + " does not exist.");
+        }
+    }
+
     /**
      * User joins an association.
      *
