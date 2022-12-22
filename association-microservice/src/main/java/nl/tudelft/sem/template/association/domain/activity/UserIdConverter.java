@@ -4,16 +4,16 @@ import java.util.*;
 import javax.persistence.AttributeConverter;
 
 
-public class UserIdConverter implements AttributeConverter<List<String>, String> {
+public class UserIdConverter implements AttributeConverter<Set<String>, String> {
 
     @Override
-    public String convertToDatabaseColumn(List<String> ids) {
+    public String convertToDatabaseColumn(Set<String> ids) {
         return ids.toString().substring(1, ids.toString().length() - 1);
     }
 
     @Override
-    public List<String> convertToEntityAttribute(String dbData) {
-        List<String> ids = new ArrayList<>();
+    public Set<String> convertToEntityAttribute(String dbData) {
+        Set<String> ids = new HashSet<String>();
 
         if (dbData == null || dbData.isEmpty()) {
             return ids;
