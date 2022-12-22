@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @AutoConfigureMockMvc
 public class AmendRuleVotingIntegrationTest {
     @Autowired
@@ -38,7 +38,7 @@ public class AmendRuleVotingIntegrationTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
     private String amendment;
 
@@ -48,7 +48,7 @@ public class AmendRuleVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         this.amendment = "One should be allowed to murder the other members!";
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
@@ -73,11 +73,11 @@ public class AmendRuleVotingIntegrationTest {
         String response = result.andReturn().getResponse().getContentAsString();
 
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
-        Calendar cal = null;
+        Calendar cal = Calendar.getInstance();
         if (voting.isPresent()) {
             Date date = voting.get().getEndDate();
-            cal = Calendar.getInstance();
             cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, -2);
         }
 
         assert cal != null;

@@ -2,10 +2,7 @@ package nl.tudelft.sem.template.voting.domain;
 
 import java.rmi.NoSuchObjectException;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.InvalidIdException;
@@ -41,7 +38,7 @@ public class VotingService {
      *
      * @return a message confirming the creation.
      */
-    public String createElection(VotingType type, int associationId, Integer userId, String rule, String amendment) {
+    public String createElection(VotingType type, int associationId, String userId, String rule, String amendment) {
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         return "Voting was created for association " + associationId
                 + " and will be held on " + voting.getEndDate().toString() + ".";
@@ -52,7 +49,7 @@ public class VotingService {
      *
      * @return a set of User IDs of candidates.
      */
-    public Set<Integer> getCandidates(int associationId) throws IllegalArgumentException {
+    public Set<String> getCandidates(int associationId) throws IllegalArgumentException {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             return optElection.get().getCandidateIds();
@@ -67,7 +64,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String applyForCandidate(int userId, int associationId) {
+    public String applyForCandidate(String userId, int associationId) {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();
@@ -95,7 +92,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String castVote(int voterId, int associationId, int candidateId) {
+    public String castElectionVote(String voterId, int associationId, String candidateId) {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();
@@ -121,13 +118,13 @@ public class VotingService {
 
             //If the voter already voted, remove previous vote
             for (Pair vote : election.getVotes()) {
-                if ((int) vote.getFirst() == voterId) {
+                if (vote.getFirst().equals(voterId)) {
                     election.getVotes().remove(vote);
                     break;
                 }
             }
 
-            Pair<Integer, Integer> vote = Pair.of(voterId, candidateId);
+            Pair<String, String> vote = Pair.of(voterId, candidateId);
             election.addVote(vote);
             electionRepository.save(election);
             return "The voter with ID " + voterId + " voted for the candidate with ID " + candidateId + ".";
@@ -147,7 +144,7 @@ public class VotingService {
      * @param rule          The rule that is being proposed.
      * @return              A message confirming the creation of the rule vote.
      */
-    public String proposeRule(VotingType type, Integer associationId, Integer userId, String rule)
+    public String proposeRule(VotingType type, Integer associationId, String userId, String rule)
             throws InvalidIdException, InvalidRuleException, RuleTooLongException {
         if (associationId == null) {
             throw new InvalidIdException("The associationID is invalid.");
@@ -163,8 +160,11 @@ public class VotingService {
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(voting.getEndDate());
+        cal.add(Calendar.DAY_OF_MONTH, -2);
         return "Rule: \"" + rule + "\" has been proposed by: " + userId + "." +  System.lineSeparator()
-                + "The vote will be held on: " + voting.getEndDate();
+                + "The vote will be held on: " + cal.getTime();
     }
 
     /**
@@ -177,7 +177,7 @@ public class VotingService {
      * @param amendment     The amendment for the original rule.
      * @return              A message confirming the creation of the rule vote.
      */
-    public String amendmentRule(VotingType type, Integer associationId, Integer userId, String rule, String amendment)
+    public String amendmentRule(VotingType type, Integer associationId, String userId, String rule, String amendment)
             throws InvalidIdException, InvalidRuleException, RuleTooLongException {
         if (associationId == null) {
             throw new InvalidIdException("The associationID is invalid.");
@@ -195,9 +195,12 @@ public class VotingService {
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(voting.getEndDate());
+        cal.add(Calendar.DAY_OF_MONTH, -2);
         return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
                 + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
-                + voting.getEndDate();
+                + cal.getTime();
     }
 
     /**
@@ -221,22 +224,80 @@ public class VotingService {
         }
 
         Date currentDate = new Date(System.currentTimeMillis());
-        Date votingDate = optionalRuleVoting.get().getEndDate();
+        Date endDate = optionalRuleVoting.get().getEndDate();
         Calendar cal = Calendar.getInstance();
-        cal.setTime(votingDate);
-        cal.add(Calendar.DAY_OF_MONTH, 2);
+        cal.setTime(endDate);
+        cal.add(Calendar.DAY_OF_MONTH, -2);
 
-        if (ChronoUnit.SECONDS.between(currentDate.toInstant(), votingDate.toInstant()) > 0) {
-            cal.setTime(votingDate);
-            return res + System.lineSeparator() + "The voting procedure is still in reviewing."
-                    + System.lineSeparator() + "The voting will start on: " + cal.getTime();
-        } else if (ChronoUnit.SECONDS.between(currentDate.toInstant(), cal.getTime().toInstant()) > 0) {
+        if (ChronoUnit.SECONDS.between(currentDate.toInstant(), endDate.toInstant()) <= 0) {
+            return res + System.lineSeparator() + "Voting has ended." + System.lineSeparator()
+                    + "The results can be accessed through the association.";
+        } else if (ChronoUnit.SECONDS.between(currentDate.toInstant(), cal.toInstant()) <= 0) {
+            cal.setTime(endDate);
             return res + System.lineSeparator() + "You can cast your vote now."
                     + System.lineSeparator() + "The voting will end on: " + cal.getTime();
         } else {
-            return res += System.lineSeparator() + "Voting has ended." + System.lineSeparator()
-                    + "The results can be accessed through the association.";
+            return res + System.lineSeparator() + "The voting procedure is still in reviewing."
+                    + System.lineSeparator() + "The voting will start on: " + cal.getTime();
         }
 
+    }
+
+    /**
+     * Returns a message indicating what the user voted.
+     *
+     * @param ruleVoteId            The id of the rule voting object to vote for.
+     * @param userId                The id of the user voting.
+     * @param vote                  The vote of the user voting.
+     * @return                      A message confirming what the user voted.
+     * @throws InvalidIdException   Thrown when the rule vote id is invalid.
+     */
+    public String castRuleVote(Long ruleVoteId, String userId, String vote) throws InvalidIdException {
+        List<String> validVotes = List.of("for", "against", "abstain");
+        if (vote == null || !(validVotes.contains(vote))) {
+            throw new IllegalArgumentException("The vote is not valid, please pick from: for/against/abstain.");
+        } else if (ruleVoteId == null) {
+            throw new InvalidIdException("The rule vote id is null.");
+        }
+
+        Optional<RuleVoting> optionalRuleVoting = ruleVotingRepository.findById(ruleVoteId);
+        RuleVoting ruleVoting = optionalRuleVoting
+                .orElseThrow(() -> new InvalidIdException("There is no rule vote ongoing with the id: " + ruleVoteId));
+
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date ruleVoteEndDate = ruleVoting.getEndDate();
+        int daysForVoting = 2;
+
+        if (ChronoUnit.DAYS.between(currentDate.toInstant(), ruleVoteEndDate.toInstant()) >= daysForVoting) {
+            throw new IllegalArgumentException("The rule vote is still in reviewing. It is too early to cast a vote.");
+        }
+
+        //Checks if rule vote has ended
+        if (currentDate.compareTo(ruleVoteEndDate) > 0) {
+            throw new IllegalArgumentException("The rule vote has ended.");
+        }
+
+        //If the voter already voted, remove previous vote
+        for (Pair v : ruleVoting.getVotes()) {
+            if (v.getFirst().equals(userId)) {
+                ruleVoting.getVotes().remove(v);
+                break;
+            }
+        }
+
+        Pair<String, String> submission = Pair.of(userId, vote);
+        ruleVoting.addVote(submission);
+        ruleVotingRepository.save(ruleVoting);
+
+        if (vote.equals("for")) {
+            return "The user with ID " + userId + " voted in favour of the "
+                    + "proposal under consideration in rule vote: " + ruleVoteId;
+        } else if (vote.equals("against")) {
+            return "The user with ID " + userId + " voted against the "
+                    + "proposal under consideration in rule vote: " + ruleVoteId;
+        } else {
+            return "The user with ID " + userId + " abstains from voting for the "
+                    + "proposal under consideration in rule vote: " + ruleVoteId;
+        }
     }
 }

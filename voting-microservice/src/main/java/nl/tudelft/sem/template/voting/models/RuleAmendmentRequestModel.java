@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class RuleAmendmentRequestModel {
     private Integer associationId;
-    private Integer userId;
+    private String userId;
     private String rule;
     private String amendment;
 }

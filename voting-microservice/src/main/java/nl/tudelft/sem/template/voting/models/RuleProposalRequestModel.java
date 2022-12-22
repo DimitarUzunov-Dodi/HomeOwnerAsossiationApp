@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 public class RuleProposalRequestModel {
     private Integer associationId;
-    private Integer userId;
+    private String userId;
     private String rule;
 }
