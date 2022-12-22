@@ -16,7 +16,11 @@ public class UserIdAttributeConverter implements AttributeConverter<UserId, Stri
 
     @Override
     public UserId convertToEntityAttribute(String dbData) {
-        return new UserId(dbData);
+        try {
+            return new UserId(dbData);
+        } catch (InvalidFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

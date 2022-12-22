@@ -35,13 +35,13 @@ public class GetCandidatesVotingServiceTest {
     @Test
     public void getCandidatesTest() throws IllegalArgumentException {
         Election election = new Election(associationId);
-        election.addCandidate(1);
-        election.addCandidate(2);
+        election.addCandidate("a");
+        election.addCandidate("b");
         electionRepository.save(election);
 
-        Set<Integer> result = votingService.getCandidates(associationId);
+        Set<String> result = votingService.getCandidates(associationId);
 
-        assertThat(result).containsExactlyInAnyOrder(1, 2);
+        assertThat(result).containsExactlyInAnyOrder("a", "b");
     }
 
     @Test

@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @AutoConfigureMockMvc
 public class ProposeRuleVotingIntegrationTest {
     @Autowired
@@ -38,7 +38,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Autowired
     private transient RuleVotingRepository ruleVotingRepository;
     private int associationId;
-    private int userId;
+    private String userId;
     private String rule;
 
     /**
@@ -53,7 +53,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void proposeRuleTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         RuleProposalRequestModel model = new RuleProposalRequestModel();
         model.setUserId(this.userId);
@@ -70,21 +70,20 @@ public class ProposeRuleVotingIntegrationTest {
         String response = result.andReturn().getResponse().getContentAsString();
 
         Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
-        Calendar cal = null;
+        Calendar cal = Calendar.getInstance();
         if (voting.isPresent()) {
             Date date = voting.get().getEndDate();
-            cal = Calendar.getInstance();
             cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, -2);
         }
-
-        assert cal != null;
+        
         assertThat(response).isEqualTo("Rule: \"One should not murder the other members!\" "
                 + "has been proposed by: 42." + System.lineSeparator() + "The vote will be held on: " + cal.getTime());
     }
 
     @Test
     public void nullAssociationIdTest() throws Exception {
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "One should not murder the other members!";
         RuleProposalRequestModel model = new RuleProposalRequestModel();
         model.setUserId(this.userId);
@@ -128,7 +127,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void nullRuleTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
 
         RuleProposalRequestModel model = new RuleProposalRequestModel();
         model.setUserId(this.userId);
@@ -150,7 +149,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void emptyRuleTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "";
 
         RuleProposalRequestModel model = new RuleProposalRequestModel();
@@ -173,7 +172,7 @@ public class ProposeRuleVotingIntegrationTest {
     @Test
     public void ruleTooLongTest() throws Exception {
         this.associationId = 11;
-        this.userId = 42;
+        this.userId = "42";
         this.rule = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 

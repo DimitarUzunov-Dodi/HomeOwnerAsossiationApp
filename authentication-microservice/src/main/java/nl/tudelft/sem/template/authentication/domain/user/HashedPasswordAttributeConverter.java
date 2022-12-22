@@ -16,7 +16,11 @@ public class HashedPasswordAttributeConverter implements AttributeConverter<Hash
 
     @Override
     public HashedPassword convertToEntityAttribute(String dbData) {
-        return new HashedPassword(dbData);
+        try {
+            return new HashedPassword(dbData);
+        } catch (InvalidFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
