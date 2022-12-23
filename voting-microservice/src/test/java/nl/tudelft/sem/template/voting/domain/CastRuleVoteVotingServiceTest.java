@@ -109,9 +109,7 @@ public class CastRuleVoteVotingServiceTest {
         }).isInstanceOf(IllegalArgumentException.class);
     }
 
-    /**
-     * Not passing.
-     */
+    @Test
     public void voteEnded() {
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
         this.ruleVoting.setEndDate(new Date(System.currentTimeMillis()));

@@ -70,9 +70,7 @@ public class GetPendingVotesVotingServiceTest {
                 .isEqualTo("There are no ongoing rule votes corresponding to the association ID: 1.");
     }
 
-    /**
-     * Not passing.
-    */
+    @Test
     public void pendingVotesMultipleTest() throws InvalidIdException {
         this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", null, VotingType.PROPOSAL);
         this.ruleVoting.addVote(Pair.of("Gerard", "against"));
