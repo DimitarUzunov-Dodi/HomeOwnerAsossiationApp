@@ -43,6 +43,9 @@ public class Membership {
     @Column(name = "leave_date")
     private Date leaveDate;
 
+    @Column(name = "times_council")
+    private Integer timesCouncil;
+
     @Column(name = "notifications")
     @Convert(converter = NotificationAttributeConverter.class)
     private List<Notification> notifications;
@@ -61,6 +64,7 @@ public class Membership {
         this.postalCode = postalCode;
         this.joinDate = new Date(System.currentTimeMillis());
         this.notifications = new ArrayList<>();
+        this.timesCouncil = 0;
     }
 
     /**getter.
@@ -145,6 +149,14 @@ public class Membership {
 
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
+    }
+
+    public int getTimesCouncil() {
+        return this.timesCouncil;
+    }
+
+    public void setTimesCouncil(int timesCouncil) {
+        this.timesCouncil = timesCouncil;
     }
 
     public List<Notification> getNotifications() {
