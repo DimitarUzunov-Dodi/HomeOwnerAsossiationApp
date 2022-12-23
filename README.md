@@ -45,20 +45,14 @@ Each request has a RequestModel associated to it. Those can be found in the `LEG
 
 
 - `/activities`
-  - `/{associationId}/noticeboard` Get all the available activities of an association. [path variables][AssociationRequestModel]
-  - `/{associationId}/{publisherId}` Add a new activity for an association. [path variables]
-  - `/noticeboard/{activityId}` Get an activity corresponding to its ID. [path variables]
-  - `/addInterested/{activityId}/{userId}` Add a user to an activity's list of interested people. [path variables]
-  - `/addParticipating/{activityId}/{userId}` Add a user to an activity's list of participating people. [path variables]
-  - `/removeInterested/{activityId}/{userId}` Remove a user from an activity's list of interested people. [path variables]
-  - `/removeParticipating/{activityId}/{userId}` Remove a user from an activity's list of participating people [path variables]
+  - `/display-noticeboard` Get all the available activities of an association. [AssociationRequestModel]
+  - `/add-activity` Add a new activity for an association. [ActivityRequestModel]
+  - `/get-activity` Get information about an activity. [ActivityRequestModel]
+  - `/add-interest` Add a user to an activity's list of interested people. [ActivityRequestModel]
+  - `/add-participating` Add a user to an activity's list of participating people. [ActivityRequestModel]
+  - `/remove-interested` Remove a user from an activity's list of interested people. [ActivityRequestModel]
+  - `/remove-participating` Remove a user from an activity's list of participating people [ActivityRequestModel]
 
-
-- `/election`
-  - `/create-election` Start a new election for an association. [httpServlet]
-
-- `/rules`
-  - `/propose` Vote for a rule to be enabled. [httpServlet]
 
 #### `voting-microservice: port number 8083`
 - `/election`
@@ -80,7 +74,7 @@ Each request has a RequestModel associated to it. Those can be found in the `LEG
 - ElectionVoteRequestModel : `int` associationId, `String` voterId, `String` candidateId
 - RuleAmendmentRequestModel : `int` associationId, `String` userId, `String` rule, `String` amendment
 - RuleVoteRequestModel : `int` associationId, `String` userId, `String` rule
-- UserAssociationRequestModel : `int` associationId, `String` userId 
-
+- UserAssociationRequestModel : `int` associationId, `String` userId
 - ReportModel : `int` associationId, `String` reporterId, `String` violatorId, `String` rule
-- ActivityRequestModel : `String` eventName, `String` description, `Date` startingDate, `Date` expirationDate
+- CreateActivityRequestModel : `String` eventName, `String` description, `Date` startingDate, `Date` expirationDate
+- ActivityRequestModel : `int` activityId
