@@ -58,8 +58,8 @@ public class GetCandidatesIntegrationTest {
     @Test
     public void getCandidatesTest() throws Exception {
         election.setEndDate(new Date(System.currentTimeMillis() + (int) (1.5 * dayInMs)));
-        election.addCandidate(1);
-        election.addCandidate(2);
+        election.addCandidate("1");
+        election.addCandidate("2");
         electionRepository.save(election);
 
         AssociationRequestModel model = new AssociationRequestModel();
@@ -74,7 +74,7 @@ public class GetCandidatesIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("[1,2]");
+        assertThat(response).isEqualTo("[\"1\",\"2\"]");
     }
 
     @Test
