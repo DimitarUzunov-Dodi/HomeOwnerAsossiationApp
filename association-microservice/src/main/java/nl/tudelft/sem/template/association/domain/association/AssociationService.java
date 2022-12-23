@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
+import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
+import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -213,6 +215,98 @@ public class AssociationService {
         }
 
         return false;
+    }
+
+    /**
+     * Processes all the information received about a past election
+     * and updates the association's council.
+     *
+     * @param model model containing all important info pertaining
+     *              to a past election
+     */
+    public void processElection(ElectionResultRequestModel model) {
+        Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
+
+        if (optionalAssociation.isPresent()) {
+            Association association = optionalAssociation.get();
+
+            HashMap hm = model.getStandings();
+
+            List<Map.Entry<String, Integer>> list = new LinkedList<>(hm.entrySet());
+
+            Collections.sort(list, (e1, e2) -> -(e1.getValue().compareTo(e2.getValue())));
+
+            Set<String> council = new HashSet<>();
+
+            for (int i = 0; i < list.size() && i < association.getCouncilNumber(); i++) {
+                council.add(list.get(i).getKey());
+            }
+
+            association.setCouncilUserIds(council);
+            associationRepository.save(association);
+        }
+    }
+
+    /**
+     * Processes all the information received about a past rule vote
+     * and updates the association's rule set by either updating a rule
+     * or adding it.
+     *
+     * @param model model containing all important info pertaining
+     *              to a past rule vote
+     */
+    public void processRuleVote(RuleVoteResultRequestModel model) {
+        Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
+
+        if (optionalAssociation.isPresent() && model.isPassed()) {
+            Association association = optionalAssociation.get();
+
+            List<String> rulesCopy = association.getRules();
+            List<String> rules = new ArrayList<>();
+
+            for (String str : rulesCopy) {
+                if (!str.isEmpty()) {
+                    rules.add(str);
+                }
+            }
+
+            if (model.isAnAmendment()) {
+                int index = rules.indexOf(model.getRule());
+                rules.set(index, model.getAmendment());
+            } else {
+                rules.add(model.getRule());
+            }
+
+            association.setRules(rules);
+            associationRepository.save(association);
+        }
+    }
+
+    /**
+     * Return a string consisting of all the association's rules.
+     *
+     * @param userId                the user's ID
+     * @param associationId         the association's ID
+     * @return                      the association's rules
+     */
+    public String getAssociationRules(String userId, int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
+        if (optionalAssociation.isEmpty() || optionalMembership.isEmpty()) {
+            throw new IllegalArgumentException("Association/membership does not exist.");
+        }
+
+        Association association = optionalAssociation.get();
+        List<String> rules = association.getRules();
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String str : rules) {
+            sb.append(str).append(System.lineSeparator());
+        }
+
+        return sb.toString();
     }
 
     /**

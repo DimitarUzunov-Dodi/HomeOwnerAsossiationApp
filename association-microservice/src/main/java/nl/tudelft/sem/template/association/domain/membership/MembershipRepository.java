@@ -47,4 +47,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
      * @return the membership with the key conditions
      */
     Optional<Membership> findByUserIdAndAssociationIdAndLeaveDate(String userId, int associationId, Date leaveDate);
+
+    List<Membership> findAllByAssociationId(int associationId);
 }

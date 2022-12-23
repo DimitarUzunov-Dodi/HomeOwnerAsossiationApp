@@ -1,19 +1,29 @@
 package nl.tudelft.sem.template.association.controllers;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
+import nl.tudelft.sem.template.association.domain.history.Event;
+import nl.tudelft.sem.template.association.domain.history.HistoryService;
+import nl.tudelft.sem.template.association.domain.history.Notification;
 import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
+import nl.tudelft.sem.template.association.domain.membership.MembershipService;
 import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
 import nl.tudelft.sem.template.association.domain.report.ReportInconsistentException;
 import nl.tudelft.sem.template.association.domain.report.ReportService;
 import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -23,9 +33,9 @@ public class AssociationController {
     private final transient AssociationService associationService;
     private final transient AssociationRepository associationRepository;
     private final transient UserService userService;
-
     private final transient ReportService reportService;
-
+    private final transient HistoryService historyService;
+    private final transient MembershipService membershipService;
 
     /**
      * Instantiates a new controller.
@@ -34,16 +44,21 @@ public class AssociationController {
      * @param associationService The association service
      * @param userService        user service
      * @param reportService      report service
+     * @param historyService     The history service.
+     * @param membershipService  The membership service.
      */
     @Autowired
     public AssociationController(AuthManager authManager, AssociationService associationService,
                                  AssociationRepository associationRepository, UserService userService,
-                                 ReportService reportService) {
+                                 ReportService reportService, HistoryService historyService,
+                                 MembershipService membershipService) {
         this.authManager = authManager;
         this.associationService = associationService;
         this.associationRepository = associationRepository;
         this.userService = userService;
         this.reportService = reportService;
+        this.historyService = historyService;
+        this.membershipService = membershipService;
     }
 
     /**
@@ -202,6 +217,117 @@ public class AssociationController {
                     HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Report received!");
+    }
+
+    /**
+     * SCHEDULER related. Endpoint for updating the council.
+     * Also updates the history log for association.
+     *
+     * @param request request body containing all the info regarding the election
+     * @return 200 if OK
+     */
+    @PostMapping("/update-council")
+    public ResponseEntity<String> updateCouncil(@RequestBody ElectionResultRequestModel request) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        String historyEntry = sdf.format(request.getDate()) + " | " + request.getResult();
+
+        System.out.println(historyEntry);
+
+        Event event = new Event(request.getResult(), request.getDate());
+
+        associationService.processElection(request);
+
+        try {
+            historyService.addEvent(request.getAssociationId(), event);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Adding the log in history failed!",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok("Council updated!");
+    }
+
+    /**
+     * SCHEDULER related. Endpoint for updating the rules.
+     * Also updates the history log for association and send a notification to all members of the association
+     *
+     * @param request request body containing all the info regarding the rule vote
+     * @return 200 if OK
+     */
+    @PostMapping("/update-rules")
+    public ResponseEntity<String> updateRules(@RequestBody RuleVoteResultRequestModel request) {
+        associationService.processRuleVote(request);
+
+        try {
+            Event event = new Event(request.getResult(), request.getDate());
+            historyService.addEvent(request.getAssociationId(), event);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Adding the log in history failed!",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        String notificationRes = "";
+        if (request.isPassed()) {
+            try {
+                notificationRes = membershipService.createNotificationDescription(request);
+            } catch (Exception e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        return ResponseEntity.ok("Rules updated" + notificationRes + "!");
+    }
+
+    @PostMapping ("get-rules")
+    ResponseEntity<String> getAssociationRules(@RequestBody UserAssociationRequestModel request) {
+        try {
+            String rules = associationService.getAssociationRules(request.getUserId(), request.getAssociationId());
+            return ResponseEntity.ok(rules);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("get-history")
+    ResponseEntity<String> getAssociationHistory(@RequestBody UserAssociationRequestModel request) {
+        try {
+            String rules = historyService.getHistoryString(request.getAssociationId());
+            return ResponseEntity.ok(rules);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Displays all the notifications of a user for a specific association.
+     *
+     * @param request   The request body containing the association ID.
+     * @return          Return a message displaying notifications.
+     */
+    @GetMapping("/display-notifications")
+    public ResponseEntity<String> displayNotifications(@RequestBody AssociationRequestModel request) {
+        try {
+            return ResponseEntity.ok(membershipService
+                    .displayNotifications(authManager.getUserId(), request.getAssociationId()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Dismisses all read notifications of a user for a certain association.
+     *
+     * @param request    The request body containing the association ID.
+     * @return           Return a message indicating the status of dismissal.
+     */
+    @PostMapping("/dismiss-notifications")
+    public ResponseEntity<String> dismissNotifications(@RequestBody AssociationRequestModel request) {
+        try {
+            return ResponseEntity.ok(membershipService
+                    .dismissNotifications(authManager.getUserId(), request.getAssociationId()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
