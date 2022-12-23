@@ -11,6 +11,8 @@ import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
+import nl.tudelft.sem.template.association.models.JoinAssociationRequestModel;
+import nl.tudelft.sem.template.association.models.ReportModel;
 import nl.tudelft.sem.template.association.models.UserAssociationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +58,7 @@ public class AssociationIntegrationTest {
         mockAssociationRepository.save(this.association);
 
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn(userId);
     }
 
     @Test
@@ -149,5 +151,64 @@ public class AssociationIntegrationTest {
         String response = result.andReturn().getResponse().getContentAsString();
 
         assertThat(response).isEqualTo("User is not a member of this association's council!");
+    }
+
+    @Test
+    public void verifyAuthenticationJoinAssociation() throws Exception {
+        JoinAssociationRequestModel model = new JoinAssociationRequestModel();
+
+        model.setUserId("evilUser");
+        model.setAssociationId(0);
+
+        ResultActions result = mockMvc.perform(post("/association/join-association")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isUnauthorized());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+
+    }
+
+    @Test
+    public void verifyAuthenticationLeaveAssociation() throws Exception {
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+
+        model.setUserId("evilUser");
+        model.setAssociationId(0);
+
+        ResultActions result = mockMvc.perform(post("/association/leave-association")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isUnauthorized());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+    }
+
+    @Test
+    public void verifyAuthenticationReport() throws Exception {
+        ReportModel model = new ReportModel();
+
+        model.setReporterId("evilUser");
+        model.setAssociationId(0);
+
+        ResultActions result = mockMvc.perform(post("/association/report")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isUnauthorized());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+
     }
 }
