@@ -1,0 +1,5 @@
+rootProject.name = 'template'
+
+include 'authentication-microservice'
+include 'association-microservice'
+include 'voting-microservice'
