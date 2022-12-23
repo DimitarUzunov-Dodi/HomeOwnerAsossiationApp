@@ -387,7 +387,7 @@ public class AssociationService {
             ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
 
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-                return "Board election was created, and will be held in 1 year.";
+                return "Board election was created and will be held in 1 year.";
             } else {
                 throw new IllegalArgumentException("Board election was not created.");
             }
@@ -400,7 +400,7 @@ public class AssociationService {
      * Generates the token for server to server communication.
      *
      * @param serviceUsername   The username the service is registered with.
-     * @param servicePassword   The password the service is registered with
+     * @param servicePassword   The password the service is registered with.
      * @return                  The bearer token generated through the authentication service.
      */
     public String authenticateService(String serviceUsername, String servicePassword) {
