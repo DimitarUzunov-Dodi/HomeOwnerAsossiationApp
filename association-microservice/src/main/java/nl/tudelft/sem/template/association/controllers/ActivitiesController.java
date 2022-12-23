@@ -194,7 +194,7 @@ public class ActivitiesController {
      * @param request The request body containing the activity id and user id.
      * @return response from the server
      */
-    @PostMapping("/remo-interested")
+    @PostMapping("/remove-interested")
     public ResponseEntity<?> removeInterested(@RequestBody ActivityRequestModel request) {
 
         try {
