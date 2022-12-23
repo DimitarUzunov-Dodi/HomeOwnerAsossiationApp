@@ -55,8 +55,9 @@ public class ElectionIntegrationTest {
         when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
     }
 
-    @Test
-    @Order(1)
+    /**
+     * Tests the apply-for-candidate endpoint.
+     */
     public void applyForCandidateNoElection() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(associationId);
@@ -78,8 +79,9 @@ public class ElectionIntegrationTest {
         assertThat(response).contains("Association with ID " + associationId + " does not have an active election.");
     }
 
-    @Test
-    @Order(2)
+    /**
+     * Tests the cast-vote endpoint.
+     */
     public void voteNoElection() throws Exception {
         ElectionVoteRequestModel model = new ElectionVoteRequestModel();
         model.setAssociationId(associationId);
@@ -102,8 +104,9 @@ public class ElectionIntegrationTest {
         assertThat(response).isEqualTo("Association with ID " + associationId + " does not have an active election.");
     }
 
-    @Test
-    @Order(3)
+    /**
+     * Tests the create-election endpoint.
+     */
     public void createElectionTest() throws Exception {
         AssociationRequestModel model = new AssociationRequestModel();
         model.setAssociationId(associationId);
@@ -124,8 +127,9 @@ public class ElectionIntegrationTest {
         assertThat(response).contains("Voting was created for association " + associationId + " and will be held on ");
     }
 
-    @Test
-    @Order(4)
+    /**
+     * Tests the apply-for-candidate endpoint.
+     */
     public void applyForCandidate() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(associationId);
@@ -146,5 +150,13 @@ public class ElectionIntegrationTest {
         assertThat(optElection.get().getCandidateIds()).contains("user2");
 
         assertThat(response).contains("The candidate with ID user2 has been added.");
+    }
+
+    @Test
+    public void orderedTest() throws Exception {
+        applyForCandidateNoElection();
+        voteNoElection();
+        createElectionTest();
+        applyForCandidate();
     }
 }
