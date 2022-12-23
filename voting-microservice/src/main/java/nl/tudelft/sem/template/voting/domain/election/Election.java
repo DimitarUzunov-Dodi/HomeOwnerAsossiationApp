@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.voting.domain.election;
 
-
 import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;

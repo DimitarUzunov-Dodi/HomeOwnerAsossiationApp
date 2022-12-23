@@ -65,7 +65,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String applyForCandidate(String userId, int associationId) {
+    public String applyForCandidate(String userId, int associationId) throws IllegalArgumentException {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();

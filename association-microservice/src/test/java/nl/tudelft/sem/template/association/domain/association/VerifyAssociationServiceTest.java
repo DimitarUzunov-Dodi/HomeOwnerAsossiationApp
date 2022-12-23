@@ -1,12 +1,11 @@
 package nl.tudelft.sem.template.association.domain.association;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.*;
-import nl.tudelft.sem.template.association.domain.association.Association;
-import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
-import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,5 +66,106 @@ public class VerifyAssociationServiceTest {
     @Test
     public void verifyCouncilNullTest() {
         assertFalse(associationService.verifyCouncilMember(this.userId, null));
+    }
+
+    @Test
+    public void createAssociationTest() {
+        assertThat(associationService.createAssociation("name", "country", "city", "description", 5)).isNotNull();
+    }
+
+    @Test
+    public void testGetAssociation() {
+        assertThat(associationService.getAssociationById(association.getId()).getCity()).isEqualTo("test");
+    }
+
+    @Test
+    public void testGetAssociationNotThere() {
+        assertThatThrownBy(() -> associationService.getAssociationById(500)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testJoinAssociationNotExist() {
+        assertThatThrownBy(() -> associationService.joinAssociation("someUser", 500, "test", "test", "test", "test", "test"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testJoinAssociationDifferentCity() {
+        assertThatThrownBy(() -> associationService.joinAssociation("someUser", association.getId(),
+                "test", "otherCity", "test", "test", "test"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testJoinAssociationDifferentCountry() {
+        assertThatThrownBy(() -> associationService.joinAssociation("someUser", association.getId(),
+                "otherCountry", "test", "test", "test", "test"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testLeaveAssociation() {
+        associationService.joinAssociation("someUser", association.getId(),
+                "test", "test", "test", "test", "test");
+
+        assertThat(associationService.leaveAssociation("someUser", association.getId()))
+                .isEqualTo("User someUser left association " + association.getId());
+    }
+
+    @Test
+    public void testLeaveAssociationWrongAssociation() {
+        associationService.joinAssociation("someUser", association.getId(),
+                "test", "test", "test", "test", "test");
+
+        assertThatThrownBy(() -> associationService.leaveAssociation("someUser", 500))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testLeaveAssociationWrongUser() {
+        associationService.joinAssociation("someUser", association.getId(), "test", "test", "test", "test", "test");
+
+        assertThatThrownBy(() -> associationService.leaveAssociation("asdfasdf", association.getId()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testUpdateCouncil() {
+        associationService.joinAssociation("someUser", association.getId(), "test", "test", "test", "test", "test");
+
+        associationService.updateCouncil(Set.of("someUser"), association.getId());
+    }
+
+    @Test
+    public void testUpdateCouncilWrongAssociationId() {
+        associationService.joinAssociation("someUser", association.getId(), "test", "test", "test", "test", "test");
+
+        assertThatThrownBy(() -> associationService.updateCouncil(Set.of("someUser"), 500))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testUpdateCouncilLargerCouncil() {
+        associationService.joinAssociation("someUser", association.getId(), "test", "test", "test", "test", "test");
+
+        assertThatThrownBy(() -> associationService
+                .updateCouncil(Set.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"), association.getId()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testUpdateCouncilIsNotMember() {
+        assertThatThrownBy(() -> associationService.updateCouncil(Set.of("someUser"), association.getId()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getCouncil() {
+        assertThat(associationService.getCouncil(association.getId())).containsExactly("a", "b", "c");
+    }
+
+    @Test
+    public void getCouncilWrondAssociationId() {
+        assertThatThrownBy(() -> associationService.getCouncil(500)).isInstanceOf(IllegalArgumentException.class);
     }
 }
