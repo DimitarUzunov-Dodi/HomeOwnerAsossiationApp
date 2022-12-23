@@ -16,4 +16,8 @@ public class AuthManager {
     public String getUserId() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
+
+    public boolean validateRequestUser(String userId) {
+        return userId.equals(getUserId());
+    }
 }

@@ -76,7 +76,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Passed council member check!");
+        assertThat(response).isEqualTo("User passed council member check!");
     }
 
     @Test
@@ -94,7 +94,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 
     @Test
@@ -112,7 +112,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 
     @Test
@@ -130,7 +130,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 
     @Test
@@ -148,6 +148,6 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 }
