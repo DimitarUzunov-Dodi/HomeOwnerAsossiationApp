@@ -5,11 +5,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.when;
 
+import nl.tudelft.sem.template.authentication.config.RegisterServices;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -29,6 +32,9 @@ public class RegistrationServiceTests {
 
     @Autowired
     private transient UserRepository userRepository;
+
+    @MockBean
+    private transient RegisterServices registerServices;
 
     @Test
     public void createUser_withNullUserId_throwsException() throws Exception {

@@ -1,6 +1,8 @@
 package nl.tudelft.sem.template.authentication.domain.user;
 
 import java.util.Optional;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
