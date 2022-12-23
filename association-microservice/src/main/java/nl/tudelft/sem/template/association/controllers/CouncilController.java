@@ -47,7 +47,7 @@ public class CouncilController {
         return ResponseEntity.ok().body("Updated council");
     }
 
-    @PostMapping("is-in-council")
+    @PostMapping("/is-in-council")
     public ResponseEntity<Boolean> isInCouncil(IsInCouncilRequestModel request) {
         return ResponseEntity.ok(associationService.verifyCouncilMember(request.getUserId(), request.getAssociationId()));
     }
