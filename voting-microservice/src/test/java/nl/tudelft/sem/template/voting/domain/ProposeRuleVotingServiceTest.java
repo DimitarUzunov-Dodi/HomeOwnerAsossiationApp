@@ -13,10 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@ActiveProfiles({"test"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ProposeRuleVotingServiceTest {
     @Autowired
@@ -56,20 +58,6 @@ public class ProposeRuleVotingServiceTest {
     }
 
     @Test
-    public void nullAssociationIdTest() {
-        assertThatThrownBy(() -> {
-            votingService.proposeRule(this.type, null, this.userId, this.rule);
-        }).isInstanceOf(InvalidIdException.class);
-    }
-
-    @Test
-    public void nullUserIdTest() {
-        assertThatThrownBy(() -> {
-            votingService.proposeRule(this.type, this.associationId, null, this.rule);
-        }).isInstanceOf(InvalidIdException.class);
-    }
-
-    @Test
     public void nullRuleTest() {
         assertThatThrownBy(() -> {
             votingService.proposeRule(this.type, this.associationId, this.userId, null);
@@ -92,4 +80,14 @@ public class ProposeRuleVotingServiceTest {
             votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
         }).isInstanceOf(RuleTooLongException.class);
     }
+
+    @Test
+    public void ruleAlreadyInAnotherVote() throws RuleTooLongException, InvalidRuleException {
+        votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
+
+        assertThatThrownBy(() -> {
+            votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
+        }).isInstanceOf(InvalidRuleException.class);
+    }
+
 }

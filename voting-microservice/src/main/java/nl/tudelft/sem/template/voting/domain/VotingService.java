@@ -4,6 +4,7 @@ import java.rmi.NoSuchObjectException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.*;
@@ -334,18 +335,16 @@ public class VotingService {
      * @return              A message confirming the creation of the rule vote.
      */
     public String proposeRule(VotingType type, Integer associationId, String userId, String rule)
-            throws InvalidIdException, InvalidRuleException, RuleTooLongException {
-        if (associationId == null) {
-            throw new InvalidIdException("The associationID is invalid.");
-        } else if (userId == null) {
-            throw new InvalidIdException("The userID is invalid.");
-        } else if (rule == null) {
+            throws InvalidRuleException, RuleTooLongException {
+        if (rule == null) {
             throw new InvalidRuleException("The rule is null.");
         } else if (rule.equals("")) {
             throw new InvalidRuleException("The rule's description is empty.");
         } else if (rule.length() > this.maxRuleLength) {
             throw new RuleTooLongException("The rule description exceeds the maximum length of "
                     + this.maxRuleLength + " characters.");
+        } else if (ruleVotingRepository.existsByAssociationIdAndRuleAndType(associationId, rule, type)) {
+            throw new InvalidRuleException("The rule is already under evaluation.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
@@ -367,29 +366,30 @@ public class VotingService {
      * @return              A message confirming the creation of the rule vote.
      */
     public String amendmentRule(VotingType type, Integer associationId, String userId, String rule, String amendment)
-            throws InvalidIdException, InvalidRuleException, RuleTooLongException {
-        if (associationId == null) {
-            throw new InvalidIdException("The associationID is invalid.");
-        } else if (userId == null) {
-            throw new InvalidIdException("The userID is invalid.");
-        } else if (amendment == null) {
+            throws InvalidRuleException, RuleTooLongException {
+        if (amendment == null) {
             throw new InvalidRuleException("The amendment is null.");
-        } else if (amendment.equals("")) {
-            throw new InvalidRuleException("The amendment's description is empty.");
-        } else if (rule.equals(amendment)) {
-            throw new InvalidRuleException("The amendment does not change the rule.");
         } else if (amendment.length() > this.maxRuleLength) {
             throw new RuleTooLongException("The amendment's description exceeds the maximum length of "
                     + this.maxRuleLength + " characters.");
+        } else if (ruleVotingRepository.existsByAssociationIdAndRuleAndType(associationId, rule, type)) {
+            throw new InvalidRuleException("The rule is already under evaluation.");
+        } else if (ruleVotingRepository.existsByAssociationIdAndAmendment(associationId, amendment)) {
+            throw new InvalidRuleException("The amendment already exists in another vote.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         Calendar cal = Calendar.getInstance();
         cal.setTime(voting.getEndDate());
         cal.add(Calendar.DAY_OF_MONTH, -2);
-        return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
-                + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
-                + cal.getTime();
+        if (amendment.equals("")) {
+            return "The user: " + userId + " proposes to remove the rule: \"" + rule + "\"" + System.lineSeparator()
+                    + "The vote will be held on: " + cal.getTime();
+        } else {
+            return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
+                    + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
+                    + cal.getTime();
+        }
     }
 
     /**
@@ -488,5 +488,63 @@ public class VotingService {
             return "The user with ID " + userId + " abstains from voting for the "
                     + "proposal under consideration in rule vote: " + ruleVoteId;
         }
+    }
+
+    /**
+     * Returns a string representing the ongoing rule votes from the
+     * user's association and their current status for that user.
+     *
+     * @param associationId         The id of the association in which the user is a council member.
+     * @param userId                The id of the user.
+     * @return                      A string representing the status of all ongoing rule votes.
+     * @throws InvalidIdException   Thrown when the association's id is null.
+     */
+    public String getPendingVotes(Integer associationId, String userId) throws InvalidIdException {
+        if (associationId == null) {
+            throw new InvalidIdException("The association ID is null.");
+        }
+        List<RuleVoting> pendingVotes = ruleVotingRepository.findAllByAssociationId(associationId);
+
+        if (pendingVotes.isEmpty()) {
+            return "There are no ongoing rule votes corresponding to the association ID: " + associationId + ".";
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        while (!pendingVotes.isEmpty()) {
+            String id = "ID: " + pendingVotes.get(0).getId() + ", ";
+            String type = "Type: " + (pendingVotes.get(0).getType() == VotingType.PROPOSAL ? "Proposal" : "Amendment")
+                    + ", ";
+
+            String status = "Status: ";
+            Date currentDate = new Date(System.currentTimeMillis());
+            Date ruleVoteEndDate = pendingVotes.get(0).getEndDate();
+            int daysForVoting = 2;
+
+            if (ChronoUnit.DAYS.between(currentDate.toInstant(), ruleVoteEndDate.toInstant()) >= daysForVoting) {
+                status += "Reviewing";
+                result.append(id);
+                result.append(type);
+                result.append(status);
+                result.append(System.lineSeparator());
+            } else {
+                if (currentDate.compareTo(ruleVoteEndDate) > 0) {
+                    status += "Ended, ";
+                } else {
+                    status += "Voting, ";
+                }
+                List<Pair<String, String>> votes = pendingVotes.get(0).getVotes().stream()
+                        .filter(x -> x.getFirst().equals(userId))
+                        .collect(Collectors.toList());
+                String vote = "Your vote: " + (votes.isEmpty() ? "No vote (abstain)" : votes.get(0).getSecond());
+                result.append(id);
+                result.append(type);
+                result.append(status);
+                result.append(vote);
+                result.append(System.lineSeparator());
+            }
+            pendingVotes.remove(0);
+        }
+        return result.toString();
     }
 }

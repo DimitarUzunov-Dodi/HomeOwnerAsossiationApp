@@ -21,6 +21,14 @@ public abstract class Voting {
         this.creationDate = new Date(System.currentTimeMillis());
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public Date getCreationDate() {
         return creationDate;
     }

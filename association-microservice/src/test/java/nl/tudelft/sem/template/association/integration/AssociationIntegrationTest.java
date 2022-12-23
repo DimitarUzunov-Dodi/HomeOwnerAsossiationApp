@@ -16,6 +16,7 @@ import nl.tudelft.sem.template.association.domain.history.HistoryService;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
+import nl.tudelft.sem.template.association.models.UserAssociationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,7 +74,7 @@ public class AssociationIntegrationTest {
     public void verifyTrueTest() throws Exception {
         this.userId = "a";
 
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(1);
 
@@ -91,7 +92,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyFalseTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(1);
 
@@ -109,7 +110,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyNullTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(null);
         model.setAssociationId(null);
 
@@ -127,7 +128,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyUserIdNullTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(null);
         model.setAssociationId(1);
 
@@ -145,7 +146,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyCouncilIdNullTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(null);
 

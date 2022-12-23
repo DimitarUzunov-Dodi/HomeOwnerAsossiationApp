@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class UserAssociationRequestModel {
     private String userId;
-    private int associationId;
+    private Integer associationId;
 }
