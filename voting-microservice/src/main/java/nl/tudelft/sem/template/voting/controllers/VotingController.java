@@ -1,7 +1,5 @@
 package nl.tudelft.sem.template.voting.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
@@ -217,34 +215,5 @@ public class VotingController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-    /**
-     * Fetches results of all elections.
-     *
-     * @return list of election result request models
-     */
-    @PostMapping("/election/get-results")
-    public ResponseEntity<List<ElectionResultRequestModel>> getAllElectionResults() {
-        try {
-            return ResponseEntity.ok(votingService.getAllElectionResults());
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Fetches results of all rule votings.
-     *
-     * @return list of rule voting result request models
-     */
-    @PostMapping("/rule-voting/get-results")
-    public ResponseEntity<List<RuleVoteResultRequestModel>> getAllRuleVoteResults() {
-        try {
-            return ResponseEntity.ok(votingService.getAllRuleVotingResults());
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
 
 }
