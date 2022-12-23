@@ -21,8 +21,8 @@ class ActivityServiceTest {
         String description = "This is the description of the event";
         Date startingDate = new Date();
         Date expirationDate = new Date();
-        activity = new Activity(eventName, description, startingDate, expirationDate, 1, 21);
-        activity2 = new Activity(eventName, description, startingDate, expirationDate, 1, 41);
+        activity = new Activity(eventName, description, startingDate, expirationDate, 1, "Jo");
+        activity2 = new Activity(eventName, description, startingDate, expirationDate, 1, "Ma");
         activities = new ArrayList<>();
         activities.add(activity);
         activities.add(activity2);
@@ -71,7 +71,7 @@ class ActivityServiceTest {
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
         //Act
-        activityService.addInterested(0, 41);
+        activityService.addInterested(0, "Jo");
         verify(activityRepoMock).findByActivityId(0);
     }
 
@@ -81,7 +81,7 @@ class ActivityServiceTest {
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
         //Act
-        activityService.addParticipating(0, 41);
+        activityService.addParticipating(0, "Jo");
         verify(activityRepoMock).findByActivityId(0);
     }
 
@@ -91,7 +91,7 @@ class ActivityServiceTest {
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
         //Act
-        activityService.removeInterested(0, 41);
+        activityService.removeInterested(0, "Jo");
         verify(activityRepoMock).findByActivityId(0);
     }
 
@@ -101,7 +101,7 @@ class ActivityServiceTest {
         when(activityRepoMock.findByActivityId(0)).thenReturn(Optional.of(activity));
 
         //Act
-        activityService.removeParticipating(0, 41);
+        activityService.removeParticipating(0, "Jo");
         verify(activityRepoMock).findByActivityId(0);
     }
 }

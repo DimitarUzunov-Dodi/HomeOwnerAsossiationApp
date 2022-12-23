@@ -1,21 +1,23 @@
 package nl.tudelft.sem.template.association.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Optional;
 import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.history.History;
 import nl.tudelft.sem.template.association.domain.history.HistoryRepository;
-import nl.tudelft.sem.template.association.domain.history.HistoryService;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.association.models.RuleVerificationRequestModel;
+import nl.tudelft.sem.template.association.models.UserAssociationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -73,7 +76,7 @@ public class AssociationIntegrationTest {
     public void verifyTrueTest() throws Exception {
         this.userId = "a";
 
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(1);
 
@@ -91,7 +94,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyFalseTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(1);
 
@@ -109,7 +112,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyNullTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(null);
         model.setAssociationId(null);
 
@@ -127,7 +130,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyUserIdNullTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(null);
         model.setAssociationId(1);
 
@@ -145,7 +148,7 @@ public class AssociationIntegrationTest {
 
     @Test
     public void verifyCouncilIdNullTest() throws Exception {
-        RuleVerificationRequestModel model = new RuleVerificationRequestModel();
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(null);
 

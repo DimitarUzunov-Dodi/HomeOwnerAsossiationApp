@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class AmendRuleVotingIntegrationTest {
     @Autowired
@@ -88,46 +88,6 @@ public class AmendRuleVotingIntegrationTest {
     }
 
     @Test
-    public void nullAssociationIdTest() throws Exception {
-        RuleAmendmentRequestModel model = new RuleAmendmentRequestModel();
-        model.setUserId(this.userId);
-        model.setAssociationId(null);
-        model.setRule(this.rule);
-        model.setAmendment(this.amendment);
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/amend-rule")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.serialize(model))
-                .header("Authorization", "Bearer MockedToken"));
-
-        result.andExpect(status().isBadRequest());
-
-        String response = result.andReturn().getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("The associationID is invalid.");
-    }
-
-    @Test
-    public void nullUserIdTest() throws Exception {
-        RuleAmendmentRequestModel model = new RuleAmendmentRequestModel();
-        model.setUserId(null);
-        model.setAssociationId(this.associationId);
-        model.setRule(this.rule);
-        model.setAmendment(this.amendment);
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/amend-rule")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.serialize(model))
-                .header("Authorization", "Bearer MockedToken"));
-
-        result.andExpect(status().isBadRequest());
-
-        String response = result.andReturn().getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("The userID is invalid.");
-    }
-
-    @Test
     public void nullAmendmentTest() throws Exception {
         RuleAmendmentRequestModel model = new RuleAmendmentRequestModel();
         model.setUserId(this.userId);
@@ -160,11 +120,21 @@ public class AmendRuleVotingIntegrationTest {
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
-        result.andExpect(status().isBadRequest());
+        result.andExpect(status().isOk());
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("The amendment's description is empty.");
+        Optional<RuleVoting> voting = ruleVotingRepository.findById(1L);
+        Calendar cal = Calendar.getInstance();
+        if (voting.isPresent()) {
+            Date date = voting.get().getEndDate();
+            cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, -2);
+        }
+
+        assertThat(response)
+                .isEqualTo("The user: 42 proposes to remove the rule: \"One should not murder the other members!\""
+                        + System.lineSeparator() + "The vote will be held on: " + cal.getTime());
     }
 
     @Test
@@ -192,14 +162,17 @@ public class AmendRuleVotingIntegrationTest {
     }
 
     @Test
-    public void equalAmendmentTest() throws Exception {
-        this.amendment = this.rule;
-
+    public void ruleAlreadyInAnotherVote() throws Exception {
         RuleAmendmentRequestModel model = new RuleAmendmentRequestModel();
         model.setUserId(this.userId);
         model.setAssociationId(this.associationId);
         model.setRule(this.rule);
         model.setAmendment(this.amendment);
+
+        mockMvc.perform(post("/rule-voting/amend-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
 
         ResultActions result = mockMvc.perform(post("/rule-voting/amend-rule")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -211,6 +184,34 @@ public class AmendRuleVotingIntegrationTest {
         String response = result.andReturn().getResponse().getContentAsString();
 
         assertThat(response)
-                .isEqualTo("The amendment does not change the rule.");
+                .isEqualTo("The rule is already under evaluation.");
+    }
+
+    @Test
+    public void amendmentAlreadyInAnotherVote() throws Exception {
+        RuleAmendmentRequestModel model = new RuleAmendmentRequestModel();
+        model.setUserId(this.userId);
+        model.setAssociationId(this.associationId);
+        model.setRule(this.rule);
+        model.setAmendment(this.amendment);
+
+        mockMvc.perform(post("/rule-voting/amend-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        model.setRule("Something");
+
+        ResultActions result = mockMvc.perform(post("/rule-voting/amend-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isBadRequest());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response)
+                .isEqualTo("The amendment already exists in another vote.");
     }
 }
