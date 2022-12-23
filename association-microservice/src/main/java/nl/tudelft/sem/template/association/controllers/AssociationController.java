@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.association.controllers;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-
 @RestController
 @RequestMapping("/association")
 public class AssociationController {
@@ -33,9 +33,7 @@ public class AssociationController {
     private final transient AssociationService associationService;
     private final transient AssociationRepository associationRepository;
     private final transient UserService userService;
-
     private final transient ReportService reportService;
-
     private final transient HistoryService historyService;
     private final transient MembershipService membershipService;
 
@@ -46,6 +44,7 @@ public class AssociationController {
      * @param associationService The association service
      * @param userService        user service
      * @param reportService      report service
+     * @param historyService     The history service.
      * @param membershipService  The membership service.
      */
     @Autowired
@@ -62,7 +61,46 @@ public class AssociationController {
         this.membershipService = membershipService;
     }
 
+    /**
+     * Checks if the userId is the same as that in the security context.
+     * To be used for endpoint security with the userId being that from the request.
+     *
+     * @param userId provided string
+     * @throws ResponseStatusException if userid is null or not the same as in authentication
+     */
+    public void validateAuthentication(String userId) throws ResponseStatusException {
+        if (userId == null || !authManager.validateRequestUser(userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS");
+        }
+    }
 
+    /**
+     * Gets the existing association IDs.
+     *
+     * @return          A response message with the ids.
+     */
+    @GetMapping("/get-association-ids")
+    public ResponseEntity<List<Integer>> getAssociationIds() {
+        try {
+            return ResponseEntity.ok(associationService.getAssociationIds());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Gets the information about a specific association.
+     *
+     * @return   A response message with the information.
+     */
+    @GetMapping("/get-association")
+    public ResponseEntity<String> getAssociationIds(@RequestBody AssociationRequestModel request) {
+        try {
+            return ResponseEntity.ok(associationService.getAssociationInfo(request.getAssociationId()));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
     /**
      * Create a new association.
@@ -89,9 +127,12 @@ public class AssociationController {
     @PostMapping("/join-association")
     public ResponseEntity<String> joinAssociation(@RequestBody JoinAssociationRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             return ResponseEntity.ok(associationService.joinAssociation(request.getUserId(), request.getAssociationId(),
                     request.getCountry(), request.getCity(), request.getStreet(),
                     request.getHouseNumber(), request.getPostalCode()));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -106,7 +147,10 @@ public class AssociationController {
     @PostMapping("/leave-association")
     public ResponseEntity<String> leaveAssociation(@RequestBody UserAssociationRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             return ResponseEntity.ok(associationService.leaveAssociation(request.getUserId(), request.getAssociationId()));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -124,9 +168,9 @@ public class AssociationController {
         boolean isMember = associationService.verifyCouncilMember(request.getUserId(), request.getAssociationId());
 
         if (isMember) {
-            return ResponseEntity.ok("Passed council member check!");
+            return ResponseEntity.ok("User passed council member check!");
         } else {
-            return new ResponseEntity<>("You are not a member of this association's council!",
+            return new ResponseEntity<>("User is not a member of this association's council!",
                     HttpStatus.UNAUTHORIZED);
         }
     }
@@ -142,9 +186,9 @@ public class AssociationController {
         boolean isEligibleCandidate = associationService.verifyCandidate(request.getUserId(), request.getAssociationId());
 
         if (isEligibleCandidate) {
-            return ResponseEntity.ok("You can apply for a candidate!");
+            return ResponseEntity.ok("User can apply for a candidate!");
         } else {
-            return new ResponseEntity<>("You can not be a candidate for the council.",
+            return new ResponseEntity<>("User cannot be a candidate for the council.",
                     HttpStatus.UNAUTHORIZED);
         }
     }
@@ -157,8 +201,11 @@ public class AssociationController {
     @PostMapping("/report")
     public ResponseEntity<String> report(@RequestBody ReportModel request) {
         try {
+            validateAuthentication(request.getReporterId());
             reportService.addReport(request.getAssociationId(),
                     request.getReporterId(), request.getViolatorId(), request.getRule());
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (FieldNoNullException f) {
             return new ResponseEntity<>("The arguments of your report should not contain null values!",
                     HttpStatus.BAD_REQUEST);

@@ -19,6 +19,8 @@ import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
+import nl.tudelft.sem.template.association.models.JoinAssociationRequestModel;
+import nl.tudelft.sem.template.association.models.ReportModel;
 import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import nl.tudelft.sem.template.association.models.UserAssociationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +34,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -74,7 +75,7 @@ public class AssociationIntegrationTest {
         mockHistoryRepository.save(history);
 
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn(userId);
     }
 
     @Test
@@ -94,7 +95,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Passed council member check!");
+        assertThat(response).isEqualTo("User passed council member check!");
     }
 
     @Test
@@ -112,7 +113,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 
     @Test
@@ -130,7 +131,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 
     @Test
@@ -148,7 +149,7 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
     }
 
     @Test
@@ -166,7 +167,66 @@ public class AssociationIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("You are not a member of this association's council!");
+        assertThat(response).isEqualTo("User is not a member of this association's council!");
+    }
+
+    @Test
+    public void verifyAuthenticationJoinAssociation() throws Exception {
+        JoinAssociationRequestModel model = new JoinAssociationRequestModel();
+
+        model.setUserId("evilUser");
+        model.setAssociationId(0);
+
+        ResultActions result = mockMvc.perform(post("/association/join-association")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isUnauthorized());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+
+    }
+
+    @Test
+    public void verifyAuthenticationLeaveAssociation() throws Exception {
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+
+        model.setUserId("evilUser");
+        model.setAssociationId(0);
+
+        ResultActions result = mockMvc.perform(post("/association/leave-association")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isUnauthorized());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+    }
+
+    @Test
+    public void verifyAuthenticationReport() throws Exception {
+        ReportModel model = new ReportModel();
+
+        model.setReporterId("evilUser");
+        model.setAssociationId(0);
+
+        ResultActions result = mockMvc.perform(post("/association/report")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isUnauthorized());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+
     }
 
     @Test

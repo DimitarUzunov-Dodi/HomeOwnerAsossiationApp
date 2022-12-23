@@ -17,7 +17,7 @@ public class AuthManagerTests {
     }
 
     @Test
-    public void getNetidTest() {
+    public void getUseridTest() {
         // Arrange
         String expected = "user123";
         var authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -31,5 +31,17 @@ public class AuthManagerTests {
 
         // Assert
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void validateUserTest() {
+        String expected = "user";
+        var authenticationToken = new UsernamePasswordAuthenticationToken(
+                expected,
+                null, List.of() // no credentials and no authorities
+        );
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+        assertThat(authManager.validateRequestUser(expected)).isTrue();
     }
 }

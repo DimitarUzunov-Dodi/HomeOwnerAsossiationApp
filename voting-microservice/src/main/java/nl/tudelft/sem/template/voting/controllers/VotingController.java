@@ -35,6 +35,19 @@ public class VotingController {
     }
 
     /**
+     * Checks if the userId is the same as that in the security context.
+     * To be used for endpoint security with the userId being that from the request.
+     *
+     * @param userId provided string
+     * @throws ResponseStatusException if userid is null or not the same as in authentication
+     */
+    public void validateAuthentication(String userId) throws ResponseStatusException {
+        if (userId == null || !authManager.validateRequestUser(userId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS");
+        }
+    }
+
+    /**
      * Creates a board election for an association with a given ID.
      *
      * @return a message confirming the creation.
@@ -65,9 +78,12 @@ public class VotingController {
     @PostMapping("/rule-voting/propose-rule")
     public ResponseEntity<String> proposeRule(@RequestBody RuleProposalRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             return ResponseEntity.ok(votingService
                     .proposeRule(VotingType.PROPOSAL, request.getAssociationId(),
                             request.getUserId(), request.getRule()));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -82,9 +98,12 @@ public class VotingController {
     @PostMapping("/rule-voting/amend-rule")
     public ResponseEntity<String> amendRule(@RequestBody RuleAmendmentRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             return ResponseEntity.ok(votingService
                     .amendmentRule(VotingType.AMENDMENT, request.getAssociationId(), request.getUserId(),
                             request.getRule(), request.getAmendment()));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(),
                     HttpStatus.BAD_REQUEST);
@@ -130,9 +149,12 @@ public class VotingController {
     @PostMapping("/election/apply-for-candidate")
     public ResponseEntity<String> applyForCandidate(@RequestBody UserAssociationRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             String userId = request.getUserId();
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService.applyForCandidate(userId, associationId));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -147,10 +169,13 @@ public class VotingController {
     public ResponseEntity<String> castElectionVote(@RequestBody ElectionVoteRequestModel request)
             throws ResponseStatusException {
         try {
+            validateAuthentication(request.getVoterId());
             String voterId = request.getVoterId();
             int associationId = request.getAssociationId();
             String candidateId = request.getCandidateId();
             return ResponseEntity.ok(votingService.castElectionVote(voterId, associationId, candidateId));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -164,8 +189,11 @@ public class VotingController {
     @PostMapping("/rule-voting/cast-vote")
     public ResponseEntity<String> castRuleVotingVote(@RequestBody RuleVoteRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             return ResponseEntity.ok(votingService
                     .castRuleVote(request.getRuleVoteId(), request.getUserId(), request.getVote()));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -181,7 +209,10 @@ public class VotingController {
     @GetMapping("/rule-voting/get-pending-votes")
     public ResponseEntity<String> getPendingVotes(@RequestBody UserAssociationRequestModel request) {
         try {
+            validateAuthentication(request.getUserId());
             return ResponseEntity.ok(votingService.getPendingVotes(request.getAssociationId(), request.getUserId()));
+        } catch (ResponseStatusException r) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
