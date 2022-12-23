@@ -131,6 +131,7 @@ public class ActivitiesController {
             if (activity != null) {
 
                 int associationId = activity.getAssociationId();
+
                 boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds()
                         .contains(authManager.getUserId());
 

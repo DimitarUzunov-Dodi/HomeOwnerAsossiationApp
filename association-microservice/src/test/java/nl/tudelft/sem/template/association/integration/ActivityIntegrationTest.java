@@ -9,12 +9,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Date;
 import java.util.HashSet;
+import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.activity.ActivityService;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ActivityRequestModel;
+import nl.tudelft.sem.template.association.models.AddActivityRequestModel;
+import nl.tudelft.sem.template.association.models.AssociationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +47,8 @@ public class ActivityIntegrationTest {
     private transient AssociationRepository associationRepository;
     @Autowired
     private transient ActivityService activityService;
+    @Autowired
+    private transient AuthManager authManager;
 
     private HashSet<String> councilMembers;
     private Association association;
@@ -76,12 +81,18 @@ public class ActivityIntegrationTest {
         activityId = activityService.getNoticeBoard(association.getId()).get(0).getActivityId();
 
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("a");
+        when(authManager.getUserId()).thenReturn("a");
     }
 
     @Test
     public void testDisplayNoticeBoard() throws Exception {
-        ResultActions result = mockMvc.perform(get("/activities/" + association.getId() + "/noticeboard")
+        AssociationRequestModel model = new AssociationRequestModel();
+        model.setAssociationId(association.getId());
+
+        ResultActions result = mockMvc.perform(get("/activities/display-noticeboard")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().isOk());
@@ -89,7 +100,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testDisplayNoticeBoardWrongAssociationId() throws Exception {
-        ResultActions result = mockMvc.perform(get("/activities/" + 500 + "/noticeboard")
+        AssociationRequestModel model = new AssociationRequestModel();
+        model.setAssociationId(500);
+
+        ResultActions result = mockMvc.perform(get("/activities/display-noticeboard")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -97,10 +113,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddActivity() throws Exception {
-        ActivityRequestModel model = new ActivityRequestModel("name", "description",
-                new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 10000L));
+        AddActivityRequestModel model = new AddActivityRequestModel();
+        model.setDescription("Description");
+        model.setAssociationId(association.getId());
+        model.setEventName("Event Name");
+        model.setExpirationDate(new Date(System.currentTimeMillis() + 10000));
+        model.setStartingDate(new Date(System.currentTimeMillis()));
 
-        ResultActions result = mockMvc.perform(post("/activities/" + association.getId() + "/b")
+        ResultActions result = mockMvc.perform(post("/activities/add-activity")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -114,10 +134,16 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddActivityNotMember() throws Exception {
-        ActivityRequestModel model = new ActivityRequestModel("name", "description",
-                new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 10000L));
+        AddActivityRequestModel model = new AddActivityRequestModel();
+        model.setDescription("Description");
+        model.setAssociationId(association.getId());
+        model.setEventName("Event Name");
+        model.setExpirationDate(new Date(System.currentTimeMillis() + 10000));
+        model.setStartingDate(new Date(System.currentTimeMillis()));
 
-        ResultActions result = mockMvc.perform(post("/activities/" + association.getId() + "/asdfasdf")
+        when(authManager.getUserId()).thenReturn("notMember");
+
+        ResultActions result = mockMvc.perform(post("/activities/add-activity")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -131,10 +157,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddActivityNonCompleteModel() throws Exception {
-        ActivityRequestModel model = new ActivityRequestModel(null, "description",
-                new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 10000L));
+        AddActivityRequestModel model = new AddActivityRequestModel();
+        model.setDescription(null);
+        model.setAssociationId(association.getId());
+        model.setEventName("Event Name");
+        model.setExpirationDate(new Date(System.currentTimeMillis() + 10000));
+        model.setStartingDate(new Date(System.currentTimeMillis()));
 
-        ResultActions result = mockMvc.perform(post("/activities/" + association.getId() + "/b")
+        ResultActions result = mockMvc.perform(post("/activities/add-activity")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -148,10 +178,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddActivityAssociationDoesNotExist() throws Exception {
-        ActivityRequestModel model = new ActivityRequestModel("name", "description",
-                new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 10000L));
+        AddActivityRequestModel model = new AddActivityRequestModel();
+        model.setDescription("description");
+        model.setAssociationId(500);
+        model.setEventName("Event Name");
+        model.setExpirationDate(new Date(System.currentTimeMillis() + 10000));
+        model.setStartingDate(new Date(System.currentTimeMillis()));
 
-        ResultActions result = mockMvc.perform(post("/activities/" + 500 + "/b")
+        ResultActions result = mockMvc.perform(post("/activities/add-activity")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
@@ -165,7 +199,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testGetActivity() throws Exception {
-        ResultActions result = mockMvc.perform(get("/activities/noticeboard/" + activityId)
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        ResultActions result = mockMvc.perform(get("/activities/get-activity")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().isOk());
@@ -173,15 +212,29 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testGetActivityWrongId() throws Exception {
-        ResultActions result = mockMvc.perform(get("/activities/noticeboard/" + -294830)
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(-2850385);
+
+        ResultActions result = mockMvc.perform(get("/activities/get-activity")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("That activity does not exits.");
     }
 
     @Test
     public void testAddInterested() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/addInterested/" + activityId + "/c")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        ResultActions result = mockMvc.perform(post("/activities/add-interest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().isOk());
@@ -193,8 +246,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddInterestedNoActivity() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/addInterested/" + -295038503 + "/c")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(-39503859);
+
+        ResultActions result = mockMvc.perform(post("/activities/add-interest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
+
 
         result.andExpect(status().is4xxClientError());
 
@@ -205,7 +264,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddInterestedIsNotMember() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/addInterested/" + activityId + "/notMember")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        when(authManager.getUserId()).thenReturn("notAMember");
+
+        ResultActions result = mockMvc.perform(post("/activities/add-interest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -217,7 +283,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddParticipating() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/addParticipating/" + activityId + "/c")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        ResultActions result = mockMvc.perform(post("/activities/add-participating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().isOk());
@@ -229,7 +300,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddParticipatingNoActivity() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/addParticipating/" + -39593095 + "/c")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(-92054839);
+
+        ResultActions result = mockMvc.perform(post("/activities/add-participating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -241,7 +317,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testAddParticipatingIsNotMember() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/addParticipating/" + activityId + "/notMember")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        when(authManager.getUserId()).thenReturn("notAMember");
+
+        ResultActions result = mockMvc.perform(post("/activities/add-participating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -253,7 +336,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testRemoveInterested() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/removeInterested/" + activityId + "/a")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        ResultActions result = mockMvc.perform(post("/activities/remove-interested")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().isOk());
@@ -265,7 +353,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testRemoveInterestedNoActivity() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/removeInterested/" + -653256456 + "/a")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(-3940385);
+
+        ResultActions result = mockMvc.perform(post("/activities/remove-interested")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -277,7 +370,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testRemoveInterestedNotMember() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/removeInterested/" + activityId + "/notMember")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        when(authManager.getUserId()).thenReturn("notAMember");
+
+        ResultActions result = mockMvc.perform(post("/activities/remove-interested")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -290,7 +390,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testRemoveParticipating() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/removeParticipating/" + activityId + "/a")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        ResultActions result = mockMvc.perform(post("/activities/remove-participating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().isOk());
@@ -302,7 +407,12 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testRemoveParticipatingNoActivity() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/removeParticipating/" + -653256456 + "/a")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(-285938);
+
+        ResultActions result = mockMvc.perform(post("/activities/remove-participating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());
@@ -314,7 +424,14 @@ public class ActivityIntegrationTest {
 
     @Test
     public void testRemoveParticipatingNotMember() throws Exception {
-        ResultActions result = mockMvc.perform(post("/activities/removeParticipating/" + activityId + "/notMember")
+        ActivityRequestModel model = new ActivityRequestModel();
+        model.setActivityId(activityId);
+
+        when(authManager.getUserId()).thenReturn("notAMember");
+
+        ResultActions result = mockMvc.perform(post("/activities/remove-participating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
                 .header("Authorization", "Bearer MockedToken"));
 
         result.andExpect(status().is4xxClientError());

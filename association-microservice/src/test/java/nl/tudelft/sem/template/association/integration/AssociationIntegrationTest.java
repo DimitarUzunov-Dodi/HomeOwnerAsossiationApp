@@ -55,8 +55,6 @@ public class AssociationIntegrationTest {
     @Autowired
     private transient MembershipRepository membershipRepository;
     @Autowired
-    private transient AuthManager authManager;
-    @Autowired
     private transient HistoryRepository mockHistoryRepository;
     private HashSet<String> councilMembers;
     private Association association;
@@ -411,59 +409,6 @@ public class AssociationIntegrationTest {
 
         assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
 
-    }
-
-    @Test
-    public void updateCouncilTest() throws Exception {
-        this.association.setCouncilNumber(3);
-        mockAssociationRepository.save(association);
-
-        Membership member = new Membership("a", association.getId(), "test", "test", "test", "test", "test");
-        membershipRepository.save(member);
-        member = new Membership("b", association.getId(), "test", "test", "test", "test", "test");
-        membershipRepository.save(member);
-        member = new Membership("c", association.getId(), "test", "test", "test", "test", "test");
-        member.setTimesCouncil(10);
-        membershipRepository.save(member);
-        member = new Membership("d", association.getId(), "test", "test", "test", "test", "test");
-        membershipRepository.save(member);
-        member = new Membership("f", association.getId(), "test", "test", "test", "test", "test");
-        membershipRepository.save(member);
-
-
-        HashMap<String, Integer> hm = new HashMap<>();
-        hm.put("a", 7);
-        hm.put("b", 5);
-        hm.put("c", 25);
-        hm.put("d", 1);
-        hm.put("e", 15);
-        hm.put("f", 20);
-
-        // c and e shouldn't be council members
-        // therefore, f, a, b
-
-        ElectionResultRequestModel model = new ElectionResultRequestModel();
-
-        model.setStandings(hm);
-        model.setResult("---");
-        model.setDate(new Date());
-        model.setAssociationId(association.getId());
-
-        ResultActions result = mockMvc.perform(post("/association/update-council")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.serialize(model))
-                .header("Authorization", "Bearer MockedToken"));
-
-        result.andExpect(status().isOk());
-
-        String response = result.andReturn().getResponse().getContentAsString();
-        assertThat(response).isEqualTo("Council updated!");
-
-        Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
-
-        Association testAssociation = optionalTestAssociation.get();
-
-        assertThat(testAssociation.getCouncilUserIds()).containsExactlyInAnyOrder("a", "b", "f");
     }
 
     @Test
