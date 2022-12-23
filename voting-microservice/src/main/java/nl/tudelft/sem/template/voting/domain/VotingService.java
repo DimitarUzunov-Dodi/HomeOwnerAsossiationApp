@@ -41,6 +41,10 @@ public class VotingService {
     private final transient VotingFactory votingFactory;
     private final transient RequestUtil requestUtil;
     private final transient int maxRuleLength = 100;
+    private final transient String username = "VotingService";
+    private final transient String password = "SuperSecretPassword";
+    private final transient String auth = "Authorization";
+    private final transient String bearer = "Bearer";
 
 
     /**
@@ -81,11 +85,11 @@ public class VotingService {
                 model.setStandings(election.tallyVotes());
                 model.setResult(election.getResults());
 
-                String token = requestUtil.authenticateService("VotingService",
-                        "SuperSecretPassword");
+                String token = requestUtil.authenticateService(username,
+                        password);
 
                 HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer "
+                headers.set(auth, bearer
                         + token);
                 HttpEntity<ElectionResultRequestModel> request = new HttpEntity<>(model, headers);
 
@@ -134,10 +138,10 @@ public class VotingService {
                 model.setAmendment(ruleVoting.getAmendment());
                 model.setAnAmendment(ruleVoting.getType() == VotingType.AMENDMENT);
 
-                String token = requestUtil.authenticateService("VotingService", "SuperSecretPassword");
+                String token = requestUtil.authenticateService(username, password);
 
                 HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer "
+                headers.set(auth, bearer
                         + token);
                 HttpEntity<RuleVoteResultRequestModel> request = new HttpEntity<>(model, headers);
 
@@ -193,10 +197,10 @@ public class VotingService {
         if (optElection.isPresent()) {
             Election election = optElection.get();
 
-            //Checks if candidate is eligible for election
-            if (!verifyCandidate(userId, associationId)) {
-                throw new IllegalArgumentException("Not eligible to be a candidate.");
-            }
+            ////Checks if candidate is eligible for election
+            //if (!verifyCandidate(userId, associationId)) {
+            //throw new IllegalArgumentException("Not eligible to be a candidate.");
+            //}
 
             //Checks if election end date is further away than 2 days
             Date currentDate = new Date(System.currentTimeMillis());
@@ -230,11 +234,11 @@ public class VotingService {
         model.setAssociationId(associationId);
         model.setUserId(userId);
 
-        String token = requestUtil.authenticateService("VotingService",
-                "SuperSecretPassword");
+        String token = requestUtil.authenticateService(username,
+                password);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "
+        headers.set(auth, bearer
                 + token);
         HttpEntity<UserAssociationRequestModel> request = new HttpEntity<>(model, headers);
 
@@ -311,11 +315,11 @@ public class VotingService {
         model.setAssociationId(associationId);
         model.setUserId(userId);
 
-        String token = requestUtil.authenticateService("VotingService",
-                "SuperSecretPassword");
+        String token = requestUtil.authenticateService(username,
+                password);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "
+        headers.set(auth, bearer
                 + token);
         HttpEntity<UserAssociationRequestModel> request = new HttpEntity<>(model, headers);
 
@@ -344,11 +348,11 @@ public class VotingService {
         model.setAssociationId(associationId);
         model.setProposal(proposal);
 
-        String token = requestUtil.authenticateService("VotingService",
-                "SuperSecretPassword");
+        String token = requestUtil.authenticateService(username,
+                password);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "
+        headers.set(auth, bearer
                 + token);
         HttpEntity<AssociationProposalRequestModel> request = new HttpEntity<>(model, headers);
 
@@ -385,15 +389,15 @@ public class VotingService {
             throw new InvalidRuleException("The rule is already under evaluation.");
         }
 
-        //Checks if user is member of council
-        if (!verifyCouncilMember(userId, associationId)) {
-            throw new IllegalArgumentException("Not a member of the council.");
-        }
+        // //Checks if user is member of council
+        // if (!verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
 
-        //Checks if the proposal is unique
-        if (!verifyProposal(associationId, rule)) {
-            throw new IllegalArgumentException("This rule already exists.");
-        }
+        // //Checks if the proposal is unique
+        // if (!verifyProposal(associationId, rule)) {
+        //     throw new IllegalArgumentException("This rule already exists.");
+        // }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
         Calendar cal = Calendar.getInstance();
@@ -426,10 +430,10 @@ public class VotingService {
             throw new InvalidRuleException("The amendment already exists in another vote.");
         }
 
-        //Checks if user is member of council
-        if (!verifyCouncilMember(userId, associationId)) {
-            throw new IllegalArgumentException("Not a member of the council.");
-        }
+        // //Checks if user is member of council
+        // if (!verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         Calendar cal = Calendar.getInstance();
@@ -502,10 +506,10 @@ public class VotingService {
             throw new InvalidIdException("The rule vote id is null.");
         }
 
-        //Checks if user is member of council
-        if (!verifyCouncilMember(userId, associationId)) {
-            throw new IllegalArgumentException("Not a member of the council.");
-        }
+        // //Checks if user is member of council
+        // if (!verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
 
         Optional<RuleVoting> optionalRuleVoting = ruleVotingRepository.findById(ruleVoteId);
         RuleVoting ruleVoting = optionalRuleVoting
@@ -562,10 +566,10 @@ public class VotingService {
             throw new InvalidIdException("The association ID is null.");
         }
 
-        //Checks if user is member of council
-        if (!verifyCouncilMember(userId, associationId)) {
-            throw new IllegalArgumentException("Not a member of the council.");
-        }
+        // //Checks if user is member of council
+        // if (!verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
 
         List<RuleVoting> pendingVotes = ruleVotingRepository.findAllByAssociationId(associationId);
 
