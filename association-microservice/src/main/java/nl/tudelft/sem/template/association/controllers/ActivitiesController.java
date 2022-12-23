@@ -7,6 +7,8 @@ import nl.tudelft.sem.template.association.domain.activity.Activity;
 import nl.tudelft.sem.template.association.domain.activity.ActivityService;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.models.ActivityRequestModel;
+import nl.tudelft.sem.template.association.models.AddActivityRequestModel;
+import nl.tudelft.sem.template.association.models.AssociationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,18 +46,18 @@ public class ActivitiesController {
     /**
      * Gets all the activities of a certain association, without the ones who have expired.
      *
-     * @param associationId id of the association
+     * @param request The body containing the id of the association
      * @return a response from the server, list of activities if successful.
      */
-    @GetMapping("/{associationId}/noticeboard")
-    public ResponseEntity<?> displayNoticeBoard(@PathVariable int associationId) {
+    @GetMapping("/display-noticeboard")
+    public ResponseEntity<?> displayNoticeBoard(@RequestBody AssociationRequestModel request) {
         try {
-            associationService.getAssociationById(associationId);
+            associationService.getAssociationById(request.getAssociationId());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
 
-        List<Activity> noticeBoard = activityService.getNoticeBoard(associationId);
+        List<Activity> noticeBoard = activityService.getNoticeBoard(request.getAssociationId());
 
         noticeBoard.stream().filter(x -> x.getExpirationDate().compareTo(new Date()) > 0);
         return ResponseEntity.ok(noticeBoard);
@@ -64,22 +66,20 @@ public class ActivitiesController {
     /**
      * adds a new activity in the activity repository.
      *
-     * @param associationId   id of the association the activity is added to
-     * @param publisherId     id of the publishing member
-     * @param activityRequest JSON body holding the rest of the parameter need ed
+     * @param activityRequest JSON body holding the rest of the parameter needed
      */
-    @PostMapping("/{associationId}/{publisherId}")
-    public ResponseEntity<?> addActivity(@PathVariable int associationId, @PathVariable String publisherId,
-                                         @RequestBody ActivityRequestModel activityRequest) {
+    @PostMapping("/add-activity")
+    public ResponseEntity<?> addActivity(@RequestBody AddActivityRequestModel activityRequest) {
         try {
-            boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(publisherId);
+            boolean isMember = associationService.getAssociationById(activityRequest.getAssociationId())
+                    .getMemberUserIds().contains(authManager.getUserId());
 
             if (isMember && activityRequest.isComplete()) {
                 activityService.addActivity(activityRequest.getEventName(),
                         activityRequest.getDescription(),
                         activityRequest.getStartingDate(),
                         activityRequest.getExpirationDate(),
-                        associationId, publisherId);
+                        activityRequest.getAssociationId(), authManager.getUserId());
 
                 return ResponseEntity.ok("Activity added");
 
@@ -101,12 +101,12 @@ public class ActivitiesController {
     /**
      * Gets an activity corresponding to its id.
      *
-     * @param activityId id of the activity
+     * @param request The id of the activity
      * @return the corresponding activity
      */
-    @GetMapping("/noticeboard/{activityId}")
-    public ResponseEntity<?> getActivity(@PathVariable int activityId) {
-        Activity response = activityService.getActivity(activityId);
+    @GetMapping("/get-activity")
+    public ResponseEntity<?> getActivity(@RequestBody ActivityRequestModel request) {
+        Activity response = activityService.getActivity(request.getActivityId());
         if (response == null) {
             return new ResponseEntity<>("That activity does not exits.",
                     HttpStatus.BAD_REQUEST);
@@ -120,22 +120,22 @@ public class ActivitiesController {
     /**
      * Adds interested user to the list of the corresponding activity.
      *
-     * @param activityId id of the activity
-     * @param userId     id of the interested user
+     * @param request The request body containing the activity id and user id.
      * @return response from the server
      */
-    @PostMapping("/addInterested/{activityId}/{userId}")
-    public ResponseEntity<?> addInterested(@PathVariable int activityId, @PathVariable String userId) {
+    @PostMapping("/add-interest")
+    public ResponseEntity<?> addInterested(@RequestBody ActivityRequestModel request) {
 
         try {
-            Activity activity = activityService.getActivity(activityId);
+            Activity activity = activityService.getActivity(request.getActivityId());
             if (activity != null) {
 
                 int associationId = activity.getAssociationId();
-                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds()
+                        .contains(authManager.getUserId());
 
                 if (isMember) {
-                    activityService.addInterested(activityId, userId);
+                    activityService.addInterested(request.getActivityId(), authManager.getUserId());
                     return ResponseEntity.ok("Interested in activity " + activity.getEventName());
 
                 } else {
@@ -156,22 +156,22 @@ public class ActivitiesController {
     /**
      * Adds participating user to the list of the corresponding activity.
      *
-     * @param activityId id of the activity
-     * @param userId     id of the participating user
+     * @param request The request body containing the activity id and user id.
      * @return response from the server
      */
-    @PostMapping("/addParticipating/{activityId}/{userId}")
-    public ResponseEntity<?> addParticipating(@PathVariable int activityId, @PathVariable String userId) {
+    @PostMapping("/add-participating")
+    public ResponseEntity<?> addParticipating(@RequestBody ActivityRequestModel request) {
 
         try {
-            Activity activity = activityService.getActivity(activityId);
+            Activity activity = activityService.getActivity(request.getActivityId());
             if (activity != null) {
 
                 int associationId = activity.getAssociationId();
-                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds()
+                        .contains(authManager.getUserId());
 
                 if (isMember) {
-                    activityService.addParticipating(activityId, userId);
+                    activityService.addParticipating(request.getActivityId(), authManager.getUserId());
                     return ResponseEntity.ok("Participating in activity " + activity.getEventName());
 
                 } else {
@@ -191,22 +191,22 @@ public class ActivitiesController {
     /**
      * Removes interested user from the list of the corresponding activity.
      *
-     * @param activityId id of the activity
-     * @param userId     id of the user
+     * @param request The request body containing the activity id and user id.
      * @return response from the server
      */
-    @PostMapping("/removeInterested/{activityId}/{userId}")
-    public ResponseEntity<?> removeInterested(@PathVariable int activityId, @PathVariable String userId) {
+    @PostMapping("/remo-interested")
+    public ResponseEntity<?> removeInterested(@RequestBody ActivityRequestModel request) {
 
         try {
-            Activity activity = activityService.getActivity(activityId);
+            Activity activity = activityService.getActivity(request.getActivityId());
             if (activity != null) {
 
                 int associationId = activity.getAssociationId();
-                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds()
+                        .contains(authManager.getUserId());
 
                 if (isMember) {
-                    activityService.removeInterested(activityId, userId);
+                    activityService.removeInterested(request.getActivityId(), authManager.getUserId());
                     return ResponseEntity.ok("Not interested in activity " + activity.getEventName());
 
                 } else {
@@ -227,22 +227,22 @@ public class ActivitiesController {
     /**
      * Removes participating user ot the list of the corresponding activity.
      *
-     * @param activityId id of the activity
-     * @param userId     id of the user
+     * @param request The request body containing the activity id and user id.
      * @return response from the server
      */
-    @PostMapping("/removeParticipating/{activityId}/{userId}")
-    public ResponseEntity<?> removeParticipating(@PathVariable int activityId, @PathVariable String userId) {
+    @PostMapping("/remove-participating")
+    public ResponseEntity<?> removeParticipating(@RequestBody ActivityRequestModel request) {
 
         try {
-            Activity activity = activityService.getActivity(activityId);
+            Activity activity = activityService.getActivity(request.getActivityId());
             if (activity != null) {
 
                 int associationId = activity.getAssociationId();
-                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds().contains(userId);
+                boolean isMember = associationService.getAssociationById(associationId).getMemberUserIds()
+                        .contains(authManager.getUserId());
 
                 if (isMember) {
-                    activityService.removeParticipating(activityId, userId);
+                    activityService.removeParticipating(request.getActivityId(), authManager.getUserId());
                     return ResponseEntity.ok("Not participating in activity " + activity.getEventName());
 
                 } else {
