@@ -56,20 +56,6 @@ public class ProposeRuleVotingServiceTest {
     }
 
     @Test
-    public void nullAssociationIdTest() {
-        assertThatThrownBy(() -> {
-            votingService.proposeRule(this.type, null, this.userId, this.rule);
-        }).isInstanceOf(InvalidIdException.class);
-    }
-
-    @Test
-    public void nullUserIdTest() {
-        assertThatThrownBy(() -> {
-            votingService.proposeRule(this.type, this.associationId, null, this.rule);
-        }).isInstanceOf(InvalidIdException.class);
-    }
-
-    @Test
     public void nullRuleTest() {
         assertThatThrownBy(() -> {
             votingService.proposeRule(this.type, this.associationId, this.userId, null);
@@ -92,4 +78,14 @@ public class ProposeRuleVotingServiceTest {
             votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
         }).isInstanceOf(RuleTooLongException.class);
     }
+
+    @Test
+    public void ruleAlreadyInAnotherVote() throws RuleTooLongException, InvalidRuleException {
+        votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
+
+        assertThatThrownBy(() -> {
+            votingService.proposeRule(this.type, this.associationId, this.userId, this.rule);
+        }).isInstanceOf(InvalidRuleException.class);
+    }
+
 }

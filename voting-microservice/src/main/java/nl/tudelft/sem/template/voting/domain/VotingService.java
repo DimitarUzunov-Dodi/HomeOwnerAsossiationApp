@@ -146,18 +146,16 @@ public class VotingService {
      * @return              A message confirming the creation of the rule vote.
      */
     public String proposeRule(VotingType type, Integer associationId, String userId, String rule)
-            throws InvalidIdException, InvalidRuleException, RuleTooLongException {
-        if (associationId == null) {
-            throw new InvalidIdException("The associationID is invalid.");
-        } else if (userId == null) {
-            throw new InvalidIdException("The userID is invalid.");
-        } else if (rule == null) {
+            throws InvalidRuleException, RuleTooLongException {
+        if (rule == null) {
             throw new InvalidRuleException("The rule is null.");
         } else if (rule.equals("")) {
             throw new InvalidRuleException("The rule's description is empty.");
         } else if (rule.length() > this.maxRuleLength) {
             throw new RuleTooLongException("The rule description exceeds the maximum length of "
                     + this.maxRuleLength + " characters.");
+        } else if (ruleVotingRepository.existsByAssociationIdAndRuleAndType(associationId, rule, type)) {
+            throw new InvalidRuleException("The rule is already under evaluation.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
@@ -179,29 +177,30 @@ public class VotingService {
      * @return              A message confirming the creation of the rule vote.
      */
     public String amendmentRule(VotingType type, Integer associationId, String userId, String rule, String amendment)
-            throws InvalidIdException, InvalidRuleException, RuleTooLongException {
-        if (associationId == null) {
-            throw new InvalidIdException("The associationID is invalid.");
-        } else if (userId == null) {
-            throw new InvalidIdException("The userID is invalid.");
-        } else if (amendment == null) {
+            throws InvalidRuleException, RuleTooLongException {
+        if (amendment == null) {
             throw new InvalidRuleException("The amendment is null.");
-        } else if (amendment.equals("")) {
-            throw new InvalidRuleException("The amendment's description is empty.");
-        } else if (rule.equals(amendment)) {
-            throw new InvalidRuleException("The amendment does not change the rule.");
         } else if (amendment.length() > this.maxRuleLength) {
             throw new RuleTooLongException("The amendment's description exceeds the maximum length of "
                     + this.maxRuleLength + " characters.");
+        } else if (ruleVotingRepository.existsByAssociationIdAndRuleAndType(associationId, rule, type)) {
+            throw new InvalidRuleException("The rule is already under evaluation.");
+        } else if (ruleVotingRepository.existsByAssociationIdAndAmendment(associationId, amendment)) {
+            throw new InvalidRuleException("The amendment already exists in another vote.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
         Calendar cal = Calendar.getInstance();
         cal.setTime(voting.getEndDate());
         cal.add(Calendar.DAY_OF_MONTH, -2);
-        return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
-                + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
-                + cal.getTime();
+        if (amendment.equals("")) {
+            return "The user: " + userId + " proposes to remove the rule: \"" + rule + "\"" + System.lineSeparator()
+                    + "The vote will be held on: " + cal.getTime();
+        } else {
+            return "The user: " + userId + " proposes to change the rule: \"" + rule + "\"" + System.lineSeparator()
+                    + "to: \"" + amendment + "\"" +  System.lineSeparator() + "The vote will be held on: "
+                    + cal.getTime();
+        }
     }
 
     /**
