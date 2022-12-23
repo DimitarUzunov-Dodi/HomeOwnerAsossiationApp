@@ -212,9 +212,17 @@ public class AssociationService {
 
         if (optionalAssociation.isPresent() && model.isPassed()) {
             Association association = optionalAssociation.get();
-            List<String> rules = association.getRules();
 
-            if (model.isProposal()) {
+            List<String> rulesCopy = association.getRules();
+            List<String> rules = new ArrayList<>();
+
+            for (String str : rulesCopy) {
+                if (!str.isEmpty()) {
+                    rules.add(str);
+                }
+            }
+
+            if (model.isAnAmendment()) {
                 int index = rules.indexOf(model.getRule());
                 rules.set(index, model.getAmendment());
             } else {

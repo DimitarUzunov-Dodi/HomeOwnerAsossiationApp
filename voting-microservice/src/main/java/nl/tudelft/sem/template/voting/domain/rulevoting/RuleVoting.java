@@ -136,7 +136,8 @@ public class RuleVoting extends Voting {
     public String getResults() {
         HashMap<String, Integer> hm = this.tallyVotes();
         String str = hm.toString();
-        return str.substring(1, str.length() - 1);
+        String voteCount =  str.substring(1, str.length() - 1);
+        return voteCount;
     }
 
     /**

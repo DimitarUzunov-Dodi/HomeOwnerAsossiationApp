@@ -173,75 +173,6 @@ public class AssociationController {
     }
 
     /**
-     * DEPRECATED. To be used as an alternative to the scheduler if that
-     * has any issues at some point.
-     * Endpoint to request all the council changes for all associations then apply them.
-     *
-     * @return 200 if ok
-     */
-    @Deprecated
-    @PostMapping("/get-council-results")
-    public ResponseEntity<String> getAllCouncilResults() {
-        final String url = "http://localhost:8083/election/get-results";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "
-                + SecurityContextHolder.getContext().getAuthentication().getCredentials());
-        HttpEntity request = new HttpEntity<>(headers);
-        RestTemplate restTemplate = new RestTemplate();
-
-        ResponseEntity<ElectionResultRequestListModel> responseEntity =
-                restTemplate.postForEntity(url, request, ElectionResultRequestListModel.class);
-
-        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-            ElectionResultRequestListModel resultList = responseEntity.getBody();
-
-            System.out.println(resultList.toString());
-
-            // TODO : update council for each association included
-
-            return ResponseEntity.ok("Updates applied!");
-        } else {
-            return new ResponseEntity<>("Updates failed!",
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    /**
-     * DEPRECATED. To be used as an alternative to the scheduler if that
-     * has any issues at some point.
-     * Endpoint to request all the council changes for all associations then apply them.
-     *
-     * @return 200 if OK
-     */
-    @Deprecated
-    @PostMapping("/get-rule-vote-results")
-    public ResponseEntity<String> getAllRuleVotingResults() {
-        final String url = "http://localhost:8083/rule-voting/get-results";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "
-                + SecurityContextHolder.getContext().getAuthentication().getCredentials());
-        HttpEntity request = new HttpEntity<>(headers);
-        RestTemplate restTemplate = new RestTemplate();
-
-        ResponseEntity<RuleVoteResultRequestListModel> responseEntity =
-                restTemplate.postForEntity(url, request, RuleVoteResultRequestListModel.class);
-
-        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-            RuleVoteResultRequestListModel resultList = responseEntity.getBody();
-
-            System.out.println(resultList.toString());
-
-            // TODO : update rules for each association included
-
-            return ResponseEntity.ok("Updates applied!");
-        } else {
-            return new ResponseEntity<>("Updates failed!",
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
-    /**
      * SCHEDULER related. Endpoint for updating the council.
      * Also updates the history log for association.
      *
@@ -249,7 +180,7 @@ public class AssociationController {
      * @return 200 if OK
      */
     @PostMapping("/update-council")
-    public ResponseEntity<String> updateCouncilDummy(@RequestBody ElectionResultRequestModel request) {
+    public ResponseEntity<String> updateCouncil(@RequestBody ElectionResultRequestModel request) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         String historyEntry = sdf.format(request.getDate()) + " | " + request.getResult();
 
@@ -277,17 +208,11 @@ public class AssociationController {
      * @return 200 if OK
      */
     @PostMapping("/update-rules")
-    public ResponseEntity<String> updateRulesDummy(@RequestBody RuleVoteResultRequestModel request) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        String historyEntry = sdf.format(request.getDate() + " | " + request.getResult());
-
-        System.out.println(historyEntry);
-
-        Event event = new Event(request.getResult(), request.getDate());
-
+    public ResponseEntity<String> updateRules(@RequestBody RuleVoteResultRequestModel request) {
         associationService.processRuleVote(request);
 
         try {
+            Event event = new Event(request.getResult(), request.getDate());
             historyService.addEvent(request.getAssociationId(), event);
         } catch (Exception e) {
             return new ResponseEntity<>("Adding the log in history failed!",

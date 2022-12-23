@@ -29,8 +29,6 @@ public class RequestAuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .and().headers().frameOptions().sameOrigin();
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/association/update-rules-dummy").permitAll()
-                .antMatchers("/association/update-council-dummy").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
