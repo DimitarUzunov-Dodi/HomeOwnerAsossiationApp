@@ -2,6 +2,7 @@ package nl.tudelft.sem.template.association.domain.association;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import org.springframework.stereotype.Service;
@@ -26,8 +27,34 @@ public class AssociationService {
         Association association = new Association(name, country, city, description, councilNumber);
         int associationId = associationRepository.save(association).getId();
         return "Association was created:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
-                + "Name: " + name + System.lineSeparator() + "Country: " + country + System.lineSeparator()
-                + "Description: " + description + System.lineSeparator() + "Max council members: " + councilNumber;
+                + "Name: " + name + System.lineSeparator() + "Country: " + country + System.lineSeparator() + "City: "
+                + city + System.lineSeparator() + "Description: " + description + System.lineSeparator()
+                + "Max council members: " + councilNumber;
+    }
+
+    /**
+     * Gets the existing association IDs.
+     *
+     * @return  A list with the ids.
+     */
+    public List<Integer> getAssociationIds() {
+        List<Association> associationList = associationRepository.findAll();
+        List<Integer> ids = associationList.stream().map(Association::getId).collect(Collectors.toList());
+        return ids;
+    }
+
+    /**getter.
+     *
+     * @param associationId the id of the association
+     * @return Association correspondingly
+     */
+    public String getAssociationInfo(int associationId) {
+        Association association = getAssociationById(associationId);
+        return "Association information:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + association.getName() + System.lineSeparator() + "Country: " + association.getCountry()
+                + System.lineSeparator() + "City: " + association.getCity() + System.lineSeparator() + "Description: "
+                + association.getDescription() + System.lineSeparator()
+                + "Max council members: " + association.getCouncilNumber();
     }
 
     /**getter.

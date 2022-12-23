@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.association.controllers;
 
+import java.util.List;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
@@ -12,10 +13,7 @@ import nl.tudelft.sem.template.association.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -58,6 +56,34 @@ public class AssociationController {
     public void validateAuthentication(String userId) throws ResponseStatusException {
         if (userId == null || !authManager.validateRequestUser(userId)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS");
+        }
+    }
+
+    /**
+     * Gets the existing association IDs.
+     *
+     * @return          A response message with the ids.
+     */
+    @GetMapping("/get-association-ids")
+    public ResponseEntity<List<Integer>> getAssociationIds() {
+        try {
+            return ResponseEntity.ok(associationService.getAssociationIds());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    /**
+     * Gets the information about a specific association.
+     *
+     * @return   A response message with the information.
+     */
+    @GetMapping("/get-association")
+    public ResponseEntity<String> getAssociationIds(@RequestBody AssociationRequestModel request) {
+        try {
+            return ResponseEntity.ok(associationService.getAssociationInfo(request.getAssociationId()));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
