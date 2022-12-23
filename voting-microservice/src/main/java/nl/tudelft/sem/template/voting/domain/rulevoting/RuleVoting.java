@@ -117,4 +117,47 @@ public class RuleVoting extends Voting {
                     + "\"" + getAmendment() + "\".";
         }
     }
+
+    /**
+     * Assesses whether the rule vote has passed.
+     *
+     * @return whether it passed
+     */
+    public boolean passedMotion() {
+        HashMap<String, Integer> res = this.tallyVotes();
+        return res.get("for") > res.get("against");
+    }
+
+    /**
+     * Gets the result of this rulevoting then turns them into a readable string.
+     *
+     * @return rulevoting results
+     */
+    public String getResults() {
+        HashMap<String, Integer> hm = this.tallyVotes();
+        String str = hm.toString();
+        String voteCount =  str.substring(1, str.length() - 1);
+        return voteCount;
+    }
+
+    /**
+     * Tallies the votes from this rulevoting.
+     *
+     * @return HashMap containing yes and no along with its respective number of votes
+     */
+    public HashMap<String, Integer> tallyVotes() {
+        HashMap<String, Integer> res = new HashMap<>();
+
+        res.put("for", 0);
+        res.put("against", 0);
+        res.put("abstain", 0);
+
+        for (Pair pair : this.votes) {
+            String option = (String) pair.getSecond();
+            int optionTally = (Integer) res.get(option);
+            res.put(option, optionTally + 1);
+        }
+
+        return res;
+    }
 }

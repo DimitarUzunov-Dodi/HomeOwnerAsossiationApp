@@ -137,18 +137,14 @@ public class AuthenticationController {
             if (newPassword.toString() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NULL_PASSWORD");
             }
-
             if ((password.toString()).equals(newPassword.toString())) {
                 throw new RuntimeException("SAME_PASSWORD");
-
             }
-
             try {
                 registrationService.changePassword(userId, newPassword);
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
-
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
