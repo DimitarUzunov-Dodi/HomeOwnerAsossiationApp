@@ -1,14 +1,14 @@
 package nl.tudelft.sem.template.voting.profiles;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 /**
  * A configuration profile to allow injection of a mock AuthenticationManager.
