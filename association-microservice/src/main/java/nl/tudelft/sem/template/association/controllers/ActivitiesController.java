@@ -108,7 +108,7 @@ public class ActivitiesController {
     public ResponseEntity<?> getActivity(@RequestBody ActivityRequestModel request) {
         Activity response = activityService.getActivity(request.getActivityId());
         if (response == null) {
-            return new ResponseEntity<>("That activity does not exits.",
+            return new ResponseEntity<>("That activity does not exist.",
                     HttpStatus.BAD_REQUEST);
         } else {
             return ResponseEntity.ok(response);
