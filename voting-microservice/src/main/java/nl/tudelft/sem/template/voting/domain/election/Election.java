@@ -62,4 +62,37 @@ public class Election extends Voting {
         votes.add(vote);
     }
 
+    /**
+     * Gets the result of this election then turns them into readable string.
+     *
+     * @return election results
+     */
+    public String getResults() {
+        HashMap<String, Integer> hm = this.tallyVotes();
+        String str = hm.toString();
+        return str.substring(1, str.length() - 1);
+    }
+
+
+    /**
+     * Tallies the votes from this election.
+     *
+     * @return HashMap containing each candidateId along with its respective number of votes
+     */
+    public HashMap<String, Integer> tallyVotes() {
+        HashMap<String, Integer> res = new HashMap<>();
+
+        for (String candidateId : this.candidateIds) {
+            res.put(candidateId, 0);
+        }
+
+        for (Pair pair : this.votes) {
+            String candidateId = (String) pair.getSecond();
+            int candidateTally = (Integer) res.get(candidateId);
+            res.put(candidateId, candidateTally + 1);
+        }
+
+        return res;
+    }
+
 }

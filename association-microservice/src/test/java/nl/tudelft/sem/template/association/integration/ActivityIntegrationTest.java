@@ -188,7 +188,7 @@ public class ActivityIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("");
+        assertThat(response).isEqualTo("Interested in activity name");
     }
 
     @Test
@@ -224,7 +224,7 @@ public class ActivityIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("");
+        assertThat(response).isEqualTo("Participating in activity name");
     }
 
     @Test
@@ -260,7 +260,7 @@ public class ActivityIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("");
+        assertThat(response).isEqualTo("Not interested in activity name");
     }
 
     @Test
@@ -297,7 +297,7 @@ public class ActivityIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("");
+        assertThat(response).isEqualTo("Not participating in activity name");
     }
 
     @Test

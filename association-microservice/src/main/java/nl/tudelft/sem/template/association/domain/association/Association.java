@@ -224,4 +224,8 @@ public class Association {
     public void setCity(String city) {
         this.city = city;
     }
+
+    public void setRules(List<String> rules) {
+        this.rules = rules;
+    }
 }
