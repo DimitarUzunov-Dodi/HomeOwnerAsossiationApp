@@ -28,7 +28,7 @@ public class EventListAttributeConverter implements AttributeConverter<List<Even
 
     @Override
     public List<Event> convertToEntityAttribute(String dbData) {
-        String[] strings = dbData.split(", ");
+        String[] strings = dbData.substring(1, dbData.length() - 1).split(", ");
         List<Event> res = new ArrayList<>();
 
         for (String str : strings) {

@@ -137,7 +137,7 @@ public class RuleVoting extends Voting {
         HashMap<String, Integer> hm = this.tallyVotes();
         String str = hm.toString();
         String voteCount =  str.substring(1, str.length() - 1);
-        return this.getType() + " " + voteCount;
+        return voteCount;
     }
 
     /**

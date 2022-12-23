@@ -224,13 +224,133 @@ public class AssociationIntegrationTest {
         String response = result.andReturn().getResponse().getContentAsString();
         assertThat(response).isEqualTo("Rules updated!");
 
-        mockAssociationRepository.save(association);
-
         Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
 
         Association testAssociation = optionalTestAssociation.get();
 
         assertThat(testAssociation.getRules()).contains("Epic rule. HAH!");
+    }
+
+    @Test
+    public void changeRulePassTest() throws Exception {
+        RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
+
+        model.setPassed(true);
+        model.setRule("Epic rule. HAH!");
+        model.setResult("Epic rule passedddd");
+        model.setType("");
+        model.setAmendment("");
+        model.setAnAmendment(false);
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        ResultActions result = mockMvc.perform(post("/association/update-rules")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        model.setPassed(true);
+        model.setRule("Epic rule. HAH!");
+        model.setResult("Epic rule passedddd");
+        model.setType("");
+        model.setAmendment("WAAAAAAAAAGHHHH!");
+        model.setAnAmendment(true);
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        result = mockMvc.perform(post("/association/update-rules")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertThat(response).isEqualTo("Rules updated!");
+
+        Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
+
+        Association testAssociation = optionalTestAssociation.get();
+
+        assertThat(testAssociation.getRules()).contains("WAAAAAAAAAGHHHH!");
+    }
+
+    @Test
+    public void addRuleFailTest() throws Exception {
+        RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
+
+        model.setPassed(false);
+        model.setRule("Epic rule. HAH!");
+        model.setResult("Epic rule passedddd");
+        model.setType("");
+        model.setAmendment("");
+        model.setAnAmendment(false);
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        ResultActions result = mockMvc.perform(post("/association/update-rules")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertThat(response).isEqualTo("Rules updated!");
+
+        Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
+
+        Association testAssociation = optionalTestAssociation.get();
+
+        assertThat(testAssociation.getRules()).containsExactly("");
+    }
+
+    @Test
+    public void changeRuleFailTest() throws Exception {
+        RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
+
+        model.setPassed(true);
+        model.setRule("Epic rule. HAH!");
+        model.setResult("Epic rule passedddd");
+        model.setType("");
+        model.setAmendment("");
+        model.setAnAmendment(false);
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        ResultActions result = mockMvc.perform(post("/association/update-rules")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        model.setPassed(false);
+        model.setRule("Epic rule. HAH!");
+        model.setResult("Epic rule passedddd");
+        model.setType("");
+        model.setAmendment("WAAAAAAAAAGHHHH!");
+        model.setAnAmendment(true);
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        result = mockMvc.perform(post("/association/update-rules")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertThat(response).isEqualTo("Rules updated!");
+
+        Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
+
+        Association testAssociation = optionalTestAssociation.get();
+
+        assertThat(testAssociation.getRules()).containsExactly("Epic rule. HAH!");
     }
 
 }

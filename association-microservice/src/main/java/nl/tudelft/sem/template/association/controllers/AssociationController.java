@@ -206,14 +206,10 @@ public class AssociationController {
      */
     @PostMapping("/update-rules")
     public ResponseEntity<String> updateRules(@RequestBody RuleVoteResultRequestModel request) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        String historyEntry = sdf.format(request.getDate()) + " | " + request.getResult();
-
-        Event event = new Event(request.getResult(), request.getDate());
-
         associationService.processRuleVote(request);
 
         try {
+            Event event = new Event(request.getResult(), request.getDate());
             historyService.addEvent(request.getAssociationId(), event);
         } catch (Exception e) {
             return new ResponseEntity<>("Adding the log in history failed!",

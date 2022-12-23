@@ -233,9 +233,6 @@ public class AssociationService {
 
             associationRepository.save(association);
         }
-        else{
-            System.out.println("Association doesn't exist or model is not passed");
-        }
     }
 
     /**
