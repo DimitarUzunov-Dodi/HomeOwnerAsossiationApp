@@ -1,5 +1,8 @@
 package nl.tudelft.sem.template.voting.profiles;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +33,9 @@ public class MockAuthenticationManagerProfile {
     @Bean
     @Primary  // marks this bean as the first bean to use when trying to inject an AuthenticationManager
     public AuthManager getMockAuthenticationManager() {
-        return Mockito.mock(AuthManager.class);
+        AuthManager mockAuthManager = Mockito.mock(AuthManager.class);
+        when(mockAuthManager.validateRequestUser(anyString())).thenReturn(true);
+        return mockAuthManager;
     }
 }
 

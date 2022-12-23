@@ -91,6 +91,8 @@ public class ProposeRuleVotingIntegrationTest {
         model.setAssociationId(this.associationId);
         model.setRule(null);
 
+
+
         ResultActions result = mockMvc.perform(post("/rule-voting/propose-rule")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model))
