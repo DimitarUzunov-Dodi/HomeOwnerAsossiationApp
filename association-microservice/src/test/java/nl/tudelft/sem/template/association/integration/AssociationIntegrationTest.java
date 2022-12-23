@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
+import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
@@ -48,6 +49,8 @@ public class AssociationIntegrationTest {
     @Autowired
     private transient AssociationRepository mockAssociationRepository;
     @Autowired
+    private transient AuthManager authManager;
+    @Autowired
     private transient HistoryRepository mockHistoryRepository;
     @Autowired
     private transient MembershipRepository membershipRepository;
@@ -74,6 +77,7 @@ public class AssociationIntegrationTest {
         history = new History(association.getId());
         mockHistoryRepository.save(history);
 
+        when(authManager.validateRequestUser(userId)).thenReturn(true);
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
         when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn(userId);
     }
@@ -191,6 +195,32 @@ public class AssociationIntegrationTest {
     }
 
     @Test
+    public void verifyAuthenticationJoinAssociationSuccess() throws Exception {
+        JoinAssociationRequestModel model = new JoinAssociationRequestModel();
+
+        model.setUserId("d");
+        model.setAssociationId(1);
+        model.setCity(association.getCity());
+        model.setCountry(association.getCountry());
+        model.setStreet("mine");
+        model.setHouseNumber("0");
+        model.setPostalCode("0");
+
+        ResultActions result = mockMvc.perform(post("/association/join-association")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("User d successfully joined association 1");
+
+    }
+
+
+    @Test
     public void verifyAuthenticationLeaveAssociation() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
 
@@ -234,12 +264,29 @@ public class AssociationIntegrationTest {
         this.association.setCouncilNumber(3);
         mockAssociationRepository.save(association);
 
+        Membership member = new Membership("a", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+        member = new Membership("b", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+        member = new Membership("c", association.getId(), "test", "test", "test", "test", "test");
+        member.setTimesCouncil(10);
+        membershipRepository.save(member);
+        member = new Membership("d", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+        member = new Membership("f", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+
+
         HashMap<String, Integer> hm = new HashMap<>();
-        hm.put("a", 4);
-        hm.put("b", 3);
-        hm.put("d", 5);
-        hm.put("e", 6);
-        hm.put("f", 10);
+        hm.put("a", 7);
+        hm.put("b", 5);
+        hm.put("c", 25);
+        hm.put("d", 1);
+        hm.put("e", 15);
+        hm.put("f", 20);
+
+        // c and e shouldn't be council members
+        // therefore, f, a, b
 
         ElectionResultRequestModel model = new ElectionResultRequestModel();
 
@@ -262,7 +309,7 @@ public class AssociationIntegrationTest {
 
         Association testAssociation = optionalTestAssociation.get();
 
-        assertThat(testAssociation.getCouncilUserIds()).containsExactlyInAnyOrder("f", "e", "d");
+        assertThat(testAssociation.getCouncilUserIds()).containsExactlyInAnyOrder("a", "b", "f");
     }
 
     @Test

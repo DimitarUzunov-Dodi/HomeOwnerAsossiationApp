@@ -3,12 +3,14 @@ package nl.tudelft.sem.template.authentication.config;
 import nl.tudelft.sem.template.authentication.domain.user.Password;
 import nl.tudelft.sem.template.authentication.domain.user.RegistrationService;
 import nl.tudelft.sem.template.authentication.domain.user.UserId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RegisterServices {
+    @Autowired
     private transient RegistrationService registrationService;
 
     /**
