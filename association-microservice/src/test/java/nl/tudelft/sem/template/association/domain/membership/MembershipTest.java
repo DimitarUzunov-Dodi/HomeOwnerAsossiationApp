@@ -1,17 +1,17 @@
 package nl.tudelft.sem.template.association.domain.membership;
 
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MembershipTest {
     private Membership membership;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         membership = new Membership("userId", 2, "country", "city", "Street",
                  "houseNumber", "postalCode");
 
@@ -71,7 +71,7 @@ class MembershipTest {
     void leave() {
         assertEquals(null, membership.getLeaveDate());
         membership.leave();
-        assertNotEquals(null,membership.getLeaveDate());
+        assertNotEquals(null, membership.getLeaveDate());
     }
 
     @Test
