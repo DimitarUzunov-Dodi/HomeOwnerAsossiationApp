@@ -83,7 +83,7 @@ public class MembershipTests {
         membershipRepository.save(membershipNone);
         assertThat(membershipService
                 .displayNotifications(membershipNone.getUserId(), membershipNone.getAssociationId()))
-                .isEqualTo("There are no new notifications.");
+                .isEqualTo("There are no notifications.");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class MembershipTests {
                 + "was changed into: \"Blooooop\".";
         Notification newNotification = new Notification(desc, this.date);
         assertThat(membershipService.addNotification(this.membership.getAssociationId(), newNotification))
-                .isEqualTo(" and all members have been notified.");
+                .isEqualTo(" and all members have been notified");
         Membership member = membershipRepository.findByUserIdAndAssociationId(
                 this.membership1.getUserId(), this.membership1.getAssociationId()).orElse(null);
         assertThat(member.getNotifications().size()).isEqualTo(3);
@@ -141,14 +141,14 @@ public class MembershipTests {
     @Test
     public void createAmendmentDesc() {
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
-        model.setProposal(true);
+        model.setAnAmendment(true);
         model.setRule("Bleep");
         model.setAmendment("Bloop");
         model.setAssociationId(2);
         model.setDate(this.date);
 
         assertThat(membershipService.createNotificationDescription(model))
-                .isEqualTo(" and all members have been notified.");
+                .isEqualTo(" and all members have been notified");
     }
 
 }

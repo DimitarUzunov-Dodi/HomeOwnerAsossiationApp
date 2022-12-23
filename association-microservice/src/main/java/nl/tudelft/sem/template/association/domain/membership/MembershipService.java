@@ -30,7 +30,7 @@ public class MembershipService {
 
         List<Notification> notificationList = member.getNotifications();
         if (notificationList.isEmpty()) {
-            return "There are no new notifications.";
+            return "There are no notifications.";
         }
 
         StringBuilder res = new StringBuilder();
@@ -89,7 +89,7 @@ public class MembershipService {
             membershipRepository.save(m);
         }
 
-        return " and all members have been notified.";
+        return " and all members have been notified";
     }
 
     /**
@@ -100,7 +100,7 @@ public class MembershipService {
      */
     public String createNotificationDescription(RuleVoteResultRequestModel request) {
         String desc;
-        if (request.isProposal()) {
+        if (request.isAnAmendment()) {
             desc = "The rule: " + request.getRule() + System.lineSeparator()
                     + "was changed into: " + request.getAmendment() + ".";
         } else {

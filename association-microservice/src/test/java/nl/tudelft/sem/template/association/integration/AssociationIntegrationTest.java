@@ -15,6 +15,8 @@ import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.history.History;
 import nl.tudelft.sem.template.association.domain.history.HistoryRepository;
+import nl.tudelft.sem.template.association.domain.membership.Membership;
+import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
@@ -46,6 +48,8 @@ public class AssociationIntegrationTest {
     private transient AssociationRepository mockAssociationRepository;
     @Autowired
     private transient HistoryRepository mockHistoryRepository;
+    @Autowired
+    private transient MembershipRepository membershipRepository;
     private HashSet<String> councilMembers;
     private Association association;
     private History history;
@@ -203,6 +207,9 @@ public class AssociationIntegrationTest {
 
     @Test
     public void addRulePassTest() throws Exception {
+        Membership member = new Membership("test", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
 
         model.setPassed(true);
@@ -222,7 +229,7 @@ public class AssociationIntegrationTest {
         result.andExpect(status().isOk());
 
         String response = result.andReturn().getResponse().getContentAsString();
-        assertThat(response).isEqualTo("Rules updated!");
+        assertThat(response).isEqualTo("Rules updated and all members have been notified!");
 
         Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
 
@@ -233,6 +240,9 @@ public class AssociationIntegrationTest {
 
     @Test
     public void changeRulePassTest() throws Exception {
+        Membership member = new Membership("test", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
 
         model.setPassed(true);
@@ -268,7 +278,7 @@ public class AssociationIntegrationTest {
         result.andExpect(status().isOk());
 
         String response = result.andReturn().getResponse().getContentAsString();
-        assertThat(response).isEqualTo("Rules updated!");
+        assertThat(response).isEqualTo("Rules updated and all members have been notified!");
 
         Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
 
@@ -309,6 +319,9 @@ public class AssociationIntegrationTest {
 
     @Test
     public void changeRuleFailTest() throws Exception {
+        Membership member = new Membership("test", association.getId(), "test", "test", "test", "test", "test");
+        membershipRepository.save(member);
+
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
 
         model.setPassed(true);
