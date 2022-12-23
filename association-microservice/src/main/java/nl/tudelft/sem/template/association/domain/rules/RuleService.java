@@ -52,7 +52,9 @@ public class RuleService {
             throw new IllegalArgumentException("User was not part of that association");
         }
 
-        associationService.verifyCouncilMember(model.getUserId(), model.getAssociationId());
+        if (!associationService.verifyCouncilMember(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User wat not part of the council");
+        }
 
         return requestUtil.postRequest(model, String.class,
                 requestUtil.getToken(request), PORT, "rule-voting/vote-rule");
@@ -79,6 +81,10 @@ public class RuleService {
             throw new IllegalArgumentException("User was not part of that association");
         }
 
+        if (!associationService.verifyCouncilMember(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User wat not part of the council");
+        }
+
         return requestUtil.postRequest(model, String.class,
                 requestUtil.getToken(request), PORT, "rule-voting/propose-rule");
     }
@@ -101,6 +107,10 @@ public class RuleService {
 
         if (!associationService.isMember(model.getUserId(), model.getAssociationId())) {
             throw new IllegalArgumentException("User was not part of that association");
+        }
+
+        if (!associationService.verifyCouncilMember(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User wat not part of the council");
         }
 
         return requestUtil.postRequest(model, String.class,

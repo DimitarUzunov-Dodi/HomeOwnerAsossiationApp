@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
-import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.*;
 import nl.tudelft.sem.template.association.utils.RequestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ElectionService {
 
-    private final transient UserService userService;
-
     private final transient AssociationService associationService;
 
     private final transient RequestUtil requestUtil;
@@ -26,13 +23,11 @@ public class ElectionService {
     /**
      * Constructs the ElectionService, which autowires the dependencies.
      *
-     * @param userService the user service
      * @param associationService the association service
      * @param requestUtil the request util
      */
     @Autowired
-    public ElectionService(UserService userService, AssociationService associationService, RequestUtil requestUtil) {
-        this.userService = userService;
+    public ElectionService(AssociationService associationService, RequestUtil requestUtil) {
         this.associationService = associationService;
         this.requestUtil = requestUtil;
     }
@@ -85,7 +80,9 @@ public class ElectionService {
             throw new IllegalArgumentException("User was not part of that association");
         }
 
-        //TODO: use verifyCandidate from AssociationService to check it
+        if (!associationService.verifyCandidate(model.getUserId(), model.getAssociationId())) {
+            throw new IllegalArgumentException("User cannot be a council member for this association");
+        }
 
         return requestUtil.postRequest(model, String.class,
                 requestUtil.getToken(request), PORT, "apply-for-candidate");
