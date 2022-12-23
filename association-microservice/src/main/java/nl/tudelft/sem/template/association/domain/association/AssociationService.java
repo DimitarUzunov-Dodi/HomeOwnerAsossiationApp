@@ -1,13 +1,18 @@
 package nl.tudelft.sem.template.association.domain.association;
 
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
-import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
+import nl.tudelft.sem.template.association.models.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AssociationService {
@@ -28,11 +33,15 @@ public class AssociationService {
                                     int councilNumber) {
         Association association = new Association(name, country, city, description, councilNumber);
         int associationId = associationRepository.save(association).getId();
+
+        String electionString = createElection(associationId);
+
         return "Association was created:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
                 + "Name: " + name + System.lineSeparator() + "Country: " + country + System.lineSeparator() + "City: "
                 + city + System.lineSeparator() + "Description: " + description + System.lineSeparator()
-                + "Max council members: " + councilNumber;
+                + "Max council members: " + councilNumber + System.lineSeparator() + electionString;
     }
+
 
     /**
      * Gets the existing association IDs.
@@ -140,7 +149,6 @@ public class AssociationService {
         }
 
         Association association = optionalAssociation.get();
-
         if (council.size() > association.getCouncilNumber()) {
             throw new IllegalArgumentException("Council is bigger than allowed");
         }
@@ -369,6 +377,59 @@ public class AssociationService {
         }
     }
 
+
+    /**
+     * Creates the first election after association creation, and after each election.
+     *
+     * @return a message confirming the creation.
+     */
+    public String createElection(int associationId) {
+        final String url = "http://localhost:8083/election/create-election";
+
+        AssociationRequestModel model = new AssociationRequestModel();
+        model.setAssociationId(associationId);
+
+        String token = authenticateService("VotingService", "SuperSecretPassword");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + token);
+        HttpEntity<AssociationRequestModel> request = new HttpEntity<>(model, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
+
+            if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+                return "Board election was created and will be held in 1 year.";
+            } else {
+                throw new IllegalArgumentException("Board election was not created.");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Board election was not created.");
+        }
+    }
+
+    /**
+     * Generates the token for server to server communication.
+     *
+     * @param serviceUsername   The username the service is registered with.
+     * @param servicePassword   The password the service is registered with.
+     * @return                  The bearer token generated through the authentication service.
+     */
+    public String authenticateService(String serviceUsername, String servicePassword) {
+        RegistrationRequestModel regModel = new RegistrationRequestModel();
+        regModel.setUserId(serviceUsername);
+        regModel.setPassword(servicePassword);
+        HttpEntity<RegistrationRequestModel> authRequest = new HttpEntity<>(regModel);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<AuthenticationResponseModel> authenticationResponse = restTemplate
+                .postForEntity("http://localhost:8081/authenticate", authRequest, AuthenticationResponseModel.class);
+        return Objects.requireNonNull(authenticationResponse.getBody()).getToken();
+    }
+
     /**
      * Returns whether the proposal does not exist in the existing rules.
      *
@@ -377,9 +438,6 @@ public class AssociationService {
      * @return              True if the proposal is unique, otherwise false
      */
     public boolean verifyProposal(Integer associationId, String proposal) {
-        // This method should be called in the propose rule by checking if this method returns true
-        // which means it is unique. This method should be called in the amend rule by checking if this method
-        // returns FALSE for THE ORIGINAL rule AND TRUE for the amendment.
         return associationRepository.findById(associationId).orElse(null)
                 .getRules().stream().noneMatch(x -> x.equals(proposal));
     }

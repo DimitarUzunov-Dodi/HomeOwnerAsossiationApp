@@ -53,11 +53,6 @@ public class VotingController {
     @PostMapping("/election/create-election")
     public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request)
             throws ResponseStatusException {
-        //We could add the part where we check if it has been 1 year since the last election
-        // or just check if another election is ongoing
-
-        //Check for correct associationId will happen in Association before calling this
-
         try {
             int associationId = request.getAssociationId();
             return ResponseEntity.ok(votingService
@@ -189,7 +184,8 @@ public class VotingController {
         try {
             validateAuthentication(request.getUserId());
             return ResponseEntity.ok(votingService
-                    .castRuleVote(request.getRuleVoteId(), request.getUserId(), request.getVote()));
+                    .castRuleVote(request.getRuleVoteId(), request.getUserId(), request.getVote(),
+                            request.getAssociationId()));
         } catch (ResponseStatusException r) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {

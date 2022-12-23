@@ -7,4 +7,5 @@ public class RuleVoteRequestModel {
     private Long ruleVoteId;
     private String userId;
     private String vote;
+    private int associationId;
 }

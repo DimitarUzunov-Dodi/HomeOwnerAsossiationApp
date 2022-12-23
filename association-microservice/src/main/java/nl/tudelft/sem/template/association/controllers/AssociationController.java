@@ -14,16 +14,11 @@ import nl.tudelft.sem.template.association.domain.membership.MembershipService;
 import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
 import nl.tudelft.sem.template.association.domain.report.ReportInconsistentException;
 import nl.tudelft.sem.template.association.domain.report.ReportService;
-import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -32,7 +27,6 @@ public class AssociationController {
     private final transient AuthManager authManager;
     private final transient AssociationService associationService;
     private final transient AssociationRepository associationRepository;
-    private final transient UserService userService;
     private final transient ReportService reportService;
     private final transient HistoryService historyService;
     private final transient MembershipService membershipService;
@@ -42,20 +36,18 @@ public class AssociationController {
      *
      * @param authManager        Spring Security component used to authenticate and authorize the user
      * @param associationService The association service
-     * @param userService        user service
      * @param reportService      report service
      * @param historyService     The history service.
      * @param membershipService  The membership service.
      */
     @Autowired
     public AssociationController(AuthManager authManager, AssociationService associationService,
-                                 AssociationRepository associationRepository, UserService userService,
+                                 AssociationRepository associationRepository,
                                  ReportService reportService, HistoryService historyService,
                                  MembershipService membershipService) {
         this.authManager = authManager;
         this.associationService = associationService;
         this.associationRepository = associationRepository;
-        this.userService = userService;
         this.reportService = reportService;
         this.historyService = historyService;
         this.membershipService = membershipService;
@@ -183,7 +175,8 @@ public class AssociationController {
      */
     @PostMapping("/verify-candidate")
     public ResponseEntity<String> verifyCandidate(@RequestBody UserAssociationRequestModel request) {
-        boolean isEligibleCandidate = associationService.verifyCandidate(request.getUserId(), request.getAssociationId());
+        boolean isEligibleCandidate = associationService.verifyCandidate(request.getUserId(),
+                request.getAssociationId());
 
         if (isEligibleCandidate) {
             return ResponseEntity.ok("User can apply for a candidate!");
@@ -256,8 +249,6 @@ public class AssociationController {
      */
     @PostMapping("/update-rules")
     public ResponseEntity<String> updateRules(@RequestBody RuleVoteResultRequestModel request) {
-        associationService.processRuleVote(request);
-
         try {
             Event event = new Event(request.getResult(), request.getDate());
             historyService.addEvent(request.getAssociationId(), event);
@@ -274,6 +265,8 @@ public class AssociationController {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
         }
+
+        associationService.processRuleVote(request);
 
         return ResponseEntity.ok("Rules updated" + notificationRes + "!");
     }
@@ -329,5 +322,21 @@ public class AssociationController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    /**
+     * Returns true if the user is eligible board candidate.
+     *
+     * @return   A response message with the boolean.
+     */
+    @PostMapping("/verify-proposal")
+    public ResponseEntity<Boolean> verifyProposal(@RequestBody AssociationProposalRequestModel request) {
+        try {
+            return ResponseEntity.ok(associationService.verifyProposal(request.getAssociationId(),
+                    request.getProposal()));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
 
 }
