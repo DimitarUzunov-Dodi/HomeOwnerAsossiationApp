@@ -226,7 +226,6 @@ public class AssociationService {
      */
     public void processElection(ElectionResultRequestModel model) {
         Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
-
         if (optionalAssociation.isPresent()) {
             Association association = optionalAssociation.get();
 
@@ -240,12 +239,10 @@ public class AssociationService {
 
             int j = 0;
 
-            int maximumTimesInCouncil = 10;
-
             for (int i = 0; i < list.size() && j < association.getCouncilNumber(); i++) {
                 Optional<Membership> optionalMembership =
                         membershipRepository.findByUserIdAndAssociationId(list.get(i).getKey(), association.getId());
-                if (optionalMembership.isPresent() && optionalMembership.get().getTimesCouncil() < maximumTimesInCouncil) {
+                if (optionalMembership.isPresent() && optionalMembership.get().getTimesCouncil() < 10) {
                     Membership membership = optionalMembership.get();
                     membership.setTimesCouncil(membership.getTimesCouncil() + 1);
                     membershipRepository.save(membership);
