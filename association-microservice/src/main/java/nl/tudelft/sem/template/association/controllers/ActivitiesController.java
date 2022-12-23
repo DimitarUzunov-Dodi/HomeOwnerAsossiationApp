@@ -136,7 +136,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.addInterested(activityId, userId);
-                    return ResponseEntity.ok().build();
+                    return ResponseEntity.ok("Interested in activity " + activity.getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of the association to be interested in the event.",
@@ -172,7 +172,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.addParticipating(activityId, userId);
-                    return ResponseEntity.ok().build();
+                    return ResponseEntity.ok("Participating in activity " + activity.getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of the association for participating in the event.",
@@ -207,7 +207,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.removeInterested(activityId, userId);
-                    return ResponseEntity.ok().build();
+                    return ResponseEntity.ok("Not interested in activity " + activity.getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of this association,"
@@ -243,7 +243,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.removeParticipating(activityId, userId);
-                    return ResponseEntity.ok().build();
+                    return ResponseEntity.ok("Not participating in activity " + activity.getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of this association"
