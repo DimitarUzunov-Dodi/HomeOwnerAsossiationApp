@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.*;
+import nl.tudelft.sem.template.voting.models.AssociationProposalRequestModel;
 import nl.tudelft.sem.template.voting.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleVoteResultRequestModel;
+import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.utils.RequestUtil;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
@@ -79,7 +81,8 @@ public class VotingService {
                 model.setStandings(election.tallyVotes());
                 model.setResult(election.getResults());
 
-                String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
+                String token = requestUtil.authenticateService("VotingService",
+                        "SuperSecretPassword");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer "
@@ -93,6 +96,8 @@ public class VotingService {
 
                     if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                         electionRepository.delete(election);
+                        createElection(VotingType.ELECTION, election.getAssociationId(), null, null,
+                                null);
                     }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
@@ -188,6 +193,11 @@ public class VotingService {
         if (optElection.isPresent()) {
             Election election = optElection.get();
 
+            //Checks if candidate is eligible for election
+            if (!verifyCandidate(userId, associationId)) {
+                throw new IllegalArgumentException("Not eligible to be a candidate.");
+            }
+
             //Checks if election end date is further away than 2 days
             Date currentDate = new Date(System.currentTimeMillis());
             Date electionEndDate = election.getEndDate();
@@ -203,6 +213,39 @@ public class VotingService {
         } else {
             throw new IllegalArgumentException("Association with ID "
                     + associationId + " does not have an active election.");
+        }
+    }
+
+    /**
+     * Verify whether the provided user can be a candidate for the board.
+     *
+     * @param userId            The user's id.
+     * @param associationId     The association id.
+     * @return                  True if the user can be a candidate.
+     */
+    public boolean verifyCandidate(String userId, Integer associationId) {
+        final String url = "http://localhost:8084/association/verify-candidate";
+
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+        model.setAssociationId(associationId);
+        model.setUserId(userId);
+
+        String token = requestUtil.authenticateService("VotingService",
+                "SuperSecretPassword");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + token);
+        HttpEntity<UserAssociationRequestModel> request = new HttpEntity<>(model, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Boolean> responseEntity = restTemplate.postForEntity(url, request, Boolean.class);
+
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return responseEntity.getBody();
+        } else {
+            throw new IllegalArgumentException();
         }
     }
 
@@ -255,6 +298,72 @@ public class VotingService {
     }
 
     /**
+     * Checks whether a certain user is part of the association's council.
+     *
+     * @param userId            The user's id.
+     * @param associationId     The association id.
+     * @return                  True if the user is part of the association's council.
+     */
+    public boolean verifyCouncilMember(String userId, Integer associationId) {
+        final String url = "http://localhost:8084/association/verify-council-member";
+
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+        model.setAssociationId(associationId);
+        model.setUserId(userId);
+
+        String token = requestUtil.authenticateService("VotingService",
+                "SuperSecretPassword");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + token);
+        HttpEntity<UserAssociationRequestModel> request = new HttpEntity<>(model, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Boolean> responseEntity = restTemplate.postForEntity(url, request, Boolean.class);
+
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return responseEntity.getBody();
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Returns whether the proposal does not exist in the existing rules.
+     *
+     * @param associationId The association this proposal is for.
+     * @param proposal      The proposal.
+     * @return              True if the proposal is unique, otherwise false
+     */
+    public boolean verifyProposal(Integer associationId, String proposal) {
+        final String url = "http://localhost:8084/association/verify-proposal";
+
+        AssociationProposalRequestModel model = new AssociationProposalRequestModel();
+        model.setAssociationId(associationId);
+        model.setProposal(proposal);
+
+        String token = requestUtil.authenticateService("VotingService",
+                "SuperSecretPassword");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + token);
+        HttpEntity<AssociationProposalRequestModel> request = new HttpEntity<>(model, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Boolean> responseEntity = restTemplate.postForEntity(url, request, Boolean.class);
+
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return responseEntity.getBody();
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
      * Creates a new rule vote for the proposed rule.
      *
      * @param type          The type of voting object to be created by the factory.
@@ -274,6 +383,16 @@ public class VotingService {
                     + this.maxRuleLength + " characters.");
         } else if (ruleVotingRepository.existsByAssociationIdAndRuleAndType(associationId, rule, type)) {
             throw new InvalidRuleException("The rule is already under evaluation.");
+        }
+
+        //Checks if user is member of council
+        if (!verifyCouncilMember(userId, associationId)) {
+            throw new IllegalArgumentException("Not a member of the council.");
+        }
+
+        //Checks if the proposal is unique
+        if (!verifyProposal(associationId, rule)) {
+            throw new IllegalArgumentException("This rule already exists.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
@@ -305,6 +424,11 @@ public class VotingService {
             throw new InvalidRuleException("The rule is already under evaluation.");
         } else if (ruleVotingRepository.existsByAssociationIdAndAmendment(associationId, amendment)) {
             throw new InvalidRuleException("The amendment already exists in another vote.");
+        }
+
+        //Checks if user is member of council
+        if (!verifyCouncilMember(userId, associationId)) {
+            throw new IllegalArgumentException("Not a member of the council.");
         }
 
         Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
@@ -370,12 +494,17 @@ public class VotingService {
      * @return                      A message confirming what the user voted.
      * @throws InvalidIdException   Thrown when the rule vote id is invalid.
      */
-    public String castRuleVote(Long ruleVoteId, String userId, String vote) throws InvalidIdException {
+    public String castRuleVote(Long ruleVoteId, String userId, String vote, int associationId) throws InvalidIdException {
         List<String> validVotes = List.of("for", "against", "abstain");
         if (vote == null || !(validVotes.contains(vote))) {
             throw new IllegalArgumentException("The vote is not valid, please pick from: for/against/abstain.");
         } else if (ruleVoteId == null) {
             throw new InvalidIdException("The rule vote id is null.");
+        }
+
+        //Checks if user is member of council
+        if (!verifyCouncilMember(userId, associationId)) {
+            throw new IllegalArgumentException("Not a member of the council.");
         }
 
         Optional<RuleVoting> optionalRuleVoting = ruleVotingRepository.findById(ruleVoteId);
@@ -432,6 +561,12 @@ public class VotingService {
         if (associationId == null) {
             throw new InvalidIdException("The association ID is null.");
         }
+
+        //Checks if user is member of council
+        if (!verifyCouncilMember(userId, associationId)) {
+            throw new IllegalArgumentException("Not a member of the council.");
+        }
+
         List<RuleVoting> pendingVotes = ruleVotingRepository.findAllByAssociationId(associationId);
 
         if (pendingVotes.isEmpty()) {

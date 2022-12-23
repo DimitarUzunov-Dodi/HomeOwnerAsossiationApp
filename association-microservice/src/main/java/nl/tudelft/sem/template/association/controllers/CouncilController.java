@@ -3,7 +3,6 @@ package nl.tudelft.sem.template.association.controllers;
 import java.util.Set;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
-import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.GetCouncilRequestModel;
 import nl.tudelft.sem.template.association.models.IsInCouncilRequestModel;
 import nl.tudelft.sem.template.association.models.UpdateCouncilRequestModel;
@@ -20,20 +19,16 @@ public class CouncilController {
 
     private final transient AssociationService associationService;
 
-    private final transient UserService userService;
-
     /**
      * Instantiates a new controller.
      *
      * @param authManager        Spring Security component used to authenticate and authorize the user
      * @param associationService association service
-     * @param userService user service
      */
     @Autowired
-    public CouncilController(AuthManager authManager, AssociationService associationService, UserService userService) {
+    public CouncilController(AuthManager authManager, AssociationService associationService) {
         this.authManager = authManager;
         this.associationService = associationService;
-        this.userService = userService;
     }
 
     @PostMapping("/get-council")
