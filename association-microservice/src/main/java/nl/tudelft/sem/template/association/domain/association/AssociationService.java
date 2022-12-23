@@ -212,9 +212,17 @@ public class AssociationService {
 
         if (optionalAssociation.isPresent() && model.isPassed()) {
             Association association = optionalAssociation.get();
-            List<String> rules = association.getRules();
 
-            if (model.isAmendment()) {
+            List<String> rulesCopy = association.getRules();
+            List<String> rules = new ArrayList<>();
+
+            for (String str : rulesCopy) {
+                if (!str.isEmpty()) {
+                    rules.add(str);
+                }
+            }
+
+            if (model.isAnAmendment()) {
                 int index = rules.indexOf(model.getRule());
                 rules.set(index, model.getAmendment());
             } else {
@@ -222,7 +230,11 @@ public class AssociationService {
             }
 
             association.setRules(rules);
+
             associationRepository.save(association);
+        }
+        else{
+            System.out.println("Association doesn't exist or model is not passed");
         }
     }
 

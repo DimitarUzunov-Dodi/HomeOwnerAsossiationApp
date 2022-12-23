@@ -17,6 +17,7 @@ import nl.tudelft.sem.template.association.domain.history.History;
 import nl.tudelft.sem.template.association.domain.history.HistoryRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
+import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import nl.tudelft.sem.template.association.models.UserAssociationRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -179,7 +180,7 @@ public class AssociationIntegrationTest {
         ElectionResultRequestModel model = new ElectionResultRequestModel();
 
         model.setStandings(hm);
-        model.setResult("-");
+        model.setResult("---");
         model.setDate(new Date());
         model.setAssociationId(association.getId());
 
@@ -198,6 +199,38 @@ public class AssociationIntegrationTest {
         Association testAssociation = optionalTestAssociation.get();
 
         assertThat(testAssociation.getCouncilUserIds()).containsExactlyInAnyOrder("f", "e", "d");
+    }
+
+    @Test
+    public void addRulePassTest() throws Exception {
+        RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
+
+        model.setPassed(true);
+        model.setRule("Epic rule. HAH!");
+        model.setResult("Epic rule passedddd");
+        model.setType("");
+        model.setAmendment("");
+        model.setAnAmendment(false);
+        model.setDate(new Date());
+        model.setAssociationId(association.getId());
+
+        ResultActions result = mockMvc.perform(post("/association/update-rules")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertThat(response).isEqualTo("Rules updated!");
+
+        mockAssociationRepository.save(association);
+
+        Optional<Association> optionalTestAssociation = mockAssociationRepository.findById(association.getId());
+
+        Association testAssociation = optionalTestAssociation.get();
+
+        assertThat(testAssociation.getRules()).contains("Epic rule. HAH!");
     }
 
 }

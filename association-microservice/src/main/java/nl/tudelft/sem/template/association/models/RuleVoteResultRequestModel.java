@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class RuleVoteResultRequestModel {
     private boolean passed;
-    private boolean isAmendment;
+    private boolean isAnAmendment;
     private Integer associationId;
     private String type;
     private String rule;
