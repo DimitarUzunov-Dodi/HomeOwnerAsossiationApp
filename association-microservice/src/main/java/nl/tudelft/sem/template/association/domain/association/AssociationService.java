@@ -168,6 +168,27 @@ public class AssociationService {
     }
 
     /**
+     * returns true if the member is part of the association, otherwise false.
+     *
+     * @param userId the userid to check
+     * @param associationId the association to check
+     * @return if the user is part of that association
+     */
+    public boolean isMember(String userId, Integer associationId) {
+        if (userId == null || associationId == null) {
+            return false;
+        }
+
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+
+        if (optionalAssociation.isPresent()) {
+            return optionalAssociation.get().getMemberUserIds().contains(userId);
+        }
+
+        return false;
+    }
+
+    /**
      * Verify whether the provided user can be a candidate for the board.
      *
      * @param userId            The user's id.
