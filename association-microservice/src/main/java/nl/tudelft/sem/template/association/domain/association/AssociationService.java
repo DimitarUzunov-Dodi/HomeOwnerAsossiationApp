@@ -214,7 +214,7 @@ public class AssociationService {
             Association association = optionalAssociation.get();
             List<String> rules = association.getRules();
 
-            if (model.isAmendment()) {
+            if (model.isProposal()) {
                 int index = rules.indexOf(model.getRule());
                 rules.set(index, model.getAmendment());
             } else {

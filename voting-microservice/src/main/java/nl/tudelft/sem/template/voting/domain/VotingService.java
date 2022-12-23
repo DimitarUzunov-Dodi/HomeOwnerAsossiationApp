@@ -198,7 +198,7 @@ public class VotingService {
                 model.setPassed(ruleVoting.passedMotion());
                 model.setResult(ruleVoting.getResults());
                 model.setAssociationId(ruleVoting.getAssociationId());
-                model.setAmendment(ruleVoting.getType() == VotingType.AMENDMENT);
+                model.setProposal(ruleVoting.getType() == VotingType.AMENDMENT);
 
                 String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
 

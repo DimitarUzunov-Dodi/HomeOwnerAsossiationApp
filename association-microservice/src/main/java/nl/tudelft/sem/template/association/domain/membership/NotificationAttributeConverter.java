@@ -32,7 +32,7 @@ public class NotificationAttributeConverter implements AttributeConverter<List<N
         if (dbData == null) {
             return res;
         }
-        String[] strings = dbData.substring(1, dbData.length() - 1).split(", ");
+        String[] strings = dbData.substring(0, dbData.length()).split(", ");
 
         for (String str : strings) {
             res.add(convertStringToNotification(str));
@@ -59,7 +59,7 @@ public class NotificationAttributeConverter implements AttributeConverter<List<N
             Date date = sdf.parse(strings[0]);
 
             Notification notification = new Notification(description, date);
-            boolean read = Boolean.parseBoolean(strings[3]);
+            boolean read = Boolean.parseBoolean(strings[2]);
             notification.setRead(read);
 
             return notification;

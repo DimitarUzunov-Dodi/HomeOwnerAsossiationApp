@@ -100,7 +100,7 @@ public class MembershipService {
      */
     public String createNotificationDescription(RuleVoteResultRequestModel request) {
         String desc;
-        if (request.isAmendment()) {
+        if (request.isProposal()) {
             desc = "The rule: " + request.getRule() + System.lineSeparator()
                     + "was changed into: " + request.getAmendment() + ".";
         } else {
