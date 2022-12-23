@@ -2,10 +2,7 @@ package nl.tudelft.sem.template.association.domain.activity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,58 +17,58 @@ class ActivityTest {
         String description = "This is the description of the event";
         Date startingDate = new Date();
         Date expirationDate = new Date();
-        activity = new Activity(eventName, description, startingDate, expirationDate, 1, 21);
+        activity = new Activity(eventName, description, startingDate, expirationDate, 1, "Jo");
     }
 
     @Test
     void addInterested() {
         assertTrue(activity.getInterestedUserId().isEmpty());
-        activity.addParticipating(2);
-        activity.addInterested(2);
+        activity.addParticipating("Jo");
+        activity.addInterested("Jo");
         assertFalse(activity.getInterestedUserId().isEmpty());
         assertTrue(activity.getParticipatingUserId().isEmpty());
     }
 
     @Test
     void removeInterested() {
-        activity.addInterested(2);
-        activity.removeInterested(2);
+        activity.addInterested("Jo");
+        activity.removeInterested("Jo");
         assertTrue(activity.getInterestedUserId().isEmpty());
-        activity.removeInterested(2);
+        activity.removeInterested("Jo");
         assertTrue(activity.getInterestedUserId().isEmpty());
     }
 
     @Test
     void addGoingTo() {
         assertTrue(activity.getParticipatingUserId().isEmpty());
-        activity.addParticipating(2);
+        activity.addParticipating("Jo");
         assertFalse(activity.getParticipatingUserId().isEmpty());
 
     }
 
     @Test
     void removeGoingTo() {
-        activity.addParticipating(2);
-        activity.removeParticipating(2);
+        activity.addParticipating("Jo");
+        activity.removeParticipating("Jo");
         assertTrue(activity.getInterestedUserId().isEmpty());
 
     }
 
     @Test
     void getGoingToMembersId() {
-        List<Integer> result = new ArrayList<Integer>();
-        result.add(1);
-        assertEquals(activity.getParticipatingUserId(), Collections.emptyList());
-        activity.addParticipating(1);
+        Set<String> result = new HashSet<>();
+        result.add("Bob");
+        assertEquals(activity.getParticipatingUserId(), Collections.emptySet());
+        activity.addParticipating("Bob");
         assertEquals(activity.getParticipatingUserId(), result);
     }
 
     @Test
     void getInterestedMembersId() {
-        List<Integer> result = new ArrayList<Integer>();
-        result.add(1);
-        assertEquals(activity.getInterestedUserId(), Collections.emptyList());
-        activity.addInterested(1);
+        Set<String> result = new HashSet<>();
+        result.add("Bob");
+        assertEquals(activity.getInterestedUserId(), Collections.emptySet());
+        activity.addInterested("Bob");
         assertEquals(activity.getInterestedUserId(), result);
     }
 }
