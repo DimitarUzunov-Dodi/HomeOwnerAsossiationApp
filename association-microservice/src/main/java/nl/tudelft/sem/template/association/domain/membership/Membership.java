@@ -1,8 +1,11 @@
 package nl.tudelft.sem.template.association.domain.membership;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.association.domain.history.Notification;
 
 @Entity
 @Table(name = "memberships")
@@ -40,6 +43,10 @@ public class Membership {
     @Column(name = "leave_date")
     private Date leaveDate;
 
+    @Column(name = "notifications")
+    @Convert(converter = NotificationAttributeConverter.class)
+    private List<Notification> notifications;
+
     /**
      * Constructor for Membership class.
      */
@@ -53,6 +60,7 @@ public class Membership {
         this.houseNumber = houseNumber;
         this.postalCode = postalCode;
         this.joinDate = new Date(System.currentTimeMillis());
+        this.notifications = new ArrayList<>();
     }
 
     /**getter.
@@ -137,5 +145,17 @@ public class Membership {
 
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public void addNotification(Notification n) {
+        this.notifications.add(n);
     }
 }

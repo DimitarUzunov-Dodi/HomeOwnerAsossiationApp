@@ -230,7 +230,6 @@ public class AssociationService {
             }
 
             association.setRules(rules);
-
             associationRepository.save(association);
         }
     }

@@ -3,12 +3,14 @@ package nl.tudelft.sem.template.authentication.authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import nl.tudelft.sem.template.authentication.config.RegisterServices;
 import nl.tudelft.sem.template.authentication.domain.user.*;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.DirtiesContext;
@@ -27,6 +29,8 @@ public class JwtUserDetailsServiceTests {
 
     @Autowired
     private transient UserRepository userRepository;
+    @MockBean
+    private transient RegisterServices registerServices;
 
     @Test
     public void loadUserByUsername_withValidUser_returnsCorrectUser() throws Exception {
