@@ -30,6 +30,21 @@ public class AssociationService {
                 + "Description: " + description + System.lineSeparator() + "Max council members: " + councilNumber;
     }
 
+    /**getter.
+     *
+     * @param associationId the id of the association
+     * @return Association correspondingly
+     */
+    public Association getAssociationById(int associationId) {
+        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        if (optionalAssociation.isPresent()) {
+            return optionalAssociation.get();
+        } else {
+            throw new IllegalArgumentException("Association with ID "
+                    + associationId + " does not exist.");
+        }
+    }
+
     /**
      * User joins an association.
      *
@@ -216,6 +231,21 @@ public class AssociationService {
         //TODO: Check for 10 year board membership
 
         return true;
+    }
+
+    /**
+     * Returns whether the proposal does not exist in the existing rules.
+     *
+     * @param associationId The association this proposal is for.
+     * @param proposal      The proposal.
+     * @return              True if the proposal is unique, otherwise false
+     */
+    public boolean verifyProposal(Integer associationId, String proposal) {
+        // This method should be called in the propose rule by checking if this method returns true
+        // which means it is unique. This method should be called in the amend rule by checking if this method
+        // returns FALSE for THE ORIGINAL rule AND TRUE for the amendment.
+        return associationRepository.findById(associationId).orElse(null)
+                .getRules().stream().noneMatch(x -> x.equals(proposal));
     }
 
 }

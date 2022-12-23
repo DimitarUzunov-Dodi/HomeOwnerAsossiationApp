@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class ProposeRuleVotingIntegrationTest {
     @Autowired
@@ -79,49 +79,6 @@ public class ProposeRuleVotingIntegrationTest {
         
         assertThat(response).isEqualTo("Rule: \"One should not murder the other members!\" "
                 + "has been proposed by: 42." + System.lineSeparator() + "The vote will be held on: " + cal.getTime());
-    }
-
-    @Test
-    public void nullAssociationIdTest() throws Exception {
-        this.userId = "42";
-        this.rule = "One should not murder the other members!";
-        RuleProposalRequestModel model = new RuleProposalRequestModel();
-        model.setUserId(this.userId);
-        model.setAssociationId(null);
-        model.setRule(this.rule);
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/propose-rule")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.serialize(model))
-                .header("Authorization", "Bearer MockedToken"));
-
-        result.andExpect(status().isBadRequest());
-
-        String response = result.andReturn().getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("The associationID is invalid.");
-    }
-
-    @Test
-    public void nullUserIdTest() throws Exception {
-        this.associationId = 11;
-        this.rule = "One should not murder the other members!";
-
-        RuleProposalRequestModel model = new RuleProposalRequestModel();
-        model.setUserId(null);
-        model.setAssociationId(this.associationId);
-        model.setRule(this.rule);
-
-        ResultActions result = mockMvc.perform(post("/rule-voting/propose-rule")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.serialize(model))
-                .header("Authorization", "Bearer MockedToken"));
-
-        result.andExpect(status().isBadRequest());
-
-        String response = result.andReturn().getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("The userID is invalid.");
     }
 
     @Test
@@ -193,4 +150,33 @@ public class ProposeRuleVotingIntegrationTest {
         assertThat(response)
                 .isEqualTo("The rule description exceeds the maximum length of 100 characters.");
     }
+
+    @Test
+    public void ruleAlreadyInAnotherVote() throws Exception {
+        this.associationId = 11;
+        this.userId = "42";
+        this.rule = "One should not murder the other members!";
+        RuleProposalRequestModel model = new RuleProposalRequestModel();
+        model.setUserId(this.userId);
+        model.setAssociationId(this.associationId);
+        model.setRule(this.rule);
+
+        mockMvc.perform(post("/rule-voting/propose-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        ResultActions result = mockMvc.perform(post("/rule-voting/propose-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isBadRequest());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response)
+                .isEqualTo("The rule is already under evaluation.");
+    }
+
 }

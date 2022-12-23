@@ -27,6 +27,6 @@ gradle-app.setting
 *.rar
 
 *.db
-*.mv.db
+**/*.mv.db
 /.idea/
 /.gitignore
