@@ -4,6 +4,7 @@ import java.util.*;
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Repository template of the activities class.
@@ -40,17 +41,19 @@ public class Activity {
 
     @Getter
     @Column(name = "publisher_id", nullable = false)
-    private int publisherId;
+    private String publisherId;
 
     @Getter
+    @Setter
     @Column(name = "participating_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
-    private List<Integer> participatingUserId;
+    private Set<String> participatingUserId;
 
     @Getter
+    @Setter
     @Column(name = "interested_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
-    private List<Integer> interestedUserId;
+    private Set<String> interestedUserId;
 
 
     /** Constructor for the activity class.
@@ -64,61 +67,52 @@ public class Activity {
      *
      */
     public Activity(String eventName, String description, Date startingDate,
-                    Date expirationDate, int associationId, int publisherId) {
+                    Date expirationDate, int associationId, String publisherId) {
         this.eventName = eventName;
         this.description = description;
         this.startingDate = startingDate;
         this.expirationDate = expirationDate;
         this.associationId = associationId;
         this.publisherId = publisherId;
-        this.participatingUserId =  new ArrayList<Integer>();
-        this.interestedUserId = new ArrayList<Integer>();
+        this.participatingUserId =  new HashSet<String>();
+        this.interestedUserId = new HashSet<String>();
     }
 
     /** adds id to the interested list.
      *
      * @param userId id of the interested member
      */
-    public void addInterested(int userId) {
-        if (interestedUserId.contains(userId)) {
-            return;
-        } else {
-            removeParticipating(userId);
-            interestedUserId.add(userId);
-        }
+    public void addInterested(String userId) {
+
+        removeParticipating(userId);
+        interestedUserId.add(userId);
+
     }
 
     /** removes id from the interested list if it exists.
      *
      * @param userId id of the interested member
      */
-    public void removeInterested(int userId) {
-        if (interestedUserId.contains(userId)) {
-            interestedUserId.remove(interestedUserId.indexOf(userId));
-        }
+    public void removeInterested(String userId) {
+        interestedUserId.remove(userId);
     }
 
     /** adds id to the participating list.
      *
      * @param userId id of the goingTo member
      */
-    public void addParticipating(int userId) {
-        if (participatingUserId.contains(userId)) {
-            return;
-        } else {
-            removeInterested(userId);
-            participatingUserId.add(userId);
-        }
+    public void addParticipating(String userId) {
+        removeInterested(userId);
+        participatingUserId.add(userId);
     }
 
     /** removes id from the participating list if it exists.
      *
      * @param userId id of the goingTo member
      */
-    public void removeParticipating(int userId) {
-        if (participatingUserId.contains(userId)) {
-            participatingUserId.remove(participatingUserId.indexOf(userId));
-        }
+    public void removeParticipating(String userId) {
+        participatingUserId.remove(userId);
+
     }
 
 }
