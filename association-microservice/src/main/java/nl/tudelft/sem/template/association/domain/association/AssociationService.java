@@ -233,7 +233,6 @@ public class AssociationService {
      */
     public void processElection(ElectionResultRequestModel model) {
         Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
-
         if (optionalAssociation.isPresent()) {
             Association association = optionalAssociation.get();
 
@@ -245,8 +244,18 @@ public class AssociationService {
 
             Set<String> council = new HashSet<>();
 
-            for (int i = 0; i < list.size() && i < association.getCouncilNumber(); i++) {
-                council.add(list.get(i).getKey());
+            int j = 0;
+
+            for (int i = 0; i < list.size() && j < association.getCouncilNumber(); i++) {
+                Optional<Membership> optionalMembership =
+                        membershipRepository.findByUserIdAndAssociationId(list.get(i).getKey(), association.getId());
+                if (optionalMembership.isPresent() && optionalMembership.get().getTimesCouncil() < 10) {
+                    Membership membership = optionalMembership.get();
+                    membership.setTimesCouncil(membership.getTimesCouncil() + 1);
+                    membershipRepository.save(membership);
+                    j++;
+                    council.add(list.get(i).getKey());
+                }
             }
 
             association.setCouncilUserIds(council);
@@ -356,9 +365,15 @@ public class AssociationService {
             return false;
         }
 
-        //TODO: Check for 10 year board membership
+        int timesCouncil = optionalMembership.get().getTimesCouncil();
 
-        return true;
+        int maximumTimesInCouncil = 10;
+
+        if (timesCouncil > maximumTimesInCouncil) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**

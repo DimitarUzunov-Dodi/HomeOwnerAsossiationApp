@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.util.Pair;
 
 public class RuleVotingGetResultsTest {
-    RuleVoting ruleVoting;
+    private RuleVoting ruleVoting;
 
     /**
      * Set up the tests.
