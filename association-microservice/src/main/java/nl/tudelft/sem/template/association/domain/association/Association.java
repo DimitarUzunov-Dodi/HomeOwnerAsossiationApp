@@ -3,6 +3,8 @@ package nl.tudelft.sem.template.association.domain.association;
 import java.util.*;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.association.domain.location.Location;
+import nl.tudelft.sem.template.association.domain.location.LocationConverter;
 import nl.tudelft.sem.template.association.domain.membership.UserIdsAttributeConverter;
 
 @Entity
@@ -25,17 +27,13 @@ public class Association {
     @Column(name = "name", nullable = false)
     private String name;
 
-    /*
-    country of the association
-     */
-    @Column(name = "country", nullable = false)
-    private String country;
 
     /*
-    city of the association
+    location of the association
      */
-    @Column(name = "city", nullable = false)
-    private String city;
+    @Column(name = "location", nullable = false)
+    @Convert(converter = LocationConverter.class)
+    private Location location;
 
     /*
     creation date of the association
@@ -91,10 +89,9 @@ public class Association {
      * @param description description of association
      * @param councilNumber the maximum council number of the association
      */
-    public Association(String name, String country, String city, String description, int councilNumber) {
+    public Association(String name, Location location, String description, int councilNumber) {
         this.name = name;
-        this.country = country;
-        this.city = city;
+        this.location=location;
         this.description = description;
         this.councilNumber = councilNumber;
         this.creationDate = new Date(System.currentTimeMillis());
@@ -209,20 +206,8 @@ public class Association {
         this.memberUserIds.remove(userId);
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+    public Location getLocation() {
+        return location;
     }
 
     public void setRules(List<String> rules) {

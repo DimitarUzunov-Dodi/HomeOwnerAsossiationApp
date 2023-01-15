@@ -9,6 +9,8 @@ import nl.tudelft.sem.template.association.domain.association.AssociationService
 import nl.tudelft.sem.template.association.domain.history.Event;
 import nl.tudelft.sem.template.association.domain.history.HistoryService;
 import nl.tudelft.sem.template.association.domain.history.Notification;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
 import nl.tudelft.sem.template.association.domain.membership.MembershipService;
 import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
@@ -103,8 +105,8 @@ public class AssociationController {
     @PostMapping("/create-association")
     public ResponseEntity<String> createAssociation(@RequestBody CreateAssociationRequestModel request) {
         try {
-            return ResponseEntity.ok(associationService.createAssociation(request.getName(), request.getCountry(),
-                    request.getCity(), request.getDescription(), request.getCouncilNumber()));
+            Location location = new Location(request.getCountry(), request.getCity());
+            return ResponseEntity.ok(associationService.createAssociation(request.getName(), location, request.getDescription(), request.getCouncilNumber()));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
