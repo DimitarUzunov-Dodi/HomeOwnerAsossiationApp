@@ -91,7 +91,7 @@ public class Association {
      */
     public Association(String name, Location location, String description, int councilNumber) {
         this.name = name;
-        this.location=location;
+        this.location = location;
         this.description = description;
         this.councilNumber = councilNumber;
         this.creationDate = new Date(System.currentTimeMillis());

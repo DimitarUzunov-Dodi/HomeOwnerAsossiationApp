@@ -19,15 +19,19 @@ public class Location {
         this.city = city;
     }
 
-    public Location(Location location){
-        this.country=location.country;
-        this.city=location.city;
+    public Location(Location location) {
+        this.country = location.country;
+        this.city = location.city;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Location location = (Location) o;
         return country.equals(location.country) && city.equals(location.city);
     }

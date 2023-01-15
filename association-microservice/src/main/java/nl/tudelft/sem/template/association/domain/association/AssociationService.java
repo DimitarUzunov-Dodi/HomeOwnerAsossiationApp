@@ -1,9 +1,10 @@
 package nl.tudelft.sem.template.association.domain.association;
 
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.models.*;
@@ -36,9 +37,12 @@ public class AssociationService {
 
         String electionString = createElection(associationId);
 
-        return "Association was created:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
-                + "Name: " + name + System.lineSeparator() + "Country: " + location.getCountry() + System.lineSeparator() + "City: "
-                + location.getCity() + System.lineSeparator() + "Description: " + description + System.lineSeparator()
+        return "Association was created:" + System.lineSeparator()
+                + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + name + System.lineSeparator()
+                + "Country: " + location.getCountry() + System.lineSeparator()
+                + "City: " + location.getCity() + System.lineSeparator()
+                + "Description: " + description + System.lineSeparator()
                 + "Max council members: " + councilNumber + System.lineSeparator() + electionString;
     }
 
@@ -64,8 +68,7 @@ public class AssociationService {
         return "Association information:" + System.lineSeparator()
                 + "ID: " + associationId + System.lineSeparator()
                 + "Name: " + association.getName() + System.lineSeparator()
-                + "Country: " + association.getLocation().getCountry()
-                + System.lineSeparator()
+                + "Country: " + association.getLocation().getCountry() + System.lineSeparator()
                 + "City: " + association.getLocation().getCity() + System.lineSeparator()
                 + "Description: " + association.getDescription() + System.lineSeparator()
                 + "Max council members: " + association.getCouncilNumber();
