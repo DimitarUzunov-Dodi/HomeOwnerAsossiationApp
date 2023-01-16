@@ -89,10 +89,6 @@ public class Membership {
         this.joinDate = joinDate;
     }
 
-    public Date getLeaveDate() {
-        return leaveDate;
-    }
-
     public void leave() {
         this.leaveDate = new Date(System.currentTimeMillis());
     }
@@ -116,8 +112,5 @@ public class Membership {
     public void addNotification(Notification n) {
         this.notifications.add(n);
     }
-
-    public Address getAddress() {
-        return address;
-    }
+    
 }

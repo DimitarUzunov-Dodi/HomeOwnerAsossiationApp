@@ -118,22 +118,6 @@ public class Association {
 
     /**getter.
      *
-     * @return election date
-     */
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    /**setter.
-     *
-     * @param creationDate set new election date
-     */
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    /**getter.
-     *
      * @return description of the association
      */
     public String getDescription() {
@@ -187,15 +171,6 @@ public class Association {
      */
     public Set<String> getMemberUserIds() {
         return memberUserIds;
-    }
-
-    /**
-     * Setter for the council user ids field.
-     *
-     * @param memberUserIds Set of member user ids.
-     */
-    public void setMemberUserIds(Set<String> memberUserIds) {
-        this.memberUserIds = memberUserIds;
     }
 
     public void addMember(String userId) {
