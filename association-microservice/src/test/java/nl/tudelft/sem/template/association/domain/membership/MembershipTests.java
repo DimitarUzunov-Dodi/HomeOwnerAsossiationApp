@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import nl.tudelft.sem.template.association.domain.history.Notification;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,8 +41,10 @@ public class MembershipTests {
      */
     @BeforeEach
     public void setup() {
-        this.membership = new Membership("user", 2, "test", "test", "test", "test", "test");
-        this.membership1 = new Membership("user2", 2, "test", "test", "test", "test", "test");
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+        this.membership = new Membership("user", 2, address);
+        this.membership1 = new Membership("user2", 2, address);
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -5);
@@ -79,7 +83,9 @@ public class MembershipTests {
 
     @Test
     public void displayNoNewNotifications() {
-        Membership membershipNone = new Membership("test", 2, "test", "test", "test", "test", "test");
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+        Membership membershipNone = new Membership("test", 2, address);
         membershipRepository.save(membershipNone);
         assertThat(membershipService
                 .displayNotifications(membershipNone.getUserId(), membershipNone.getAssociationId()))
@@ -106,7 +112,9 @@ public class MembershipTests {
 
     @Test
     public void dismissNoNewNotifications() {
-        Membership membershipNone = new Membership("test", 2, "test", "test", "test", "test", "test");
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+        Membership membershipNone = new Membership("test", 2, address);
         membershipRepository.save(membershipNone);
         assertThat(membershipService
                 .dismissNotifications(membershipNone.getUserId(), membershipNone.getAssociationId()))

@@ -19,6 +19,18 @@ public class Address extends Location {
         this.postalCode = postalCode;
     }
 
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public void setHouseNumber(String houseNumber) {
+        this.houseNumber = houseNumber;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
     public String getStreet() {
         return street;
     }
@@ -29,5 +41,9 @@ public class Address extends Location {
 
     public String getPostalCode() {
         return postalCode;
+    }
+
+    public Location getLocation() {
+        return new Location(super.getCountry(), super.getCity());
     }
 }

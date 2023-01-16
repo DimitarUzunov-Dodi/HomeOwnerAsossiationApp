@@ -94,8 +94,7 @@ public class AssociationService {
      *
      * @return a message confirming the join.
      */
-    public String joinAssociation(String userId, int associationId, String country, String city, String street,
-                                  String houseNumber, String postalCode) {
+    public String joinAssociation(String userId, int associationId, Address address) {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isEmpty()) {
             throw new IllegalArgumentException("Association with ID " + associationId + " does not exist.");
@@ -103,12 +102,12 @@ public class AssociationService {
         Association association = optionalAssociation.get();
 
         //Check if user has an address in the right city and country
-        if (!association.getCity().equals(city) || !association.getCountry().equals(country)) {
+        if (!address.getLocation().equals(association.getLocation())) {
             throw new IllegalArgumentException("You don't live in the right city or country to join this association.");
         }
 
         association.addMember(userId);
-        Membership membership = new Membership(userId, associationId, country, city, street, houseNumber, postalCode);
+        Membership membership = new Membership(userId, associationId, address);
         associationRepository.save(association);
         membershipRepository.save(membership);
 

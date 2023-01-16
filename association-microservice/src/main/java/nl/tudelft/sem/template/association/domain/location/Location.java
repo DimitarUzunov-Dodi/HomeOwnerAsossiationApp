@@ -1,8 +1,10 @@
 package nl.tudelft.sem.template.association.domain.location;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 public class Location {
+
     private String country;
     private String city;
 
@@ -17,6 +19,11 @@ public class Location {
     public Location(String country, String city) {
         this.country = country;
         this.city = city;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(country, city);
     }
 
     public Location(Location location) {
@@ -36,4 +43,11 @@ public class Location {
         return country.equals(location.country) && city.equals(location.city);
     }
 
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
 }
