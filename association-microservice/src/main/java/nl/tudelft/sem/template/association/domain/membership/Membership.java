@@ -6,6 +6,8 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.association.domain.history.Notification;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.AddressConverter;
 
 @Entity
 @Table(name = "memberships")
@@ -22,20 +24,9 @@ public class Membership {
     @Column(name = "association_id", nullable = false)
     private int associationId;
 
-    @Column(name = "country", nullable = false)
-    private String country;
-
-    @Column(name = "city", nullable = false)
-    private String city;
-
-    @Column(name = "street", nullable = false)
-    private String street;
-
-    @Column(name = "house_number", nullable = false)
-    private String houseNumber;
-
-    @Column(name = "postal_code", nullable = false)
-    private String postalCode;
+    @Column(name = "address", nullable = false)
+    @Convert(converter = AddressConverter.class)
+    private Address address;
 
     @Column(name = "join_date", nullable = false)
     private Date joinDate;
@@ -53,15 +44,10 @@ public class Membership {
     /**
      * Constructor for Membership class.
      */
-    public Membership(String userId, int associationId, String country, String city, String street,
-                      String houseNumber, String postalCode) {
+    public Membership(String userId, int associationId, Address address) {
         this.userId = userId;
         this.associationId = associationId;
-        this.country = country;
-        this.city = city;
-        this.street = street;
-        this.houseNumber = houseNumber;
-        this.postalCode = postalCode;
+        this.address = address;
         this.joinDate = new Date(System.currentTimeMillis());
         this.notifications = new ArrayList<>();
         this.timesCouncil = 0;
@@ -111,46 +97,6 @@ public class Membership {
         this.leaveDate = new Date(System.currentTimeMillis());
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getHouseNumber() {
-        return houseNumber;
-    }
-
-    public void setHouseNumber(String houseNumber) {
-        this.houseNumber = houseNumber;
-    }
-
-    public String getPostalCode() {
-        return postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
-
     public int getTimesCouncil() {
         return this.timesCouncil;
     }
@@ -169,5 +115,9 @@ public class Membership {
 
     public void addNotification(Notification n) {
         this.notifications.add(n);
+    }
+
+    public Address getAddress() {
+        return address;
     }
 }
