@@ -279,7 +279,10 @@ public class VotingService {
         }
     }
 
-    public void votingDaysCheck(Election election){
+    /**
+     * Checks if election end date is closer than 2 days, or if the election has ended.
+     */
+    public void votingDaysCheck(Election election) {
         //Checks if election end date is closer than 2 days
         Date currentDate = new Date(System.currentTimeMillis());
         Date electionEndDate = election.getEndDate();
@@ -294,14 +297,20 @@ public class VotingService {
         }
     }
 
-    public void candidateExistsCheck(Election election, String candidateId){
+    /**
+     * Checks if the candidate exists.
+     */
+    public void candidateExistsCheck(Election election, String candidateId) {
         if (!election.getCandidateIds().contains(candidateId)) {
             throw new IllegalArgumentException("Candidate with ID "
                     + candidateId + " does not exist.");
         }
     }
 
-    public void saveElectionVote(Election election, String voterId, String candidateId){
+    /**
+     * Saves the vote, and removes the previous vote if necessary.
+     */
+    public void saveElectionVote(Election election, String voterId, String candidateId) {
         //If the voter already voted, remove previous vote
         for (Pair vote : election.getVotes()) {
             if (vote.getFirst().equals(voterId)) {
