@@ -106,7 +106,8 @@ public class AssociationController {
     public ResponseEntity<String> createAssociation(@RequestBody CreateAssociationRequestModel request) {
         try {
             Location location = new Location(request.getCountry(), request.getCity());
-            return ResponseEntity.ok(associationService.createAssociation(request.getName(), location, request.getDescription(), request.getCouncilNumber()));
+            return ResponseEntity.ok(associationService.createAssociation(request.getName(), location,
+                    request.getDescription(), request.getCouncilNumber()));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -122,9 +123,10 @@ public class AssociationController {
     public ResponseEntity<String> joinAssociation(@RequestBody JoinAssociationRequestModel request) {
         try {
             validateAuthentication(request.getUserId());
+            Location location = new Location(request.getCountry(), request.getCity());
+            Address address = new Address(location, request.getCity(), request.getStreet(), request.getHouseNumber());
             return ResponseEntity.ok(associationService.joinAssociation(request.getUserId(), request.getAssociationId(),
-                    request.getCountry(), request.getCity(), request.getStreet(),
-                    request.getHouseNumber(), request.getPostalCode()));
+                    address));
         } catch (ResponseStatusException r) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
