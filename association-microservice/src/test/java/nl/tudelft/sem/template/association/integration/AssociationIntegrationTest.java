@@ -264,16 +264,23 @@ public class AssociationIntegrationTest {
         this.association.setCouncilNumber(3);
         mockAssociationRepository.save(association);
 
+        Date date = new Date(0);
+
         Membership member = new Membership("a", association.getId(), "test", "test", "test", "test", "test");
+        member.setJoinDate(date);
         membershipRepository.save(member);
         member = new Membership("b", association.getId(), "test", "test", "test", "test", "test");
+        member.setJoinDate(date);
         membershipRepository.save(member);
         member = new Membership("c", association.getId(), "test", "test", "test", "test", "test");
+        member.setJoinDate(date);
         member.setTimesCouncil(10);
         membershipRepository.save(member);
         member = new Membership("d", association.getId(), "test", "test", "test", "test", "test");
+        member.setJoinDate(date);
         membershipRepository.save(member);
         member = new Membership("f", association.getId(), "test", "test", "test", "test", "test");
+        member.setJoinDate(date);
         membershipRepository.save(member);
 
 
