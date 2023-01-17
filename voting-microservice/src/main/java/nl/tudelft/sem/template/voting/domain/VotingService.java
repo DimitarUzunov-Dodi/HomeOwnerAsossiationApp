@@ -187,57 +187,6 @@ public class VotingService {
     }
 
     /**
-     * Checks whether a certain user is part of the association's council.
-     *
-     * @param userId            The user's id.
-     * @param associationId     The association id.
-     * @return                  True if the user is part of the association's council.
-     */
-    public void votingDaysCheck(Election election) {
-        //Checks if election end date is closer than 2 days
-        Date currentDate = new Date(System.currentTimeMillis());
-        Date electionEndDate = election.getEndDate();
-        Long candidateDeadline = 2L;
-        if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) >= candidateDeadline) {
-            throw new IllegalArgumentException("Too early to cast a vote.");
-        }
-
-        //Checks if election has ended
-        if (currentDate.compareTo(electionEndDate) > 0) {
-            throw new IllegalArgumentException("The election has ended.");
-        }
-    }
-
-    /**
-     * Checks if the candidate exists.
-     */
-    public void candidateExistsCheck(Election election, String candidateId) {
-        if (!election.getCandidateIds().contains(candidateId)) {
-            throw new IllegalArgumentException("Candidate with ID "
-                    + candidateId + " does not exist.");
-        }
-    }
-
-    /**
-     * Saves the vote, and removes the previous vote if necessary.
-     */
-    public void saveElectionVote(Election election, String voterId, String candidateId) {
-        //If the voter already voted, remove previous vote
-        for (Pair vote : election.getVotes()) {
-            if (vote.getFirst().equals(voterId)) {
-                election.getVotes().remove(vote);
-                break;
-            }
-        }
-
-        Pair<String, String> vote = Pair.of(voterId, candidateId);
-        election.addVote(vote);
-        electionRepository.save(election);
-    }
-
-
-
-    /**
      * Creates a new rule vote for the proposed rule.
      *
      * @param type          The type of voting object to be created by the factory.
