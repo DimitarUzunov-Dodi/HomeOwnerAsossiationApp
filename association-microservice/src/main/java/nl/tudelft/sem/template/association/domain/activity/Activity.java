@@ -4,7 +4,6 @@ import java.util.*;
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Repository template of the activities class.
@@ -19,8 +18,8 @@ public class Activity {
     private int activityId;
 
     @Getter
-    @Column(name = "event_Details", nullable = false)
-    private EventDetails eventDetails;
+    @Column(name = "activity_Details", nullable = false)
+    private ActivityDetails activityDetails;
 
     @Getter
     @Column(name = "association_id", nullable = false)
@@ -53,7 +52,7 @@ public class Activity {
      */
     public Activity(String eventName, String description, Date startingDate,
                     Date expirationDate, int associationId, String publisherId) {
-        this.eventDetails = new EventDetails(eventName, description, startingDate, expirationDate);
+        this.activityDetails = new ActivityDetails(eventName, description, startingDate, expirationDate);
         this.associationId = associationId;
         this.publisherId = publisherId;
         this.participatingUserId =  new HashSet<String>();

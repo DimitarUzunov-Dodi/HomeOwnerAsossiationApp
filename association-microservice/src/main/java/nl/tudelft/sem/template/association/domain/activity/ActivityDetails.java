@@ -3,14 +3,14 @@ package nl.tudelft.sem.template.association.domain.activity;
 import java.util.Date;
 import lombok.Getter;
 
-public class EventDetails {
+public class ActivityDetails {
 
     @Getter
-    transient private String eventName;
-    transient private String description;
-    transient private Date startingDate;
+    private transient String eventName;
+    private transient String description;
+    private transient Date startingDate;
     @Getter
-    transient private Date expirationDate;
+    private transient Date expirationDate;
 
 
     /** Constructor for the Event Data.
@@ -20,12 +20,15 @@ public class EventDetails {
      * @param startingDate starting date of the event
      * @param expirationDate ending time of the event
      */
-    public EventDetails(String eventName, String description, Date startingDate, Date expirationDate) {
+    public ActivityDetails(String eventName, String description, Date startingDate, Date expirationDate) {
         this.eventName = eventName;
         this.description = description;
         this.startingDate = startingDate;
         this.expirationDate = expirationDate;
     }
 
-
+    @Override
+    public String toString() {
+        return  eventName + ", " + description + ", " + startingDate + ", " + expirationDate;
+    }
 }
