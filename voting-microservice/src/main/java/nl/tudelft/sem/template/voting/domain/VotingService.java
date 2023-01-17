@@ -125,36 +125,14 @@ public class VotingService {
         if (optElection.isPresent()) {
             Election election = optElection.get();
 
-            //Checks if election end date is closer than 2 days
-            Date currentDate = new Date(System.currentTimeMillis());
-            Date electionEndDate = election.getEndDate();
-            Long candidateDeadline = 2L;
-            if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) >= candidateDeadline) {
-                throw new IllegalArgumentException("Too early to cast a vote.");
-            }
-
-            //Checks if election has ended
-            if (currentDate.compareTo(electionEndDate) > 0) {
-                throw new IllegalArgumentException("The election has ended.");
-            }
+            //Checks if election end date is closer than 2 days, or if the election has ended
+            votingDaysCheck(election);
 
             //Checks if the candidate exists
-            if (!election.getCandidateIds().contains(candidateId)) {
-                throw new IllegalArgumentException("Candidate with ID "
-                        + candidateId + " does not exist.");
-            }
+            candidateExistsCheck(election, candidateId);
 
-            //If the voter already voted, remove previous vote
-            for (Pair vote : election.getVotes()) {
-                if (vote.getFirst().equals(voterId)) {
-                    election.getVotes().remove(vote);
-                    break;
-                }
-            }
+            saveElectionVote(election, voterId, candidateId);
 
-            Pair<String, String> vote = Pair.of(voterId, candidateId);
-            election.addVote(vote);
-            electionRepository.save(election);
             return "The voter with ID " + voterId + " voted for the candidate with ID " + candidateId + ".";
 
         } else {
@@ -165,6 +143,55 @@ public class VotingService {
 
     /**
      * Checks if election end date is closer than 2 days, or if the election has ended.
+     */
+    private void votingDaysCheck(Election election) {
+        //Checks if election end date is closer than 2 days
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date electionEndDate = election.getEndDate();
+        Long candidateDeadline = 2L;
+        if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) >= candidateDeadline) {
+            throw new IllegalArgumentException("Too early to cast a vote.");
+        }
+
+        //Checks if election has ended
+        if (currentDate.compareTo(electionEndDate) > 0) {
+            throw new IllegalArgumentException("The election has ended.");
+        }
+    }
+
+    /**
+     * Checks if the candidate exists.
+     */
+    private void candidateExistsCheck(Election election, String candidateId) {
+        if (!election.getCandidateIds().contains(candidateId)) {
+            throw new IllegalArgumentException("Candidate with ID "
+                    + candidateId + " does not exist.");
+        }
+    }
+
+    /**
+     * Saves the vote, and removes the previous vote if necessary.
+     */
+    private void saveElectionVote(Election election, String voterId, String candidateId) {
+        //If the voter already voted, remove previous vote
+        for (Pair vote : election.getVotes()) {
+            if (vote.getFirst().equals(voterId)) {
+                election.getVotes().remove(vote);
+                break;
+            }
+        }
+
+        Pair<String, String> vote = Pair.of(voterId, candidateId);
+        election.addVote(vote);
+        electionRepository.save(election);
+    }
+
+    /**
+     * Checks whether a certain user is part of the association's council.
+     *
+     * @param userId            The user's id.
+     * @param associationId     The association id.
+     * @return                  True if the user is part of the association's council.
      */
     public void votingDaysCheck(Election election) {
         //Checks if election end date is closer than 2 days

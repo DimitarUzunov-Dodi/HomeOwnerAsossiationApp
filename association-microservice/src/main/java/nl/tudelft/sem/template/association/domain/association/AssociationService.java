@@ -195,11 +195,7 @@ public class AssociationService {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isPresent()) {
             Set<String> councilMembers = optionalAssociation.get().getCouncilUserIds();
-            for (String s : councilMembers) {
-                if (s.equals(userId)) {
-                    return true;
-                }
-            }
+            return councilMembers.contains(userId);
         }
         return false;
     }
@@ -216,13 +212,10 @@ public class AssociationService {
             return false;
         }
 
-        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
 
-        if (optionalAssociation.isPresent()) {
-            return optionalAssociation.get().getMemberUserIds().contains(userId);
-        }
-
-        return false;
+        return optionalMembership.isPresent();
     }
 
     /**
@@ -236,26 +229,21 @@ public class AssociationService {
         Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
         if (optionalAssociation.isPresent()) {
             Association association = optionalAssociation.get();
-
-            HashMap hm = model.getStandings();
-
+            HashMap<String, Integer> hm = model.getStandings();
             List<Map.Entry<String, Integer>> list = new LinkedList<>(hm.entrySet());
-
             Collections.sort(list, (e1, e2) -> -(e1.getValue().compareTo(e2.getValue())));
-
             Set<String> council = new HashSet<>();
 
-            int j = 0;
+            int j = 0; //NOPMD
 
-            for (int i = 0; i < list.size() && j < association.getCouncilNumber(); i++) {
-                Optional<Membership> optionalMembership =
-                        membershipRepository.findByUserIdAndAssociationId(list.get(i).getKey(), association.getId());
-                if (optionalMembership.isPresent() && optionalMembership.get().getTimesCouncil() < 10) {
-                    Membership membership = optionalMembership.get();
+            for (Map.Entry<String, Integer> pair : list) {
+                if (j < association.getCouncilNumber() && verifyCandidate(pair.getKey(), model.getAssociationId())) {
+                    Membership membership =
+                            membershipRepository.findByUserIdAndAssociationId(pair.getKey(), association.getId()).get();
                     membership.setTimesCouncil(membership.getTimesCouncil() + 1);
                     membershipRepository.save(membership);
-                    j++;
-                    council.add(list.get(i).getKey());
+                    council.add(pair.getKey());
+                    j++; //NOPMD
                 }
             }
 
@@ -327,6 +315,21 @@ public class AssociationService {
     }
 
     /**
+     * Verify whether the join date has been at least 3 years ago.
+     *
+     * @param joinDate          The join date.
+     * @return                  True if the join date has been 3+ years ago.
+     */
+    public boolean verifyJoinDate(Date joinDate) {
+        int candidateYearLimit = -3;
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(System.currentTimeMillis()));
+        c.add(Calendar.YEAR, candidateYearLimit);
+        Date limitDate = new Date(c.getTime().getTime());
+        return ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) >= 0;
+    }
+
+    /**
      * Verify whether the provided user can be a candidate for the board.
      *
      * @param userId            The user's id.
@@ -334,47 +337,31 @@ public class AssociationService {
      * @return                  True if the user can be a candidate.
      */
     public boolean verifyCandidate(String userId, Integer associationId) {
-        if (userId == null || associationId == null) {
+        // Check if the member is in the HOA (includes null checks)
+        if (!isMember(userId, associationId)) {
             return false;
         }
 
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
         List<Membership> memberships = membershipRepository.findAllByUserId(userId);
-
-        //Check for council membership in all of user's associations
+        memberships.remove(optionalMembership.get());
+        // Check if the user is a councilman in any other association
         for (Membership m : memberships) {
-            Optional<Association> optionalAssociation = associationRepository.findById(m.getAssociationId());
-            if (optionalAssociation.isEmpty() || optionalAssociation.get().getCouncilUserIds().contains(userId)) {
+            Association association = associationRepository.findById(m.getAssociationId()).get();
+            if (association.getCouncilUserIds().contains(userId)) {
                 return false;
             }
         }
 
-        //Check if the member has been in the HOA for 3 years
-        Optional<Membership> optionalMembership = membershipRepository
-                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
-        if (optionalMembership.isEmpty()) {
+        //Check if the user has been in the association for at least 3 years
+
+        if (!verifyJoinDate(optionalMembership.get().getJoinDate())) {
             return false;
         }
 
-        Date joinDate = optionalMembership.get().getJoinDate();
-        int candidateYearLimit = -3;
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(System.currentTimeMillis()));
-        c.add(Calendar.YEAR, candidateYearLimit);
-        Date limitDate = new Date(c.getTime().getTime());
-
-        if (ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) < 0) {
-            return false;
-        }
-
-        int timesCouncil = optionalMembership.get().getTimesCouncil();
-
-        int maximumTimesInCouncil = 10;
-
-        if (timesCouncil > maximumTimesInCouncil) {
-            return false;
-        } else {
-            return true;
-        }
+        //Check if the member has been a councilman 10 times
+        return optionalMembership.get().getTimesCouncil() < 10;
     }
 
 
