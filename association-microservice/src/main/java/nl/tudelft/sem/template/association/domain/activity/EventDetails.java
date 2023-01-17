@@ -6,11 +6,11 @@ import lombok.Getter;
 public class EventDetails {
 
     @Getter
-    private String eventName;
-    private String description;
-    private Date startingDate;
+    transient private String eventName;
+    transient private String description;
+    transient private Date startingDate;
     @Getter
-    private Date expirationDate;
+    transient private Date expirationDate;
 
 
     /** Constructor for the Event Data.
