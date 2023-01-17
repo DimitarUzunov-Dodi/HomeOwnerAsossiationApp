@@ -1,9 +1,10 @@
 package nl.tudelft.sem.template.association.domain.association;
 
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.models.*;
@@ -29,16 +30,19 @@ public class AssociationService {
      *
      * @return a message confirming the creation.
      */
-    public String createAssociation(String name, String country, String city, String description,
+    public String createAssociation(String name, Location location, String description,
                                     int councilNumber) {
-        Association association = new Association(name, country, city, description, councilNumber);
+        Association association = new Association(name, location, description, councilNumber);
         int associationId = associationRepository.save(association).getId();
 
         String electionString = createElection(associationId);
 
-        return "Association was created:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
-                + "Name: " + name + System.lineSeparator() + "Country: " + country + System.lineSeparator() + "City: "
-                + city + System.lineSeparator() + "Description: " + description + System.lineSeparator()
+        return "Association was created:" + System.lineSeparator()
+                + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + name + System.lineSeparator()
+                + "Country: " + location.getCountry() + System.lineSeparator()
+                + "City: " + location.getCity() + System.lineSeparator()
+                + "Description: " + description + System.lineSeparator()
                 + "Max council members: " + councilNumber + System.lineSeparator() + electionString;
     }
 
@@ -61,10 +65,12 @@ public class AssociationService {
      */
     public String getAssociationInfo(int associationId) {
         Association association = getAssociationById(associationId);
-        return "Association information:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
-                + "Name: " + association.getName() + System.lineSeparator() + "Country: " + association.getCountry()
-                + System.lineSeparator() + "City: " + association.getCity() + System.lineSeparator() + "Description: "
-                + association.getDescription() + System.lineSeparator()
+        return "Association information:" + System.lineSeparator()
+                + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + association.getName() + System.lineSeparator()
+                + "Country: " + association.getLocation().getCountry() + System.lineSeparator()
+                + "City: " + association.getLocation().getCity() + System.lineSeparator()
+                + "Description: " + association.getDescription() + System.lineSeparator()
                 + "Max council members: " + association.getCouncilNumber();
     }
 
@@ -88,8 +94,7 @@ public class AssociationService {
      *
      * @return a message confirming the join.
      */
-    public String joinAssociation(String userId, int associationId, String country, String city, String street,
-                                  String houseNumber, String postalCode) {
+    public String joinAssociation(String userId, int associationId, Address address) {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isEmpty()) {
             throw new IllegalArgumentException("Association with ID " + associationId + " does not exist.");
@@ -97,12 +102,12 @@ public class AssociationService {
         Association association = optionalAssociation.get();
 
         //Check if user has an address in the right city and country
-        if (!association.getCity().equals(city) || !association.getCountry().equals(country)) {
+        if (!address.getLocation().equals(association.getLocation())) {
             throw new IllegalArgumentException("You don't live in the right city or country to join this association.");
         }
 
         association.addMember(userId);
-        Membership membership = new Membership(userId, associationId, country, city, street, houseNumber, postalCode);
+        Membership membership = new Membership(userId, associationId, address);
         associationRepository.save(association);
         membershipRepository.save(membership);
 
