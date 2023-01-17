@@ -267,8 +267,10 @@ public class AssociationIntegrationTest {
         mockAssociationRepository.save(association);
 
         Date date = new Date(0);
+
         Location location = new Location("test", "test");
         Address address = new Address(location, "test", "test", "test");
+
         Membership member = new Membership("a", association.getId(), address);
         member.setJoinDate(date);
         membershipRepository.save(member);
@@ -279,9 +281,11 @@ public class AssociationIntegrationTest {
         member.setJoinDate(date);
         member.setTimesCouncil(10);
         membershipRepository.save(member);
+        member = new Membership("d", association.getId(), address);
         member.setJoinDate(date);
         membershipRepository.save(member);
         member = new Membership("f", association.getId(), address);
+        member.setJoinDate(date);
         membershipRepository.save(member);
 
 
