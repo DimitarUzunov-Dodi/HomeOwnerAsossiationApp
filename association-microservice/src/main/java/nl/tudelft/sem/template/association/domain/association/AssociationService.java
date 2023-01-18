@@ -224,11 +224,25 @@ public class AssociationService {
     }
 
     /**
+     * Verifies whether a candidate can be added to the council
+     * of an association by checking if he is still eligible and if
+     * the council still has open spots left.
+     *
+     * @param association       The association containing the council
+     * @param userId            The user to be verified
+     * @param currentBoardSize  The number of users already in the council
+     * @return                  Whether the candidate can be added
+     */
+    public boolean verifyAddingCandidateToCouncil(Association association, String userId, int currentBoardSize) {
+        return currentBoardSize < association.getCouncilNumber() && verifyCandidate(userId, association.getId());
+    }
+
+    /**
      * Processes all the information received about a past election
      * and updates the association's council.
      *
-     * @param model model containing all important info pertaining
-     *              to a past election
+     * @param model     Model containing all important info pertaining
+     *                  to a past election
      */
     public void processElection(ElectionResultRequestModel model) {
         Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
@@ -242,7 +256,7 @@ public class AssociationService {
             int j = 0; //NOPMD
 
             for (Map.Entry<String, Integer> pair : list) {
-                if (j < association.getCouncilNumber() && verifyCandidate(pair.getKey(), model.getAssociationId())) {
+                if (verifyAddingCandidateToCouncil(association, pair.getKey(), j)) {
                     Membership membership =
                             membershipRepository.findByUserIdAndAssociationId(pair.getKey(), association.getId()).get();
                     membership.setTimesCouncil(membership.getTimesCouncil() + 1);
@@ -256,6 +270,7 @@ public class AssociationService {
             associationRepository.save(association);
         }
     }
+
 
     /**
      * Processes all the information received about a past rule vote
