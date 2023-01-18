@@ -4,7 +4,6 @@ import java.util.*;
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Repository template of the activities class.
@@ -15,42 +14,28 @@ import lombok.Setter;
 public class Activity {
     @Id
     @GeneratedValue
-    @Getter
     @Column(name = "activity_id", nullable = false, unique = true)
     private int activityId;
 
     @Getter
-    @Column(name = "event_name", nullable = false)
-    private String eventName;
-
-    @Getter
-    @Column(name = "description", nullable = false)
-    private String description;
-
-    @Getter
-    @Column(name = "starting_date", nullable = false)
-    private Date startingDate;
-
-    @Getter
-    @Column(name = "expiration_date", nullable = false)
-    private Date expirationDate;
+    @Column(name = "activity_Details", nullable = false)
+    @Convert(converter = ActivityDetailsConverter.class)
+    private ActivityDetails activityDetails;
 
     @Getter
     @Column(name = "association_id", nullable = false)
     private int associationId;
 
-    @Getter
+
     @Column(name = "publisher_id", nullable = false)
     private String publisherId;
 
     @Getter
-    @Setter
     @Column(name = "participating_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
     private Set<String> participatingUserId;
 
     @Getter
-    @Setter
     @Column(name = "interested_members_id", nullable = false)
     @Convert(converter = UserIdConverter.class)
     private Set<String> interestedUserId;
@@ -68,15 +53,13 @@ public class Activity {
      */
     public Activity(String eventName, String description, Date startingDate,
                     Date expirationDate, int associationId, String publisherId) {
-        this.eventName = eventName;
-        this.description = description;
-        this.startingDate = startingDate;
-        this.expirationDate = expirationDate;
+        this.activityDetails = new ActivityDetails(eventName, description, startingDate, expirationDate);
         this.associationId = associationId;
         this.publisherId = publisherId;
         this.participatingUserId =  new HashSet<String>();
         this.interestedUserId = new HashSet<String>();
     }
+
 
     /** adds id to the interested list.
      *
