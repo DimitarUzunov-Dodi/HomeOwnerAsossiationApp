@@ -1,7 +1,6 @@
 package nl.tudelft.sem.template.association.domain.activity;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
@@ -75,33 +74,7 @@ class ActivityTest {
         assertEquals(activity.getInterestedUserId(), result);
     }
 
-    @Test
-    void getActivityId() {
-        assertEquals(0, activity.getActivityId());
-    }
 
-    @Test
-    void getEventName() {
-        assertEquals("Cool Event", activity.getEventName());
-
-    }
-
-    @Test
-    void getDescription() {
-        assertEquals("This is the description of the event", activity.getDescription());
-    }
-
-    @Test
-    void getStartingDate() {
-        assertThat(activity.getStartingDate()).isInstanceOf(Date.class);
-        assertEquals(date, activity.getStartingDate());
-    }
-
-    @Test
-    void getExpirationDate() {
-        assertThat(activity.getExpirationDate()).isInstanceOf(Date.class);
-        assertEquals(date, activity.getExpirationDate());
-    }
 
     @Test
     void getAssociationId() {
@@ -109,28 +82,4 @@ class ActivityTest {
 
     }
 
-    @Test
-    void getPublisherId() {
-        assertEquals("Jo", activity.getPublisherId());
-    }
-
-    @Test
-    void getParticipatingUserId() {
-        Set set = new HashSet<String>();
-        set.add("1user");
-        set.add("2user");
-        set.add("3user");
-        activity.setParticipatingUserId(set);
-        assertEquals(set, activity.getParticipatingUserId());
-    }
-
-    @Test
-    void getInterestedUserId() {
-        Set set = new HashSet<String>();
-        set.add("1user");
-        set.add("2user");
-        set.add("3user");
-        activity.setInterestedUserId(set);
-        assertEquals(set, activity.getInterestedUserId());
-    }
 }

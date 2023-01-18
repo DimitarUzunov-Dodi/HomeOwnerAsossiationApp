@@ -16,6 +16,8 @@ import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.history.History;
 import nl.tudelft.sem.template.association.domain.history.HistoryRepository;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
@@ -70,7 +72,7 @@ public class AssociationIntegrationTest {
         this.councilMembers.add("c");
 
         this.userId = "d";
-        this.association = new Association("test", "test", "test", "test", 10);
+        this.association = new Association("test", new Location("test", "test"), "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         mockAssociationRepository.save(this.association);
 
@@ -200,8 +202,8 @@ public class AssociationIntegrationTest {
 
         model.setUserId("d");
         model.setAssociationId(1);
-        model.setCity(association.getCity());
-        model.setCountry(association.getCountry());
+        model.setCity(association.getLocation().getCity());
+        model.setCountry(association.getLocation().getCountry());
         model.setStreet("mine");
         model.setHouseNumber("0");
         model.setPostalCode("0");
@@ -264,16 +266,26 @@ public class AssociationIntegrationTest {
         this.association.setCouncilNumber(3);
         mockAssociationRepository.save(association);
 
-        Membership member = new Membership("a", association.getId(), "test", "test", "test", "test", "test");
+        Date date = new Date(0);
+
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+
+        Membership member = new Membership("a", association.getId(), address);
+        member.setJoinDate(date);
         membershipRepository.save(member);
-        member = new Membership("b", association.getId(), "test", "test", "test", "test", "test");
+        member = new Membership("b", association.getId(), address);
+        member.setJoinDate(date);
         membershipRepository.save(member);
-        member = new Membership("c", association.getId(), "test", "test", "test", "test", "test");
+        member = new Membership("c", association.getId(), address);
+        member.setJoinDate(date);
         member.setTimesCouncil(10);
         membershipRepository.save(member);
-        member = new Membership("d", association.getId(), "test", "test", "test", "test", "test");
+        member = new Membership("d", association.getId(), address);
+        member.setJoinDate(date);
         membershipRepository.save(member);
-        member = new Membership("f", association.getId(), "test", "test", "test", "test", "test");
+        member = new Membership("f", association.getId(), address);
+        member.setJoinDate(date);
         membershipRepository.save(member);
 
 
@@ -314,7 +326,9 @@ public class AssociationIntegrationTest {
 
     @Test
     public void addRulePassTest() throws Exception {
-        Membership member = new Membership("test", association.getId(), "test", "test", "test", "test", "test");
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+        Membership member = new Membership("test", association.getId(), address);
         membershipRepository.save(member);
 
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
@@ -347,7 +361,9 @@ public class AssociationIntegrationTest {
 
     @Test
     public void changeRulePassTest() throws Exception {
-        Membership member = new Membership("test", association.getId(), "test", "test", "test", "test", "test");
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+        Membership member = new Membership("test", association.getId(), address);
         membershipRepository.save(member);
 
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
@@ -426,7 +442,9 @@ public class AssociationIntegrationTest {
 
     @Test
     public void changeRuleFailTest() throws Exception {
-        Membership member = new Membership("test", association.getId(), "test", "test", "test", "test", "test");
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+        Membership member = new Membership("test", association.getId(), address);
         membershipRepository.save(member);
 
         RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
