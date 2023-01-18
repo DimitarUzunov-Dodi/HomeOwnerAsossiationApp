@@ -19,6 +19,7 @@ public class Activity {
 
     @Getter
     @Column(name = "activity_Details", nullable = false)
+    @Convert(converter = ActivityDetailsConverter.class)
     private ActivityDetails activityDetails;
 
     @Getter
