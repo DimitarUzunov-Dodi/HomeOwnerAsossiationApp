@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.*;
+import nl.tudelft.sem.template.voting.models.AssociationProposalRequestModel;
 import nl.tudelft.sem.template.voting.models.ElectionResultRequestModel;
 import nl.tudelft.sem.template.voting.models.RuleVoteResultRequestModel;
+import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.utils.RequestUtil;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
@@ -36,9 +38,9 @@ public class VotingService {
 
     private final transient ElectionRepository electionRepository;
     private final transient RuleVotingRepository ruleVotingRepository;
-    private final transient VotingFactory votingFactory;
-    private final transient RequestUtil requestUtil;
+    private final transient VotingAssociationCommunication votingAssociationCommunication;
     private final transient int maxRuleLength = 100;
+
 
 
     /**
@@ -49,108 +51,9 @@ public class VotingService {
                          RequestUtil requestUtil) {
         this.electionRepository = electionRepository;
         this.ruleVotingRepository = ruleVotingRepository;
-        this.votingFactory = new VotingFactory(electionRepository, ruleVotingRepository);
-        this.requestUtil = requestUtil;
+        this.votingAssociationCommunication = new VotingAssociationCommunication(electionRepository,
+                ruleVotingRepository, requestUtil);
     }
-
-    /**
-     * This is the scheduler to update an association's council.
-     * The method checks for the first entry in the election repository.
-     * If it exists, it checks if the election's end date is past due.
-     * If it is, then the election results are parsed and sent over
-     * to the association microservice which then also updates its history.
-     * If an OK response status is received then the election entry is deleted.
-     */
-    @Async
-    @Scheduled(fixedRate = 2000, initialDelay = 0)
-    public void forwardElectionResultsScheduler() {
-        System.out.println("Executed at : " + new Date());
-        Optional<Election> optElection = electionRepository.findFirstByOrderByEndDateAsc();
-
-        if (optElection.isPresent()) {
-            Election election = optElection.get();
-
-            if (Instant.now().isAfter(election.getEndDate().toInstant())) {
-                final String url = "http://localhost:8084/association/update-council";
-
-                ElectionResultRequestModel model = new ElectionResultRequestModel();
-                model.setDate(election.getEndDate());
-                model.setAssociationId(election.getAssociationId());
-                model.setStandings(election.tallyVotes());
-                model.setResult(election.getResults());
-
-                String token = requestUtil.authenticateService("VotingService", "CrazyAssSecretPass");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer "
-                        + token);
-                HttpEntity<ElectionResultRequestModel> request = new HttpEntity<>(model, headers);
-
-                RestTemplate restTemplate = new RestTemplate();
-
-                try {
-                    ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
-
-                    if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-                        electionRepository.delete(election);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-    }
-
-    /**
-     * This is the scheduler to update an association's rule set.
-     * The method checks for the first entry in the rulevote repository.
-     * If it exists, it checks if the rulevote's end date is past due.
-     * If it is, then the rulevote results are parsed and sent over
-     * to the association microservice which then also updates its history.
-     * If an OK response status is received then the rulevote entry is deleted.
-     */
-    @Async
-    @Scheduled(fixedRate = 2000, initialDelay = 0)
-    public void forwardRuleVoteResultsScheduler() {
-        Optional<RuleVoting> optRuleVoting = ruleVotingRepository.findFirstByOrderByEndDateAsc();
-
-        if (optRuleVoting.isPresent()) {
-            RuleVoting ruleVoting = optRuleVoting.get();
-
-            if (Instant.now().isAfter(ruleVoting.getEndDate().toInstant())) {
-                final String url = "http://localhost:8084/association/update-rules";
-
-                RuleVoteResultRequestModel model = new RuleVoteResultRequestModel();
-                model.setDate(ruleVoting.getEndDate());
-                model.setType(ruleVoting.getType().toString());
-                model.setPassed(ruleVoting.passedMotion());
-                model.setResult(ruleVoting.getResults());
-                model.setAssociationId(ruleVoting.getAssociationId());
-                model.setAmendment(ruleVoting.getAmendment());
-                model.setAnAmendment(ruleVoting.getType() == VotingType.AMENDMENT);
-
-                String token = requestUtil.authenticateService("VotingService", "SuperSecretPassword");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer "
-                        + token);
-                HttpEntity<RuleVoteResultRequestModel> request = new HttpEntity<>(model, headers);
-
-                RestTemplate restTemplate = new RestTemplate();
-
-                try {
-                    ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
-
-                    if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-                        ruleVotingRepository.delete(ruleVoting);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-    }
-
 
     /**
      * Creates a board election for an association with a given ID.
@@ -158,10 +61,9 @@ public class VotingService {
      * @return a message confirming the creation.
      */
     public String createElection(VotingType type, int associationId, String userId, String rule, String amendment) {
-        Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
-        return "Voting was created for association " + associationId
-                + " and will be held on " + voting.getEndDate().toString() + ".";
+        return votingAssociationCommunication.createElection(type, associationId, userId, rule, amendment);
     }
+
 
     /**
      * Returns the candidates of an active board election in a given association.
@@ -188,6 +90,11 @@ public class VotingService {
         if (optElection.isPresent()) {
             Election election = optElection.get();
 
+            ////Checks if candidate is eligible for election
+            //if (!votingAssociationCommunication.verifyCandidate(userId, associationId)) {
+            //throw new IllegalArgumentException("Not eligible to be a candidate.");
+            //}
+
             //Checks if election end date is further away than 2 days
             Date currentDate = new Date(System.currentTimeMillis());
             Date electionEndDate = election.getEndDate();
@@ -206,6 +113,8 @@ public class VotingService {
         }
     }
 
+
+
     /**
      * Casts a vote for a candidate in the upcoming election, if the date is less than 2 days before the election end.
      *
@@ -216,42 +125,65 @@ public class VotingService {
         if (optElection.isPresent()) {
             Election election = optElection.get();
 
-            //Checks if election end date is closer than 2 days
-            Date currentDate = new Date(System.currentTimeMillis());
-            Date electionEndDate = election.getEndDate();
-            Long candidateDeadline = 2L;
-            if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) >= candidateDeadline) {
-                throw new IllegalArgumentException("Too early to cast a vote.");
-            }
-
-            //Checks if election has ended
-            if (currentDate.compareTo(electionEndDate) > 0) {
-                throw new IllegalArgumentException("The election has ended.");
-            }
+            //Checks if election end date is closer than 2 days, or if the election has ended
+            votingDaysCheck(election);
 
             //Checks if the candidate exists
-            if (!election.getCandidateIds().contains(candidateId)) {
-                throw new IllegalArgumentException("Candidate with ID "
-                        + candidateId + " does not exist.");
-            }
+            candidateExistsCheck(election, candidateId);
 
-            //If the voter already voted, remove previous vote
-            for (Pair vote : election.getVotes()) {
-                if (vote.getFirst().equals(voterId)) {
-                    election.getVotes().remove(vote);
-                    break;
-                }
-            }
+            saveElectionVote(election, voterId, candidateId);
 
-            Pair<String, String> vote = Pair.of(voterId, candidateId);
-            election.addVote(vote);
-            electionRepository.save(election);
             return "The voter with ID " + voterId + " voted for the candidate with ID " + candidateId + ".";
 
         } else {
             throw new IllegalArgumentException("Association with ID "
                     + associationId + " does not have an active election.");
         }
+    }
+
+    /**
+     * Checks if election end date is closer than 2 days, or if the election has ended.
+     */
+    private void votingDaysCheck(Election election) {
+        //Checks if election end date is closer than 2 days
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date electionEndDate = election.getEndDate();
+        Long candidateDeadline = 2L;
+        if (ChronoUnit.DAYS.between(currentDate.toInstant(), electionEndDate.toInstant()) >= candidateDeadline) {
+            throw new IllegalArgumentException("Too early to cast a vote.");
+        }
+
+        //Checks if election has ended
+        if (currentDate.compareTo(electionEndDate) > 0) {
+            throw new IllegalArgumentException("The election has ended.");
+        }
+    }
+
+    /**
+     * Checks if the candidate exists.
+     */
+    private void candidateExistsCheck(Election election, String candidateId) {
+        if (!election.getCandidateIds().contains(candidateId)) {
+            throw new IllegalArgumentException("Candidate with ID "
+                    + candidateId + " does not exist.");
+        }
+    }
+
+    /**
+     * Saves the vote, and removes the previous vote if necessary.
+     */
+    private void saveElectionVote(Election election, String voterId, String candidateId) {
+        //If the voter already voted, remove previous vote
+        for (Pair vote : election.getVotes()) {
+            if (vote.getFirst().equals(voterId)) {
+                election.getVotes().remove(vote);
+                break;
+            }
+        }
+
+        Pair<String, String> vote = Pair.of(voterId, candidateId);
+        election.addVote(vote);
+        electionRepository.save(election);
     }
 
     /**
@@ -276,7 +208,17 @@ public class VotingService {
             throw new InvalidRuleException("The rule is already under evaluation.");
         }
 
-        Voting voting = votingFactory.createVoting(type, associationId, userId, rule, null);
+        // //Checks if user is member of council
+        // if (!votingAssociationCommunication.verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
+
+        // //Checks if the proposal is unique
+        // if (!votingAssociationCommunication.verifyProposal(associationId, rule)) {
+        //     throw new IllegalArgumentException("This rule already exists.");
+        // }
+
+        Voting voting = votingAssociationCommunication.votingFactory.createVoting(type, associationId, userId, rule, null);
         Calendar cal = Calendar.getInstance();
         cal.setTime(voting.getEndDate());
         cal.add(Calendar.DAY_OF_MONTH, -2);
@@ -307,7 +249,13 @@ public class VotingService {
             throw new InvalidRuleException("The amendment already exists in another vote.");
         }
 
-        Voting voting = votingFactory.createVoting(type, associationId, userId, rule, amendment);
+        // //Checks if user is member of council
+        // if (!votingAssociationCommunication.verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
+
+        Voting voting = votingAssociationCommunication.votingFactory
+                .createVoting(type, associationId, userId, rule, amendment);
         Calendar cal = Calendar.getInstance();
         cal.setTime(voting.getEndDate());
         cal.add(Calendar.DAY_OF_MONTH, -2);
@@ -370,13 +318,18 @@ public class VotingService {
      * @return                      A message confirming what the user voted.
      * @throws InvalidIdException   Thrown when the rule vote id is invalid.
      */
-    public String castRuleVote(Long ruleVoteId, String userId, String vote) throws InvalidIdException {
+    public String castRuleVote(Long ruleVoteId, String userId, String vote, int associationId) throws InvalidIdException {
         List<String> validVotes = List.of("for", "against", "abstain");
         if (vote == null || !(validVotes.contains(vote))) {
             throw new IllegalArgumentException("The vote is not valid, please pick from: for/against/abstain.");
         } else if (ruleVoteId == null) {
             throw new InvalidIdException("The rule vote id is null.");
         }
+
+        // //Checks if user is member of council
+        // if (!votingAssociationCommunication.verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
 
         Optional<RuleVoting> optionalRuleVoting = ruleVotingRepository.findById(ruleVoteId);
         RuleVoting ruleVoting = optionalRuleVoting
@@ -432,6 +385,12 @@ public class VotingService {
         if (associationId == null) {
             throw new InvalidIdException("The association ID is null.");
         }
+
+        // //Checks if user is member of council
+        // if (!votingAssociationCommunication.verifyCouncilMember(userId, associationId)) {
+        //     throw new IllegalArgumentException("Not a member of the council.");
+        // }
+
         List<RuleVoting> pendingVotes = ruleVotingRepository.findAllByAssociationId(associationId);
 
         if (pendingVotes.isEmpty()) {

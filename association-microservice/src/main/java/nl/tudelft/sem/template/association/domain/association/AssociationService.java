@@ -3,11 +3,17 @@ package nl.tudelft.sem.template.association.domain.association;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
-import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
+import nl.tudelft.sem.template.association.models.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AssociationService {
@@ -24,15 +30,22 @@ public class AssociationService {
      *
      * @return a message confirming the creation.
      */
-    public String createAssociation(String name, String country, String city, String description,
+    public String createAssociation(String name, Location location, String description,
                                     int councilNumber) {
-        Association association = new Association(name, country, city, description, councilNumber);
+        Association association = new Association(name, location, description, councilNumber);
         int associationId = associationRepository.save(association).getId();
-        return "Association was created:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
-                + "Name: " + name + System.lineSeparator() + "Country: " + country + System.lineSeparator() + "City: "
-                + city + System.lineSeparator() + "Description: " + description + System.lineSeparator()
-                + "Max council members: " + councilNumber;
+
+        String electionString = createElection(associationId);
+
+        return "Association was created:" + System.lineSeparator()
+                + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + name + System.lineSeparator()
+                + "Country: " + location.getCountry() + System.lineSeparator()
+                + "City: " + location.getCity() + System.lineSeparator()
+                + "Description: " + description + System.lineSeparator()
+                + "Max council members: " + councilNumber + System.lineSeparator() + electionString;
     }
+
 
     /**
      * Gets the existing association IDs.
@@ -52,10 +65,12 @@ public class AssociationService {
      */
     public String getAssociationInfo(int associationId) {
         Association association = getAssociationById(associationId);
-        return "Association information:" + System.lineSeparator() + "ID: " + associationId + System.lineSeparator()
-                + "Name: " + association.getName() + System.lineSeparator() + "Country: " + association.getCountry()
-                + System.lineSeparator() + "City: " + association.getCity() + System.lineSeparator() + "Description: "
-                + association.getDescription() + System.lineSeparator()
+        return "Association information:" + System.lineSeparator()
+                + "ID: " + associationId + System.lineSeparator()
+                + "Name: " + association.getName() + System.lineSeparator()
+                + "Country: " + association.getLocation().getCountry() + System.lineSeparator()
+                + "City: " + association.getLocation().getCity() + System.lineSeparator()
+                + "Description: " + association.getDescription() + System.lineSeparator()
                 + "Max council members: " + association.getCouncilNumber();
     }
 
@@ -79,8 +94,7 @@ public class AssociationService {
      *
      * @return a message confirming the join.
      */
-    public String joinAssociation(String userId, int associationId, String country, String city, String street,
-                                  String houseNumber, String postalCode) {
+    public String joinAssociation(String userId, int associationId, Address address) {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isEmpty()) {
             throw new IllegalArgumentException("Association with ID " + associationId + " does not exist.");
@@ -88,12 +102,12 @@ public class AssociationService {
         Association association = optionalAssociation.get();
 
         //Check if user has an address in the right city and country
-        if (!association.getCity().equals(city) || !association.getCountry().equals(country)) {
+        if (!address.getLocation().equals(association.getLocation())) {
             throw new IllegalArgumentException("You don't live in the right city or country to join this association.");
         }
 
         association.addMember(userId);
-        Membership membership = new Membership(userId, associationId, country, city, street, houseNumber, postalCode);
+        Membership membership = new Membership(userId, associationId, address);
         associationRepository.save(association);
         membershipRepository.save(membership);
 
@@ -147,7 +161,6 @@ public class AssociationService {
         }
 
         Association association = optionalAssociation.get();
-
         if (council.size() > association.getCouncilNumber()) {
             throw new IllegalArgumentException("Council is bigger than allowed");
         }
@@ -194,11 +207,7 @@ public class AssociationService {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         if (optionalAssociation.isPresent()) {
             Set<String> councilMembers = optionalAssociation.get().getCouncilUserIds();
-            for (String s : councilMembers) {
-                if (s.equals(userId)) {
-                    return true;
-                }
-            }
+            return councilMembers.contains(userId);
         }
         return false;
     }
@@ -215,46 +224,52 @@ public class AssociationService {
             return false;
         }
 
-        Optional<Association> optionalAssociation = associationRepository.findById(associationId);
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
 
-        if (optionalAssociation.isPresent()) {
-            return optionalAssociation.get().getMemberUserIds().contains(userId);
-        }
+        return optionalMembership.isPresent();
+    }
 
-        return false;
+    /**
+     * Verifies whether a candidate can be added to the council
+     * of an association by checking if he is still eligible and if
+     * the council still has open spots left.
+     *
+     * @param association       The association containing the council
+     * @param userId            The user to be verified
+     * @param currentBoardSize  The number of users already in the council
+     * @return                  Whether the candidate can be added
+     */
+    public boolean verifyAddingCandidateToCouncil(Association association, String userId, int currentBoardSize) {
+        return currentBoardSize < association.getCouncilNumber() && verifyCandidate(userId, association.getId());
     }
 
     /**
      * Processes all the information received about a past election
      * and updates the association's council.
      *
-     * @param model model containing all important info pertaining
-     *              to a past election
+     * @param model     Model containing all important info pertaining
+     *                  to a past election
      */
     public void processElection(ElectionResultRequestModel model) {
         Optional<Association> optionalAssociation = associationRepository.findById(model.getAssociationId());
         if (optionalAssociation.isPresent()) {
             Association association = optionalAssociation.get();
-
-            HashMap hm = model.getStandings();
-
+            HashMap<String, Integer> hm = model.getStandings();
             List<Map.Entry<String, Integer>> list = new LinkedList<>(hm.entrySet());
-
             Collections.sort(list, (e1, e2) -> -(e1.getValue().compareTo(e2.getValue())));
-
             Set<String> council = new HashSet<>();
 
-            int j = 0;
+            int j = 0; //NOPMD
 
-            for (int i = 0; i < list.size() && j < association.getCouncilNumber(); i++) {
-                Optional<Membership> optionalMembership =
-                        membershipRepository.findByUserIdAndAssociationId(list.get(i).getKey(), association.getId());
-                if (optionalMembership.isPresent() && optionalMembership.get().getTimesCouncil() < 10) {
-                    Membership membership = optionalMembership.get();
+            for (Map.Entry<String, Integer> pair : list) {
+                if (verifyAddingCandidateToCouncil(association, pair.getKey(), j)) {
+                    Membership membership =
+                            membershipRepository.findByUserIdAndAssociationId(pair.getKey(), association.getId()).get();
                     membership.setTimesCouncil(membership.getTimesCouncil() + 1);
                     membershipRepository.save(membership);
-                    j++;
-                    council.add(list.get(i).getKey());
+                    council.add(pair.getKey());
+                    j++; //NOPMD
                 }
             }
 
@@ -262,6 +277,7 @@ public class AssociationService {
             associationRepository.save(association);
         }
     }
+
 
     /**
      * Processes all the information received about a past rule vote
@@ -326,6 +342,21 @@ public class AssociationService {
     }
 
     /**
+     * Verify whether the join date has been at least 3 years ago.
+     *
+     * @param joinDate          The join date.
+     * @return                  True if the join date has been 3+ years ago.
+     */
+    public boolean verifyJoinDate(Date joinDate) {
+        int candidateYearLimit = -3;
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(System.currentTimeMillis()));
+        c.add(Calendar.YEAR, candidateYearLimit);
+        Date limitDate = new Date(c.getTime().getTime());
+        return ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) >= 0;
+    }
+
+    /**
      * Verify whether the provided user can be a candidate for the board.
      *
      * @param userId            The user's id.
@@ -333,47 +364,84 @@ public class AssociationService {
      * @return                  True if the user can be a candidate.
      */
     public boolean verifyCandidate(String userId, Integer associationId) {
-        if (userId == null || associationId == null) {
+        // Check if the member is in the HOA (includes null checks)
+        if (!isMember(userId, associationId)) {
             return false;
         }
 
+        Optional<Membership> optionalMembership = membershipRepository
+                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
         List<Membership> memberships = membershipRepository.findAllByUserId(userId);
-
-        //Check for council membership in all of user's associations
+        memberships.remove(optionalMembership.get());
+        // Check if the user is a councilman in any other association
         for (Membership m : memberships) {
-            Optional<Association> optionalAssociation = associationRepository.findById(m.getAssociationId());
-            if (optionalAssociation.isEmpty() || optionalAssociation.get().getCouncilUserIds().contains(userId)) {
+            Association association = associationRepository.findById(m.getAssociationId()).get();
+            if (association.getCouncilUserIds().contains(userId)) {
                 return false;
             }
         }
 
-        //Check if the member has been in the HOA for 3 years
-        Optional<Membership> optionalMembership = membershipRepository
-                .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
-        if (optionalMembership.isEmpty()) {
+        //Check if the user has been in the association for at least 3 years
+
+        if (!verifyJoinDate(optionalMembership.get().getJoinDate())) {
             return false;
         }
 
-        Date joinDate = optionalMembership.get().getJoinDate();
-        int candidateYearLimit = -3;
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(System.currentTimeMillis()));
-        c.add(Calendar.YEAR, candidateYearLimit);
-        Date limitDate = new Date(c.getTime().getTime());
+        //Check if the member has been a councilman 10 times
+        return optionalMembership.get().getTimesCouncil() < 10;
+    }
 
-        if (ChronoUnit.SECONDS.between(joinDate.toInstant(), limitDate.toInstant()) < 0) {
-            return false;
+
+    /**
+     * Creates the first election after association creation, and after each election.
+     *
+     * @return a message confirming the creation.
+     */
+    public String createElection(int associationId) {
+        final String url = "http://localhost:8083/election/create-election";
+
+        AssociationRequestModel model = new AssociationRequestModel();
+        model.setAssociationId(associationId);
+
+        String token = authenticateService("VotingService", "SuperSecretPassword");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "
+                + token);
+        HttpEntity<AssociationRequestModel> request = new HttpEntity<>(model, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
+
+            if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+                return "Board election was created and will be held in 1 year.";
+            } else {
+                throw new IllegalArgumentException("Board election was not created.");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Board election was not created.");
         }
+    }
 
-        int timesCouncil = optionalMembership.get().getTimesCouncil();
+    /**
+     * Generates the token for server to server communication.
+     *
+     * @param serviceUsername   The username the service is registered with.
+     * @param servicePassword   The password the service is registered with.
+     * @return                  The bearer token generated through the authentication service.
+     */
+    public String authenticateService(String serviceUsername, String servicePassword) {
+        RegistrationRequestModel regModel = new RegistrationRequestModel();
+        regModel.setUserId(serviceUsername);
+        regModel.setPassword(servicePassword);
+        HttpEntity<RegistrationRequestModel> authRequest = new HttpEntity<>(regModel);
 
-        int maximumTimesInCouncil = 10;
-
-        if (timesCouncil > maximumTimesInCouncil) {
-            return false;
-        } else {
-            return true;
-        }
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<AuthenticationResponseModel> authenticationResponse = restTemplate
+                .postForEntity("http://localhost:8081/authenticate", authRequest, AuthenticationResponseModel.class);
+        return Objects.requireNonNull(authenticationResponse.getBody()).getToken();
     }
 
     /**
@@ -384,9 +452,6 @@ public class AssociationService {
      * @return              True if the proposal is unique, otherwise false
      */
     public boolean verifyProposal(Integer associationId, String proposal) {
-        // This method should be called in the propose rule by checking if this method returns true
-        // which means it is unique. This method should be called in the amend rule by checking if this method
-        // returns FALSE for THE ORIGINAL rule AND TRUE for the amendment.
         return associationRepository.findById(associationId).orElse(null)
                 .getRules().stream().noneMatch(x -> x.equals(proposal));
     }

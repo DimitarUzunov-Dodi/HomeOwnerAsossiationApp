@@ -32,12 +32,14 @@ public class CastRuleVoteVotingServiceTest {
     private Long ruleVoteId;
     private String userId;
     private RuleVoting ruleVoting;
+    private int associationId;
 
     /**
      * Initialize the ruleVoteId and userId variables before each test.
      */
     @BeforeEach
     public void setup() {
+        this.associationId = 1;
         this.ruleVoteId = 1L;
         this.userId = "10";
         this.ruleVoting = new RuleVoting(12, this.userId, "Bleep", null, VotingType.PROPOSAL);
@@ -52,7 +54,7 @@ public class CastRuleVoteVotingServiceTest {
         this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
-        assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "for"))
+        assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "for", this.associationId))
                 .isEqualTo("The user with ID 10 voted in favour of the "
                         + "proposal under consideration in rule vote: 1");
 
@@ -71,7 +73,7 @@ public class CastRuleVoteVotingServiceTest {
         this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
-        assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "abstain"))
+        assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "abstain", this.associationId))
                 .isEqualTo("The user with ID 10 abstains from voting for the "
                         + "proposal under consideration in rule vote: 1");
 
@@ -90,7 +92,7 @@ public class CastRuleVoteVotingServiceTest {
         this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
-        assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "against"))
+        assertThat(votingService.castRuleVote(this.ruleVoteId, this.userId, "against", this.associationId))
                 .isEqualTo("The user with ID 10 voted against the "
                         + "proposal under consideration in rule vote: 1");
 
@@ -103,7 +105,7 @@ public class CastRuleVoteVotingServiceTest {
     @Test
     public void voteInReviewingTest() {
         assertThatThrownBy(() -> {
-            votingService.castRuleVote(this.ruleVoteId, this.userId, "against");
+            votingService.castRuleVote(this.ruleVoteId, this.userId, "against", this.associationId);
         }).isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -114,35 +116,35 @@ public class CastRuleVoteVotingServiceTest {
         ruleVotingRepository.save(this.ruleVoting);
 
         assertThatThrownBy(() -> {
-            votingService.castRuleVote(this.ruleVoteId, this.userId, "for");
+            votingService.castRuleVote(this.ruleVoteId, this.userId, "for", this.associationId);
         }).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void voteNullTest() {
         assertThatThrownBy(() -> {
-            votingService.castRuleVote(this.ruleVoteId, this.userId, null);
+            votingService.castRuleVote(this.ruleVoteId, this.userId, null, this.associationId);
         }).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void invalidVoteTest() {
         assertThatThrownBy(() -> {
-            votingService.castRuleVote(this.ruleVoteId, this.userId, "gsrhbsk");
+            votingService.castRuleVote(this.ruleVoteId, this.userId, "gsrhbsk", this.associationId);
         }).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void ruleVoteIdNullTest() {
         assertThatThrownBy(() -> {
-            votingService.castRuleVote(null, this.userId, "for");
+            votingService.castRuleVote(null, this.userId, "for", this.associationId);
         }).isInstanceOf(InvalidIdException.class);
     }
 
     @Test
     public void ruleVoteDoesNotExistTest() {
         assertThatThrownBy(() -> {
-            votingService.castRuleVote(324L, this.userId, "for");
+            votingService.castRuleVote(324L, this.userId, "for", this.associationId);
         }).isInstanceOf(InvalidIdException.class);
     }
 
@@ -154,8 +156,8 @@ public class CastRuleVoteVotingServiceTest {
         this.ruleVoting.setEndDate(cal.getTime());
         ruleVotingRepository.save(this.ruleVoting);
 
-        votingService.castRuleVote(this.ruleVoteId, this.userId, "against");
-        votingService.castRuleVote(this.ruleVoteId, this.userId, "for");
+        votingService.castRuleVote(this.ruleVoteId, this.userId, "against", this.associationId);
+        votingService.castRuleVote(this.ruleVoteId, this.userId, "for", this.associationId);
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
         List<Pair<String, String>> expected = new ArrayList<>();

@@ -7,6 +7,8 @@ import java.util.*;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,10 +39,11 @@ public class VerifyCandidateAssociationServiceTest {
     @BeforeEach
     public void setup() {
         userId = "abc";
-        association = new Association("test", "test", "test", "test", 10);
+        Location testLocation = new Location("test", "test");
+        association = new Association("test", testLocation, "test", 10);
         association = associationRepository.save(association);
-        associationService.joinAssociation(userId, association.getId(), "test", "test", "test",
-                "test", "test");
+        Address testAddress = new Address(testLocation, "test", "test", "test");
+        associationService.joinAssociation(userId, association.getId(), testAddress);
 
     }
 
@@ -72,12 +75,13 @@ public class VerifyCandidateAssociationServiceTest {
 
     @Test
     public void alreadyInCouncilTest() {
-        Association association2 = new Association("test2", "test2", "test2", "test2",
+        Location testLocation2 = new Location("test2", "test2");
+        Association association2 = new Association("test2", testLocation2, "test2",
                 10);
         association2 = associationRepository.save(association2);
 
-        associationService.joinAssociation(userId, association2.getId(), "test2", "test2", "test2",
-                "test2", "test2");
+        Address testAddress2 = new Address(testLocation2, "test2", "test2", "test2");
+        associationService.joinAssociation(userId, association2.getId(), testAddress2);
 
         association2.setCouncilUserIds(new HashSet<>(List.of(userId)));
         associationRepository.save(association2);

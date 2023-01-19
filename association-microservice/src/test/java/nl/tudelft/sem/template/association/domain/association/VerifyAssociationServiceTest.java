@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.*;
+import nl.tudelft.sem.template.association.domain.association.Association;
+import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
+import nl.tudelft.sem.template.association.domain.association.AssociationService;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +41,8 @@ public class VerifyAssociationServiceTest {
         this.councilMembers.add("c");
 
         this.userId = "d";
-        this.association = new Association("test", "test", "test", "test", 10);
+        this.association = new Association("test", new Location("test", "test"),
+                "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         mockAssociationRepository.save(this.association);
     }

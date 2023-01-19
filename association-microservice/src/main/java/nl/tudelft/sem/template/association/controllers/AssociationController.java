@@ -8,17 +8,18 @@ import nl.tudelft.sem.template.association.domain.association.AssociationReposit
 import nl.tudelft.sem.template.association.domain.association.AssociationService;
 import nl.tudelft.sem.template.association.domain.history.Event;
 import nl.tudelft.sem.template.association.domain.history.HistoryService;
+import nl.tudelft.sem.template.association.domain.history.Notification;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
 import nl.tudelft.sem.template.association.domain.membership.MembershipService;
 import nl.tudelft.sem.template.association.domain.report.NoSuchRuleException;
 import nl.tudelft.sem.template.association.domain.report.ReportInconsistentException;
 import nl.tudelft.sem.template.association.domain.report.ReportService;
-import nl.tudelft.sem.template.association.domain.user.UserService;
 import nl.tudelft.sem.template.association.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,8 +28,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class AssociationController {
     private final transient AuthManager authManager;
     private final transient AssociationService associationService;
-    private final transient AssociationRepository associationRepository;
-    private final transient UserService userService;
     private final transient ReportService reportService;
     private final transient HistoryService historyService;
     private final transient MembershipService membershipService;
@@ -38,20 +37,16 @@ public class AssociationController {
      *
      * @param authManager        Spring Security component used to authenticate and authorize the user
      * @param associationService The association service
-     * @param userService        user service
      * @param reportService      report service
      * @param historyService     The history service.
      * @param membershipService  The membership service.
      */
     @Autowired
     public AssociationController(AuthManager authManager, AssociationService associationService,
-                                 AssociationRepository associationRepository, UserService userService,
                                  ReportService reportService, HistoryService historyService,
                                  MembershipService membershipService) {
         this.authManager = authManager;
         this.associationService = associationService;
-        this.associationRepository = associationRepository;
-        this.userService = userService;
         this.reportService = reportService;
         this.historyService = historyService;
         this.membershipService = membershipService;
@@ -107,8 +102,9 @@ public class AssociationController {
     @PostMapping("/create-association")
     public ResponseEntity<String> createAssociation(@RequestBody CreateAssociationRequestModel request) {
         try {
-            return ResponseEntity.ok(associationService.createAssociation(request.getName(), request.getCountry(),
-                    request.getCity(), request.getDescription(), request.getCouncilNumber()));
+            Location location = new Location(request.getCountry(), request.getCity());
+            return ResponseEntity.ok(associationService.createAssociation(request.getName(), location,
+                    request.getDescription(), request.getCouncilNumber()));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -124,9 +120,10 @@ public class AssociationController {
     public ResponseEntity<String> joinAssociation(@RequestBody JoinAssociationRequestModel request) {
         try {
             validateAuthentication(request.getUserId());
+            Location location = new Location(request.getCountry(), request.getCity());
+            Address address = new Address(location, request.getCity(), request.getStreet(), request.getHouseNumber());
             return ResponseEntity.ok(associationService.joinAssociation(request.getUserId(), request.getAssociationId(),
-                    request.getCountry(), request.getCity(), request.getStreet(),
-                    request.getHouseNumber(), request.getPostalCode()));
+                    address));
         } catch (ResponseStatusException r) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
@@ -149,43 +146,6 @@ public class AssociationController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, r.getMessage());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
-
-    /**
-     * Verify whether the provided user is part of the provided association.
-     *
-     * @param request   The request body containing the user's id and the association's id.
-     * @return          A response message in the form of string indicating the result of the verification.
-     */
-    @PostMapping("/verify-council-member")
-    public ResponseEntity<String> verifyCouncilMember(@RequestBody UserAssociationRequestModel request) {
-        boolean isMember = associationService.verifyCouncilMember(request.getUserId(), request.getAssociationId());
-
-        if (isMember) {
-            return ResponseEntity.ok("User passed council member check!");
-        } else {
-            return new ResponseEntity<>("User is not a member of this association's council!",
-                    HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    /**
-     * Verify whether the provided user can be a candidate for the board.
-     *
-     * @param request   The request body containing the user's id and the association's id.
-     * @return          A response message in the form of string indicating the result of the verification.
-     */
-    @PostMapping("/verify-candidate")
-    public ResponseEntity<String> verifyCandidate(@RequestBody UserAssociationRequestModel request) {
-        boolean isEligibleCandidate = associationService.verifyCandidate(request.getUserId(), request.getAssociationId());
-
-        if (isEligibleCandidate) {
-            return ResponseEntity.ok("User can apply for a candidate!");
-        } else {
-            return new ResponseEntity<>("User cannot be a candidate for the council.",
-                    HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -216,34 +176,6 @@ public class AssociationController {
     }
 
     /**
-     * SCHEDULER related. Endpoint for updating the council.
-     * Also updates the history log for association.
-     *
-     * @param request request body containing all the info regarding the election
-     * @return 200 if OK
-     */
-    @PostMapping("/update-council")
-    public ResponseEntity<String> updateCouncil(@RequestBody ElectionResultRequestModel request) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        String historyEntry = sdf.format(request.getDate()) + " | " + request.getResult();
-
-        System.out.println(historyEntry);
-
-        Event event = new Event(request.getResult(), request.getDate());
-
-        associationService.processElection(request);
-
-        try {
-            historyService.addEvent(request.getAssociationId(), event);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Adding the log in history failed!",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseEntity.ok("Council updated!");
-    }
-
-    /**
      * SCHEDULER related. Endpoint for updating the rules.
      * Also updates the history log for association and send a notification to all members of the association
      *
@@ -252,8 +184,6 @@ public class AssociationController {
      */
     @PostMapping("/update-rules")
     public ResponseEntity<String> updateRules(@RequestBody RuleVoteResultRequestModel request) {
-        associationService.processRuleVote(request);
-
         try {
             Event event = new Event(request.getResult(), request.getDate());
             historyService.addEvent(request.getAssociationId(), event);
@@ -271,10 +201,12 @@ public class AssociationController {
             }
         }
 
+        associationService.processRuleVote(request);
+
         return ResponseEntity.ok("Rules updated" + notificationRes + "!");
     }
 
-    @PostMapping ("get-rules")
+    @PostMapping ("/get-rules")
     ResponseEntity<String> getAssociationRules(@RequestBody UserAssociationRequestModel request) {
         try {
             String rules = associationService.getAssociationRules(request.getUserId(), request.getAssociationId());
@@ -284,7 +216,7 @@ public class AssociationController {
         }
     }
 
-    @PostMapping("get-history")
+    @PostMapping("/get-history")
     ResponseEntity<String> getAssociationHistory(@RequestBody UserAssociationRequestModel request) {
         try {
             String rules = historyService.getHistoryString(request.getAssociationId());
@@ -325,5 +257,4 @@ public class AssociationController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
 }

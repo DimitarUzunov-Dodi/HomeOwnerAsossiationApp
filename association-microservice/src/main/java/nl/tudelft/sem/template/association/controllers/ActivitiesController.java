@@ -59,7 +59,7 @@ public class ActivitiesController {
 
         List<Activity> noticeBoard = activityService.getNoticeBoard(request.getAssociationId());
 
-        noticeBoard.stream().filter(x -> x.getExpirationDate().compareTo(new Date()) > 0);
+        noticeBoard.stream().filter(x -> x.getActivityDetails().getExpirationDate().compareTo(new Date()) > 0);
         return ResponseEntity.ok(noticeBoard);
     }
 
@@ -108,7 +108,7 @@ public class ActivitiesController {
     public ResponseEntity<?> getActivity(@RequestBody ActivityRequestModel request) {
         Activity response = activityService.getActivity(request.getActivityId());
         if (response == null) {
-            return new ResponseEntity<>("That activity does not exits.",
+            return new ResponseEntity<>("That activity does not exist.",
                     HttpStatus.BAD_REQUEST);
         } else {
             return ResponseEntity.ok(response);
@@ -137,7 +137,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.addInterested(request.getActivityId(), authManager.getUserId());
-                    return ResponseEntity.ok("Interested in activity " + activity.getEventName());
+                    return ResponseEntity.ok("Interested in activity " + activity.getActivityDetails().getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of the association to be interested in the event.",
@@ -173,7 +173,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.addParticipating(request.getActivityId(), authManager.getUserId());
-                    return ResponseEntity.ok("Participating in activity " + activity.getEventName());
+                    return ResponseEntity.ok("Participating in activity " + activity.getActivityDetails().getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of the association for participating in the event.",
@@ -208,7 +208,7 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.removeInterested(request.getActivityId(), authManager.getUserId());
-                    return ResponseEntity.ok("Not interested in activity " + activity.getEventName());
+                    return ResponseEntity.ok("Not interested in activity " + activity.getActivityDetails().getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of this association,"
@@ -244,7 +244,8 @@ public class ActivitiesController {
 
                 if (isMember) {
                     activityService.removeParticipating(request.getActivityId(), authManager.getUserId());
-                    return ResponseEntity.ok("Not participating in activity " + activity.getEventName());
+                    return ResponseEntity.ok("Not participating in activity "
+                            + activity.getActivityDetails().getEventName());
 
                 } else {
                     return new ResponseEntity<>("You have to be a member of this association"
