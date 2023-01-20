@@ -1,8 +1,9 @@
 package nl.tudelft.sem.template.association.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,24 +22,23 @@ import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
-import nl.tudelft.sem.template.association.models.CreateAssociationRequestModel;
-import nl.tudelft.sem.template.association.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.association.models.JoinAssociationRequestModel;
-import nl.tudelft.sem.template.association.models.ReportModel;
-import nl.tudelft.sem.template.association.models.RuleVoteResultRequestModel;
-import nl.tudelft.sem.template.association.models.UserAssociationRequestModel;
+import nl.tudelft.sem.template.association.models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedConstruction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -58,6 +58,9 @@ public class AssociationIntegrationTest {
     private transient MembershipRepository membershipRepository;
     @Autowired
     private transient HistoryRepository mockHistoryRepository;
+
+    private MockedConstruction<RestTemplate> restTemplateConstruction;
+
     private HashSet<String> councilMembers;
     private Association association;
     private History history;
@@ -75,6 +78,7 @@ public class AssociationIntegrationTest {
 
         this.userId = "d";
         this.association = new Association("test", new Location("test", "test"), "test", 10);
+        this.association.setCouncilNumber(3);
         this.association.setCouncilUserIds(this.councilMembers);
         this.association.addMember("a");
         this.association.addMember("b");
@@ -82,13 +86,26 @@ public class AssociationIntegrationTest {
         this.association.addMember("d");
         mockAssociationRepository.save(this.association);
 
-        Membership membership1 = new Membership("a", association.getId(), "test", "test", "test", "test", "test");
-        Membership membership2 = new Membership("b", association.getId(), "test", "test", "test", "test", "test");
-        Membership membership3 = new Membership("c", association.getId(), "test", "test", "test", "test", "test");
-        Membership membership4 = new Membership("d", association.getId(), "test", "test", "test", "test", "test");
+        Date date = new Date(0);
+
+        Membership membership1 = new Membership("a", association.getId(),
+                new Address(new Location("test", "test"), "test", "test", "test"));
+        membership1.setJoinDate(date);
         membershipRepository.save(membership1);
+
+        Membership membership2 = new Membership("b", association.getId(),
+                new Address(new Location("test", "test"), "test", "test", "test"));
+        membership2.setJoinDate(date);
         membershipRepository.save(membership2);
+
+        Membership membership3 = new Membership("c", association.getId(),
+                new Address(new Location("test", "test"), "test", "test", "test"));
+        membership3.setTimesCouncil(10);
+        membership3.setJoinDate(date);
         membershipRepository.save(membership3);
+
+        Membership membership4 = new Membership("d", association.getId(),
+                new Address(new Location("test", "test"), "test", "test", "test"));
         membershipRepository.save(membership4);
 
         history = new History(association.getId());
@@ -98,6 +115,10 @@ public class AssociationIntegrationTest {
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
         when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn(userId);
         when(authManager.validateRequestUser("d")).thenReturn(true);
+    }
+
+    public void setUpRestTemplateConstruction(MockedConstruction.MockInitializer<RestTemplate> restTemplateInitializer) {
+        restTemplateConstruction = mockConstruction(RestTemplate.class, restTemplateInitializer);
     }
 
     @Test
@@ -194,6 +215,17 @@ public class AssociationIntegrationTest {
 
     @Test
     public void testCreateAssociation() throws Exception {
+        AuthenticationResponseModel authModel = new AuthenticationResponseModel();
+        authModel.setToken("mockedToken");
+
+        ResponseEntity authResponse = mock(ResponseEntity.class);
+        when(authResponse.getBody()).thenReturn(authModel);
+
+        setUpRestTemplateConstruction((mock, context) -> {
+            when(mock.postForEntity(eq("http://localhost:8081/authenticate"), any(HttpEntity.class), eq(AuthenticationResponseModel.class))).thenReturn(authResponse);
+            when(mock.postForEntity(eq("http://localhost:8083/election/create-election"), any(HttpEntity.class), eq(String.class))).thenReturn(ResponseEntity.ok("Some return string"));
+        });
+
         CreateAssociationRequestModel model = new CreateAssociationRequestModel();
         model.setName("name");
         model.setCountry("country");
@@ -415,29 +447,11 @@ public class AssociationIntegrationTest {
 
     @Test
     public void updateCouncilTest() throws Exception {
-        this.association.setCouncilNumber(3);
-        mockAssociationRepository.save(association);
-
-        Date date = new Date(0);
-
         Location location = new Location("test", "test");
         Address address = new Address(location, "test", "test", "test");
 
-        Membership member = new Membership("a", association.getId(), address);
-        member.setJoinDate(date);
-        membershipRepository.save(member);
-        member = new Membership("b", association.getId(), address);
-        member.setJoinDate(date);
-        membershipRepository.save(member);
-        member = new Membership("c", association.getId(), address);
-        member.setJoinDate(date);
-        member.setTimesCouncil(10);
-        membershipRepository.save(member);
-        member = new Membership("d", association.getId(), address);
-        member.setJoinDate(date);
-        membershipRepository.save(member);
-        member = new Membership("f", association.getId(), address);
-        member.setJoinDate(date);
+        Membership member = new Membership("f", association.getId(), address);
+        member.setJoinDate(new Date(0));
         membershipRepository.save(member);
 
 

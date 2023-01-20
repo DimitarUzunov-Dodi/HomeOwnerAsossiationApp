@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class Activity {
     @Id
     @GeneratedValue
+    @Getter
     @Column(name = "activity_id", nullable = false, unique = true)
     private int activityId;
 

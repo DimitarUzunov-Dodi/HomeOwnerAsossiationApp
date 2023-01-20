@@ -14,6 +14,7 @@ import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.activity.ActivityService;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.association.models.ActivityRequestModel;
 import nl.tudelft.sem.template.association.models.AddActivityRequestModel;
@@ -66,7 +67,7 @@ public class ActivityIntegrationTest {
         this.councilMembers.add("c");
 
         this.userId = "d";
-        this.association = new Association("test", "test", "test", "test", 10);
+        this.association = new Association("test", new Location("test", "test"), "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         this.association.addMember("a");
         this.association.addMember("b");
@@ -224,7 +225,7 @@ public class ActivityIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("That activity does not exits.");
+        assertThat(response).isEqualTo("That activity does not exist.");
     }
 
     @Test

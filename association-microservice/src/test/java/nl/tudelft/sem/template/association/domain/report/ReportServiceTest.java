@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashSet;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
+import nl.tudelft.sem.template.association.domain.location.Address;
+import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,20 +49,20 @@ class ReportServiceTest {
         this.councilMembers.add("c");
 
         this.userId = "d";
-        this.association = new Association("name", "country", "city", "test", 10);
+        this.association = new Association("name", new Location("country", "city"), "test", 10);
         this.association.setCouncilUserIds(this.councilMembers);
         //this.association
 
         associationRepository.save(this.association);
 
         Membership membership1 = new Membership("a", association.getId(),
-                "country", "city", "street", "number", "postalCode");
+                new Address(new Location("country", "city"), "street", "number", "postalCode"));
         Membership membership2 = new Membership("b", association.getId(),
-                "country", "city", "street", "number", "postalCode");
+                new Address(new Location("country", "city"), "street", "number", "postalCode"));
         Membership membership3 = new Membership("c", association.getId(),
-                "country", "city", "street", "number", "postalCode");
+                new Address(new Location("country", "city"), "street", "number", "postalCode"));
         Membership membership4 = new Membership("d", association.getId(),
-                "country", "city", "street", "number", "postalCode");
+                new Address(new Location("country", "city"), "street", "number", "postalCode"));
 
         membershipRepository.save(membership1);
         membershipRepository.save(membership2);
