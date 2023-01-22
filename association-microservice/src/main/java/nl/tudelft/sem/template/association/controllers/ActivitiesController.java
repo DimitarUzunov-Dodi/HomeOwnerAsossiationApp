@@ -2,6 +2,7 @@ package nl.tudelft.sem.template.association.controllers;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.domain.activity.Activity;
 import nl.tudelft.sem.template.association.domain.activity.ActivityService;
@@ -57,9 +58,10 @@ public class ActivitiesController {
             return ResponseEntity.notFound().build();
         }
 
-        List<Activity> noticeBoard = activityService.getNoticeBoard(request.getAssociationId());
+        List<Activity> noticeBoard = activityService.getNoticeBoard(request.getAssociationId())
+                .stream().filter(x -> x.getActivityDetails().getExpirationDate().compareTo(new Date()) > 0)
+                .collect(Collectors.toList());
 
-        noticeBoard.stream().filter(x -> x.getActivityDetails().getExpirationDate().compareTo(new Date()) > 0);
         return ResponseEntity.ok(noticeBoard);
     }
 

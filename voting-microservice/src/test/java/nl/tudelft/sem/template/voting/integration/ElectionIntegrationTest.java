@@ -61,7 +61,7 @@ public class ElectionIntegrationTest {
     public void applyForCandidateNoElection() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(associationId);
-        model.setUserId("user2");
+        model.setUserId("ExampleUser");
 
         ResultActions result = mockMvc.perform(post("/election/apply-for-candidate")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -80,12 +80,32 @@ public class ElectionIntegrationTest {
     }
 
     /**
+     * tests the apply-for-candidate endpoint.
+     */
+    public void applyForCandidateNoAuthentication() throws Exception {
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+        model.setAssociationId(associationId);
+        model.setUserId("user2");
+
+        ResultActions result = mockMvc.perform(post("/election/apply-for-candidate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+    }
+
+    /**
      * Tests the cast-vote endpoint.
      */
     public void voteNoElection() throws Exception {
         ElectionVoteRequestModel model = new ElectionVoteRequestModel();
         model.setAssociationId(associationId);
-        model.setVoterId("user1");
+        model.setVoterId("ExampleUser");
         model.setCandidateId("user2");
 
         ResultActions result = mockMvc.perform(post("/election/cast-vote")
@@ -102,6 +122,27 @@ public class ElectionIntegrationTest {
         assertThat(optElection.isPresent()).isFalse();
 
         assertThat(response).isEqualTo("Association with ID " + associationId + " does not have an active election.");
+    }
+
+    /**
+     * Tests the cast-vote endpoint.
+     */
+    public void voteNoAuthentication() throws Exception {
+        ElectionVoteRequestModel model = new ElectionVoteRequestModel();
+        model.setAssociationId(associationId);
+        model.setVoterId("user1");
+        model.setCandidateId("user2");
+
+        ResultActions result = mockMvc.perform(post("/election/cast-vote")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
     }
 
     /**
@@ -133,7 +174,7 @@ public class ElectionIntegrationTest {
     public void applyForCandidate() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(associationId);
-        model.setUserId("user2");
+        model.setUserId("ExampleUser");
 
         ResultActions result = mockMvc.perform(post("/election/apply-for-candidate")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -147,15 +188,17 @@ public class ElectionIntegrationTest {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
 
         assert optElection.isPresent();
-        assertThat(optElection.get().getCandidateIds()).contains("user2");
+        assertThat(optElection.get().getCandidateIds()).contains("ExampleUser");
 
-        assertThat(response).contains("The candidate with ID user2 has been added.");
+        assertThat(response).contains("The candidate with ID ExampleUser has been added.");
     }
 
     @Test
     public void orderedTest() throws Exception {
         applyForCandidateNoElection();
+        applyForCandidateNoAuthentication();
         voteNoElection();
+        voteNoAuthentication();
         createElectionTest();
         applyForCandidate();
     }

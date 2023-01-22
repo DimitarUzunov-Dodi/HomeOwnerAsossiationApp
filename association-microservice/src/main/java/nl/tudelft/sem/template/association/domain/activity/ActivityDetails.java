@@ -7,6 +7,7 @@ public class ActivityDetails {
 
     @Getter
     private transient String eventName;
+    @Getter
     private transient String description;
     private transient Date startingDate;
     @Getter

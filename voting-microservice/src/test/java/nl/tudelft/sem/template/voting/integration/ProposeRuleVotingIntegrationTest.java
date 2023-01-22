@@ -47,7 +47,7 @@ public class ProposeRuleVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("42");
     }
 
     @Test
@@ -79,6 +79,26 @@ public class ProposeRuleVotingIntegrationTest {
         
         assertThat(response).isEqualTo("Rule: \"One should not murder the other members!\" "
                 + "has been proposed by: 42." + System.lineSeparator() + "The vote will be held on: " + cal.getTime());
+    }
+
+    @Test
+    public void proposeRuleTestNotAuthorized() throws Exception {
+        this.associationId = 11;
+        this.userId = "SomeOtherUser";
+        this.rule = "One should not murder the other members!";
+        RuleProposalRequestModel model = new RuleProposalRequestModel();
+        model.setUserId(this.userId);
+        model.setAssociationId(this.associationId);
+        model.setRule(this.rule);
+
+        ResultActions result = mockMvc.perform(post("/rule-voting/propose-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        assertThat(result.andReturn().getResponse().getErrorMessage()).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
     }
 
     @Test

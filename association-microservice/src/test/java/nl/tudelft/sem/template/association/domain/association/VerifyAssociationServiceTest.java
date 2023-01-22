@@ -10,9 +10,7 @@ import java.util.*;
 import nl.tudelft.sem.template.association.domain.location.Address;
 import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.models.AuthenticationResponseModel;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.MockedConstruction;
@@ -35,11 +33,36 @@ public class VerifyAssociationServiceTest {
     @Autowired
     private transient AssociationRepository mockAssociationRepository;
 
-    private MockedConstruction<RestTemplate> restTemplateConstruction;
+    private static MockedConstruction<RestTemplate> restTemplateConstruction;
 
     private HashSet<String> councilMembers;
     private Association association;
     private String userId;
+
+    /**
+     * Setup for the static mocking.
+     */
+    @BeforeAll
+    public static void setUpAll() {
+        AuthenticationResponseModel model = new AuthenticationResponseModel();
+        model.setToken("mockedToken");
+
+        ResponseEntity response = mock(ResponseEntity.class);
+        when(response.getBody()).thenReturn(model);
+
+        setUpRestTemplateConstruction((mock, context) -> {
+            when(mock.postForEntity(eq("http://localhost:8081/authenticate"), any(HttpEntity.class), eq(AuthenticationResponseModel.class))).thenReturn(response);
+            when(mock.postForEntity(eq("http://localhost:8083/election/create-election"), any(HttpEntity.class), eq(String.class))).thenReturn(ResponseEntity.ok("Some return string"));
+        });
+    }
+
+    /**
+     * Break down of the static mocks.
+     */
+    @AfterAll
+    public static void tearDownAll() {
+        tearDown();
+    }
 
     /**
      * Initialize the councilMembers and userId variables before each test.
@@ -61,15 +84,15 @@ public class VerifyAssociationServiceTest {
     /**
      * Closes the construction of restTemplate if it was initialized in the tests.
      */
-    @AfterEach
-    public void tearDown() {
+    public static void tearDown() {
         if (restTemplateConstruction != null) {
             restTemplateConstruction.close();
             restTemplateConstruction = null;
         }
     }
 
-    public void setUpRestTemplateConstruction(MockedConstruction.MockInitializer<RestTemplate> restTemplateInitializer) {
+    public static void setUpRestTemplateConstruction(MockedConstruction.MockInitializer<RestTemplate>
+                                                             restTemplateInitializer) {
         restTemplateConstruction = mockConstruction(RestTemplate.class, restTemplateInitializer);
     }
 
@@ -101,17 +124,6 @@ public class VerifyAssociationServiceTest {
 
     @Test
     public void createAssociationTest() {
-        AuthenticationResponseModel model = new AuthenticationResponseModel();
-        model.setToken("mockedToken");
-
-        ResponseEntity response = mock(ResponseEntity.class);
-        when(response.getBody()).thenReturn(model);
-
-        setUpRestTemplateConstruction((mock, context) -> {
-            when(mock.postForEntity(eq("http://localhost:8081/authenticate"), any(HttpEntity.class), eq(AuthenticationResponseModel.class))).thenReturn(response);
-            when(mock.postForEntity(eq("http://localhost:8083/election/create-election"), any(HttpEntity.class), eq(String.class))).thenReturn(ResponseEntity.ok("Some return string"));
-        });
-
         assertThat(associationService.createAssociation("name",
                 new Location("country", "city"), "description", 5))
                 .isNotNull();
