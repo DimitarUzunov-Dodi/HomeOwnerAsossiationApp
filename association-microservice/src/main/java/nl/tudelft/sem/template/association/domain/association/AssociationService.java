@@ -123,7 +123,7 @@ public class AssociationService {
         Optional<Association> optionalAssociation = associationRepository.findById(associationId);
         Optional<Membership> optionalMembership = membershipRepository
                 .findByUserIdAndAssociationIdAndLeaveDate(userId, associationId, null);
-        if (optionalAssociation.isEmpty() && optionalMembership.isEmpty()) {
+        if (optionalAssociation.isEmpty() || optionalMembership.isEmpty()) {
             throw new IllegalArgumentException("Association/membership does not exist.");
         }
 

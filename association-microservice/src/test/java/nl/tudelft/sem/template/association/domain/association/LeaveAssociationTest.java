@@ -1,5 +1,7 @@
 package nl.tudelft.sem.template.association.domain.association;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import nl.tudelft.sem.template.association.domain.location.Address;
 import nl.tudelft.sem.template.association.domain.location.Location;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
@@ -11,10 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.HashSet;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -54,7 +52,7 @@ public class LeaveAssociationTest {
     }
 
     @Test
-    public void notAMemberLeaveTest() {
+    public void notaMemberLeaveTest() {
         assertThrows(IllegalArgumentException.class, () -> {
             associationService.leaveAssociation("b", association.getId());
         });
