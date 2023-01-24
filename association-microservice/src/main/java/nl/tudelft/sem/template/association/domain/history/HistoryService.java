@@ -45,7 +45,7 @@ public class HistoryService {
     public void addEvent(int associationId, Event event) throws Exception {
         Optional<History> optionalHistory = historyRepository.findByAssociationId(associationId);
 
-        if (optionalHistory.isPresent() || !optionalHistory.isPresent()) {
+        if (optionalHistory != null && optionalHistory.isPresent()) {
             History history = optionalHistory.get();
             history.addEvent(event);
         } else {
