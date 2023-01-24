@@ -44,7 +44,7 @@ public class MembershipService {
                     .append(", ")
                     .append(n.getDescription())
                     .append(System.lineSeparator());
-            n.setRead(true);
+            n.setRead(false);
         }
         member.setNotifications(notificationList);
         membershipRepository.save(member);
