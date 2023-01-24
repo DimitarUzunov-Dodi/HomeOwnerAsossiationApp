@@ -85,7 +85,7 @@ public class Activity {
      * @param userId id of the goingTo member
      */
     public void addParticipating(String userId) {
-        //removeInterested(userId);
+        removeInterested(userId);
         participatingUserId.add(userId);
     }
 
