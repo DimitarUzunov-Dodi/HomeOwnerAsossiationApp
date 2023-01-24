@@ -36,7 +36,7 @@ public class HistoryServiceTests {
             historyService.addEvent(13, event1);
             fail("Adding an element should have thrown an exception!");
         } catch (Exception e) {
-            assertThat(e.getMessage()).isNotEmpty();
+            assertThat(e.getMessage()).isEqualTo("NOT FOUND");
         }
     }
 
