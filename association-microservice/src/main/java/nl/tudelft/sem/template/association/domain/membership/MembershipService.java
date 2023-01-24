@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.association.domain.membership;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import nl.tudelft.sem.template.association.domain.history.Notification;
@@ -29,6 +30,8 @@ public class MembershipService {
         }
 
         List<Notification> notificationList = member.getNotifications();
+        member.setNotifications(new ArrayList<>());
+        membershipRepository.save(member);
         if (notificationList.isEmpty()) {
             return "There are no notifications.";
         }
