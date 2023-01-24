@@ -45,8 +45,8 @@ public class ReportService {
      */
     public void addReport(int associationId, String reporterId, String violatorId, String rule)
                             throws FieldNoNullException, ReportInconsistentException, NoSuchRuleException {
-        if (membershipRepository.existsByUserIdAndAssociationId(violatorId, associationId)
-                || membershipRepository.existsByUserIdAndAssociationId(reporterId, associationId)) {
+        if (!membershipRepository.existsByUserIdAndAssociationId(violatorId, associationId)
+                || !membershipRepository.existsByUserIdAndAssociationId(reporterId, associationId)) {
             throw new ReportInconsistentException();
         }
         if (!associationRepository.findById(associationId).get().getRules().contains(rule)) {
