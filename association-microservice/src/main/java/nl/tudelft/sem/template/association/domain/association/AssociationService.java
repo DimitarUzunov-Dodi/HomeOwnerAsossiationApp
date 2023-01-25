@@ -131,6 +131,13 @@ public class AssociationService {
         association.removeMember(userId);
         Membership membership = optionalMembership.get();
         membership.leave();
+
+        if (association.getCouncilUserIds().contains(userId)) {
+            Set<String> council = association.getMemberUserIds();
+            council.remove(userId);
+            association.setCouncilUserIds(council);
+        }
+
         associationRepository.save(association);
         membershipRepository.save(membership);
         return "User " + userId + " left association " + associationId;

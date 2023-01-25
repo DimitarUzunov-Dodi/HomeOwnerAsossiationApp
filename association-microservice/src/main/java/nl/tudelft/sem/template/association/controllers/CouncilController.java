@@ -85,11 +85,6 @@ public class CouncilController {
      */
     @PostMapping("/update-council")
     public ResponseEntity<String> updateCouncil(@RequestBody ElectionResultRequestModel request) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        String historyEntry = sdf.format(request.getDate()) + " | " + request.getResult();
-
-        System.out.println(historyEntry);
-
         Event event = new Event(request.getResult(), request.getDate());
 
         associationService.processElection(request);
@@ -115,7 +110,7 @@ public class CouncilController {
             return ResponseEntity.ok(associationService.verifyProposal(request.getAssociationId(),
                     request.getProposal()));
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not verify the proposal.");
         }
     }
 }

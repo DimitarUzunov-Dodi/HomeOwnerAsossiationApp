@@ -48,7 +48,7 @@ public class AmendRuleVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         this.associationId = 11;
-        this.userId = "42";
+        this.userId = "ExampleUser";
         this.rule = "One should not murder the other members!";
         this.amendment = "One should be allowed to murder the other members!";
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
@@ -81,10 +81,30 @@ public class AmendRuleVotingIntegrationTest {
         }
 
         assert cal != null;
-        assertThat(response).isEqualTo("The user: 42 proposes to change the rule: "
+        assertThat(response).isEqualTo("The user: ExampleUser proposes to change the rule: "
                 + "\"One should not murder the other members!\"" + System.lineSeparator()
                 + "to: \"One should be allowed to murder the other members!\"" + System.lineSeparator()
                 + "The vote will be held on: " + cal.getTime());
+    }
+
+    @Test
+    public void proposeRuleTestNotAuthenticated() throws Exception {
+        RuleAmendmentRequestModel model = new RuleAmendmentRequestModel();
+        model.setUserId("SomeOtherUser");
+        model.setAssociationId(this.associationId);
+        model.setRule(this.rule);
+        model.setAmendment(this.amendment);
+
+        ResultActions result = mockMvc.perform(post("/rule-voting/amend-rule")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
     }
 
     @Test
@@ -133,7 +153,7 @@ public class AmendRuleVotingIntegrationTest {
         }
 
         assertThat(response)
-                .isEqualTo("The user: 42 proposes to remove the rule: \"One should not murder the other members!\""
+                .isEqualTo("The user: ExampleUser proposes to remove the rule: \"One should not murder the other members!\""
                         + System.lineSeparator() + "The vote will be held on: " + cal.getTime());
     }
 

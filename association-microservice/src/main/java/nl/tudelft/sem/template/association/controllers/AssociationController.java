@@ -72,11 +72,7 @@ public class AssociationController {
      */
     @GetMapping("/get-association-ids")
     public ResponseEntity<List<Integer>> getAssociationIds() {
-        try {
-            return ResponseEntity.ok(associationService.getAssociationIds());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+        return ResponseEntity.ok(associationService.getAssociationIds());
     }
 
     /**

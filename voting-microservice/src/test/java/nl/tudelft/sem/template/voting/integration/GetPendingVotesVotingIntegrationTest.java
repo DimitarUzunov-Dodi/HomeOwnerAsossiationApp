@@ -51,7 +51,7 @@ public class GetPendingVotesVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
-        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("ExampleUser");
+        when(mockJwtTokenVerifier.getUserIdFromToken(anyString())).thenReturn("Gerard");
     }
 
     @Test
@@ -102,6 +102,50 @@ public class GetPendingVotesVotingIntegrationTest {
 
         assertThat(response).isEqualTo("ID: " + this.ruleVoting.getId()
                 + ", Type: Amendment, Status: Reviewing" + System.lineSeparator());
+    }
+
+    @Test
+    public void typeAmendmentTestNotAuthorized() throws Exception {
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", "fesfse", VotingType.AMENDMENT);
+        ruleVotingRepository.save(this.ruleVoting);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
+
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+        model.setAssociationId(1);
+        model.setUserId("SomeOtherUser");
+
+        ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
+    }
+
+    @Test
+    public void typeAmendmentTestNotAuthorized2() throws Exception {
+        this.ruleVoting = new RuleVoting(1, "Jeff", "Bleep", "fesfse", VotingType.AMENDMENT);
+        ruleVotingRepository.save(this.ruleVoting);
+        this.ruleVoting = ruleVotingRepository.findAllByAssociationId(1).get(0);
+
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+        model.setAssociationId(1);
+        model.setUserId(null);
+
+        ResultActions result = mockMvc.perform(get("/rule-voting/get-pending-votes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
     }
 
     @Test
