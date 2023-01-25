@@ -159,4 +159,14 @@ public class MembershipTests {
                 .isEqualTo(" and all members have been notified");
     }
 
+    @Test
+    public void dismissAfterDisplay() {
+        membershipService.displayNotifications(this.membership.getUserId(), this.membership.getAssociationId());
+        membershipService.dismissNotifications(this.membership.getUserId(), this.membership.getAssociationId());
+        Membership member = membershipRepository.findByUserIdAndAssociationId(
+                this.membership.getUserId(), this.membership.getAssociationId()).orElse(null);
+
+        assertThat(member.getNotifications().isEmpty()).isTrue();
+    }
+
 }
