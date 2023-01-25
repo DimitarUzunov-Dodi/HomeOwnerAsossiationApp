@@ -1,17 +1,18 @@
 package nl.tudelft.sem.template.association.domain.report;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
 import nl.tudelft.sem.template.association.domain.location.Address;
 import nl.tudelft.sem.template.association.domain.location.Location;
+import nl.tudelft.sem.template.association.domain.membership.FieldNoNullException;
 import nl.tudelft.sem.template.association.domain.membership.Membership;
 import nl.tudelft.sem.template.association.domain.membership.MembershipRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,54 +20,60 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class ReportServiceTest {
-
+public class ReportServiceTest {
     @Autowired
     private transient ReportService reportService;
-
     @Autowired
-    private transient ReportRepository reportRepository;
-
+    private transient ReportRepository mockReportRepository;
     @Autowired
-    public transient MembershipRepository membershipRepository;
-
+    private transient AssociationRepository mockAssociationRepository;
     @Autowired
-    public transient AssociationRepository associationRepository;
-
-    private HashSet<String> councilMembers;
+    private transient MembershipRepository mockMembershipRepository;
     private Association association;
-    private String userId;
+    private List<String> rules;
+    private Membership reporterMembership;
+    private Membership violatorMembership;
+    private String reporterId;
+    private String violatorId;
 
+    /**
+     * Initialize the association, member and rules before each test.
+     */
     @BeforeEach
-    public void setUp() {
-        this.councilMembers = new HashSet<>();
-        this.councilMembers.add("a");
-        this.councilMembers.add("b");
-        this.councilMembers.add("c");
+    public void setup() {
+        reporterId = "a";
+        violatorId = "b";
+        association = new Association("test", new Location("test", "test"),
+                "test", 100);
+        association = mockAssociationRepository.save(association);
+        association.addMember(reporterId);
+        association.addMember(violatorId);
+        reporterMembership = new Membership(reporterId, association.getId(), new Address(
+                new Location("test", "test"), "test", "test", "test"));
+        reporterMembership = mockMembershipRepository.save(reporterMembership);
+        violatorMembership = new Membership(violatorId, association.getId(), new Address(
+                new Location("test", "test"), "test", "test", "test"));
+        violatorMembership = mockMembershipRepository.save(violatorMembership);
+        rules = new ArrayList<>();
+        rules.add("test rule");
+        association.setRules(rules);
+        association = mockAssociationRepository.save(association);
 
-        this.userId = "d";
-        this.association = new Association("name", new Location("country", "city"), "test", 10);
-        this.association.setCouncilUserIds(this.councilMembers);
-        //this.association
+    }
 
-        associationRepository.save(this.association);
+    @Test
+    public void addReportSuccessfulTest() throws NoSuchRuleException, FieldNoNullException, ReportInconsistentException {
+        reportService.addReport(association.getId(), reporterId, violatorId, "test rule");
+        assertTrue(reportService.reportsInAssociation(association.getId()).size() == 1);
+    }
 
-        Membership membership1 = new Membership("a", association.getId(),
-                new Address(new Location("country", "city"), "street", "number", "postalCode"));
-        Membership membership2 = new Membership("b", association.getId(),
-                new Address(new Location("country", "city"), "street", "number", "postalCode"));
-        Membership membership3 = new Membership("c", association.getId(),
-                new Address(new Location("country", "city"), "street", "number", "postalCode"));
-        Membership membership4 = new Membership("d", association.getId(),
-                new Address(new Location("country", "city"), "street", "number", "postalCode"));
-
-        membershipRepository.save(membership1);
-        membershipRepository.save(membership2);
-        membershipRepository.save(membership3);
-        membershipRepository.save(membership4);
+    @Test
+    public void nonexistantReportTest() {
+        assertThrows(ReportInconsistentException.class, () -> {
+            reportService.addReport(association.getId(), "c", "d", "test rule");
+        });
     }
 }

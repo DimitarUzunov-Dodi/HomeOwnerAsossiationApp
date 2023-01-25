@@ -82,4 +82,29 @@ class ActivityTest {
 
     }
 
+    @Test
+    void addParticipating() {
+        assertTrue(activity.getInterestedUserId().isEmpty());
+        String  testUser1 = "TestUser1";
+        String  testUser2 = "TestUser2";
+        String  testUser3 = "TestUser3";
+
+        activity.addParticipating(testUser3);
+
+        activity.addInterested(testUser1);
+        activity.addInterested(testUser2);
+        activity.addInterested(testUser3);
+
+        activity.addParticipating(testUser1);
+        activity.addParticipating(testUser2);
+
+        assertTrue(activity.getParticipatingUserId().contains(testUser1));
+        assertTrue(activity.getParticipatingUserId().contains(testUser2));
+        assertFalse(activity.getParticipatingUserId().contains(testUser3));
+        assertFalse(activity.getInterestedUserId().contains(testUser1));
+        assertFalse(activity.getInterestedUserId().contains(testUser2));
+        assertTrue(activity.getInterestedUserId().contains(testUser3));
+
+
+    }
 }
