@@ -8,14 +8,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 import nl.tudelft.sem.template.association.authentication.AuthManager;
 import nl.tudelft.sem.template.association.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.association.domain.association.Association;
 import nl.tudelft.sem.template.association.domain.association.AssociationRepository;
+import nl.tudelft.sem.template.association.domain.history.Event;
 import nl.tudelft.sem.template.association.domain.history.History;
 import nl.tudelft.sem.template.association.domain.history.HistoryRepository;
 import nl.tudelft.sem.template.association.domain.location.Address;
@@ -367,6 +365,24 @@ public class AssociationIntegrationTest {
     public void testVerifyCandidate() throws Exception {
         UserAssociationRequestModel model = new UserAssociationRequestModel();
         model.setAssociationId(association.getId());
+        model.setUserId("a");
+
+        ResultActions result = mockMvc.perform(post("/association/verify-candidate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("User can apply for a candidate!");
+    }
+
+    @Test
+    public void testVerifyCandidateNot() throws Exception {
+        UserAssociationRequestModel model = new UserAssociationRequestModel();
+        model.setAssociationId(association.getId());
         model.setUserId("d");
 
         ResultActions result = mockMvc.perform(post("/association/verify-candidate")
@@ -495,7 +511,6 @@ public class AssociationIntegrationTest {
         member.setJoinDate(new Date(0));
         membershipRepository.save(member);
 
-
         HashMap<String, Integer> hm = new HashMap<>();
         hm.put("a", 7);
         hm.put("b", 5);
@@ -509,8 +524,10 @@ public class AssociationIntegrationTest {
 
         ElectionResultRequestModel model = new ElectionResultRequestModel();
 
+        String resultString = "-TestResult-";
+
         model.setStandings(hm);
-        model.setResult("---");
+        model.setResult(resultString);
         model.setDate(new Date());
         model.setAssociationId(association.getId());
 
@@ -529,6 +546,52 @@ public class AssociationIntegrationTest {
         Association testAssociation = optionalTestAssociation.get();
 
         assertThat(testAssociation.getCouncilUserIds()).containsExactlyInAnyOrder("a", "b", "f");
+
+        Optional<History> history = mockHistoryRepository.findByAssociationId(association.getId());
+        List<Event> events = history.get().getEvents();
+        assertThat(events.get(1).getDescription()).isEqualTo(resultString);
+    }
+
+    @Test
+    public void updateCouncilTestWrongAssociationId() throws Exception {
+        Location location = new Location("test", "test");
+        Address address = new Address(location, "test", "test", "test");
+
+        Membership member = new Membership("f", association.getId(), address);
+        member.setJoinDate(new Date(0));
+        membershipRepository.save(member);
+
+        HashMap<String, Integer> hm = new HashMap<>();
+        hm.put("a", 7);
+        hm.put("b", 5);
+        hm.put("c", 25);
+        hm.put("d", 1);
+        hm.put("e", 15);
+        hm.put("f", 20);
+
+        // c and e shouldn't be council members
+        // therefore, f, a, b
+
+        ElectionResultRequestModel model = new ElectionResultRequestModel();
+
+        String resultString = "-TestResult-";
+
+        model.setStandings(hm);
+        model.setResult(resultString);
+        model.setDate(new Date());
+        model.setAssociationId(-53562);
+
+        ResultActions result = mockMvc.perform(post("/association/update-council")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Adding the log in history failed!");
+
     }
 
     @Test
@@ -747,6 +810,46 @@ public class AssociationIntegrationTest {
         String response = result.andReturn().getResponse().getErrorMessage();
 
         assertThat(response).isEqualTo("Association with ID -4532 does not exist.");
+    }
+
+    @Test
+    public void verifyProposal() throws Exception {
+        this.userId = "a";
+
+        AssociationProposalRequestModel model = new AssociationProposalRequestModel();
+        model.setAssociationId(association.getId());
+        model.setProposal("Test proposal");
+
+        ResultActions result = mockMvc.perform(post("/association/verify-proposal")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().isOk());
+
+        String response = result.andReturn().getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("true");
+    }
+
+    @Test
+    public void verifyProposalWrongAssociationId() throws Exception {
+        this.userId = "a";
+
+        AssociationProposalRequestModel model = new AssociationProposalRequestModel();
+        model.setAssociationId(-545255);
+        model.setProposal("Test proposal");
+
+        ResultActions result = mockMvc.perform(post("/association/verify-proposal")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("Could not verify the proposal.");
     }
 
 }

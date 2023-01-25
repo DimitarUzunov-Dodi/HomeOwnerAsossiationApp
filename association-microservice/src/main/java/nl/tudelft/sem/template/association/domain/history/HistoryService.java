@@ -48,6 +48,7 @@ public class HistoryService {
         if (optionalHistory != null && optionalHistory.isPresent()) {
             History history = optionalHistory.get();
             history.addEvent(event);
+            historyRepository.save(history);
         } else {
             throw new Exception("NOT FOUND");
         }
