@@ -1,29 +1,16 @@
 package nl.tudelft.sem.template.voting.domain;
 
 import java.rmi.NoSuchObjectException;
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import nl.tudelft.sem.template.voting.domain.election.Election;
 import nl.tudelft.sem.template.voting.domain.election.ElectionRepository;
 import nl.tudelft.sem.template.voting.domain.rulevoting.*;
-import nl.tudelft.sem.template.voting.models.AssociationProposalRequestModel;
-import nl.tudelft.sem.template.voting.models.ElectionResultRequestModel;
-import nl.tudelft.sem.template.voting.models.RuleVoteResultRequestModel;
-import nl.tudelft.sem.template.voting.models.UserAssociationRequestModel;
 import nl.tudelft.sem.template.voting.utils.RequestUtil;
 import org.springframework.data.util.Pair;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 
 /**
  * "@EnableScheduling" enables the methods annotated with "@Scheduled".
@@ -85,7 +72,7 @@ public class VotingService {
      *
      * @return a confirmation message.
      */
-    public String applyForCandidate(String userId, int associationId) {
+    public String applyForCandidate(String userId, int associationId) throws IllegalArgumentException {
         Optional<Election> optElection = electionRepository.findByAssociationId(associationId);
         if (optElection.isPresent()) {
             Election election = optElection.get();

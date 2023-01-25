@@ -51,7 +51,7 @@ public class CastRuleVoteVotingIntegrationTest {
     @BeforeEach
     public void setup() {
         this.ruleVoteId = 1L;
-        this.userId = "10";
+        this.userId = "ExampleUser";
         this.ruleVoting = new RuleVoting(12, this.userId, "Bleep", null, VotingType.PROPOSAL);
         this.ruleVotingRepository.save(this.ruleVoting);
         when(mockJwtTokenVerifier.validateToken(anyString())).thenReturn(true);
@@ -80,8 +80,33 @@ public class CastRuleVoteVotingIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("The user with ID 10 voted in favour of the "
+        assertThat(response).isEqualTo("The user with ID ExampleUser voted in favour of the "
                 + "proposal under consideration in rule vote: 1");
+    }
+
+    @Test
+    public void castRuleVoteInFavourTestNotAuthorized() throws Exception {
+        this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.ruleVoting.setEndDate(cal.getTime());
+        ruleVotingRepository.save(this.ruleVoting);
+
+        RuleVoteRequestModel model = new RuleVoteRequestModel();
+        model.setRuleVoteId(this.ruleVoteId);
+        model.setUserId("SomeOtherUser");
+        model.setVote("for");
+
+        ResultActions result = mockMvc.perform(post("/rule-voting/cast-vote")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model))
+                .header("Authorization", "Bearer MockedToken"));
+
+        result.andExpect(status().is4xxClientError());
+
+        String response = result.andReturn().getResponse().getErrorMessage();
+
+        assertThat(response).isEqualTo("401 UNAUTHORIZED \"INVALID_CREDENTIALS\"");
     }
 
     @Test
@@ -106,7 +131,7 @@ public class CastRuleVoteVotingIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("The user with ID 10 abstains from voting for the "
+        assertThat(response).isEqualTo("The user with ID ExampleUser abstains from voting for the "
                 + "proposal under consideration in rule vote: 1");
     }
 
@@ -132,7 +157,7 @@ public class CastRuleVoteVotingIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("The user with ID 10 voted against the "
+        assertThat(response).isEqualTo("The user with ID ExampleUser voted against the "
                 + "proposal under consideration in rule vote: 1");
     }
 
@@ -279,7 +304,7 @@ public class CastRuleVoteVotingIntegrationTest {
 
         String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("The user with ID 10 voted in favour of the "
+        assertThat(response).isEqualTo("The user with ID ExampleUser voted in favour of the "
                 + "proposal under consideration in rule vote: 1");
 
         model.setVote("against");
@@ -293,7 +318,7 @@ public class CastRuleVoteVotingIntegrationTest {
 
         response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("The user with ID 10 voted against the "
+        assertThat(response).isEqualTo("The user with ID ExampleUser voted against the "
                 + "proposal under consideration in rule vote: 1");
 
         this.ruleVoting = ruleVotingRepository.findById(this.ruleVoteId).orElseGet(null);

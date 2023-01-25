@@ -134,9 +134,6 @@ public class AuthenticationController {
 
             Password newPassword = new Password(request.getNewPassword());
 
-            if (newPassword.toString() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NULL_PASSWORD");
-            }
             if ((password.toString()).equals(newPassword.toString())) {
                 throw new RuntimeException("SAME_PASSWORD");
             }

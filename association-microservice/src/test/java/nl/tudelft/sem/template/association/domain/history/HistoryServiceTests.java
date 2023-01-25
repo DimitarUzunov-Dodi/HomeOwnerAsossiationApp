@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.association.domain.history;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,13 +32,9 @@ public class HistoryServiceTests {
 
     @Test
     public void associationNotFoundTest() {
-        try {
-            when(historyRepository.findByAssociationId(13)).thenReturn(null);
-            historyService.addEvent(13, event1);
-            fail("Adding an element should have thrown an exception!");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isNotEmpty();
-        }
+        when(historyRepository.findByAssociationId(13)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> historyService.addEvent(13, event1))
+                .isInstanceOf(Exception.class).hasMessageContaining("NOT FOUND");
     }
 
     @Test

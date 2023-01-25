@@ -116,6 +116,40 @@ public class UsersTests {
     }
 
     @Test
+    public void register_withInvalidFields_throwsException() throws Exception {
+        RegistrationRequestModel model = new RegistrationRequestModel();
+        model.setUserId("SomeUser");
+        model.setPassword(null);
+
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
+
+        // Assert
+        resultActions.andExpect(status().isBadRequest());
+
+        assertThat(resultActions.andReturn().getResponse().getErrorMessage()).isEqualTo("INVALID_FIELDS");
+    }
+
+    @Test
+    public void register_withInvalidPassword_throwsException() throws Exception {
+        RegistrationRequestModel model = new RegistrationRequestModel();
+        model.setUserId(null);
+        model.setPassword(null);
+
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
+
+        // Assert
+        resultActions.andExpect(status().isBadRequest());
+
+        assertThat(resultActions.andReturn().getResponse().getErrorMessage()).isEqualTo("INVALID_FIELDS");
+    }
+
+    @Test
     public void login_withValidUser_returnsToken() throws Exception {
         // Arrange
         final UserId testUser = new UserId("SomeUser");
@@ -330,6 +364,44 @@ public class UsersTests {
         // Assert
 
         resultActions.andExpect(status().isBadRequest());
+
+        AppUser savedUser = userRepository.findByUserId(testUser).orElseThrow();
+
+        assertThat(savedUser.getUserId()).isEqualTo(testUser);
+        assertThat(savedUser.getPassword()).isEqualTo(testHashedPassword);
+    }
+
+    @Test
+    public void changePass_withInvalidPassword_throwsException() throws Exception {
+        final UserId testUser = new UserId("SomeUser");
+        final Password testPassword = new Password("password");
+        final Password incorrectTestPassword = new Password("incorrect");
+        final Password newTestPassword = new Password("newpass");
+        final HashedPassword testHashedPassword = new HashedPassword("password");
+        final HashedPassword incorrectTestHashedPassword = new HashedPassword("incorrect");
+        final HashedPassword newTestHashedPassword = new HashedPassword("newpass");
+
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+        when(mockPasswordEncoder.hash(newTestPassword)).thenReturn(newTestHashedPassword);
+        when(mockPasswordEncoder.hash(incorrectTestPassword)).thenReturn(incorrectTestHashedPassword);
+
+        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        userRepository.save(appUser);
+
+        UpdatePasswordRequestModel model = new UpdatePasswordRequestModel();
+        model.setUserId(testUser.toString());
+        model.setPassword(incorrectTestPassword.toString());
+        model.setNewPassword(null);
+        // Act
+        ResultActions resultActions = mockMvc.perform(post("/changepass")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
+
+        // Assert
+
+        resultActions.andExpect(status().isBadRequest());
+
+        assertThat(resultActions.andReturn().getResponse().getErrorMessage()).isEqualTo("One or more fields are invalid!");
 
         AppUser savedUser = userRepository.findByUserId(testUser).orElseThrow();
 

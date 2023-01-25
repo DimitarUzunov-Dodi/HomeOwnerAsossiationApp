@@ -1,13 +1,13 @@
 package nl.tudelft.sem.template.voting.controllers;
 
 import java.util.Set;
-import nl.tudelft.sem.template.voting.authentication.AuthManager;
 import nl.tudelft.sem.template.voting.domain.VotingService;
 import nl.tudelft.sem.template.voting.domain.VotingType;
 import nl.tudelft.sem.template.voting.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,18 +17,15 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class VotingController {
 
-    private final transient AuthManager authManager;
     private final transient VotingService votingService;
 
     /**
      * Instantiates new voting controller.
      *
-     * @param authManager   Spring Security component used to authenticate and authorize the user.
      * @param votingService The voting service.
      */
     @Autowired
-    public VotingController(AuthManager authManager, VotingService votingService) {
-        this.authManager = authManager;
+    public VotingController(VotingService votingService) {
         this.votingService = votingService;
     }
 
@@ -40,7 +37,7 @@ public class VotingController {
      * @throws ResponseStatusException if userid is null or not the same as in authentication
      */
     public void validateAuthentication(String userId) throws ResponseStatusException {
-        if (userId == null || !authManager.validateRequestUser(userId)) {
+        if (userId == null || !SecurityContextHolder.getContext().getAuthentication().getName().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS");
         }
     }
@@ -53,13 +50,10 @@ public class VotingController {
     @PostMapping("/election/create-election")
     public ResponseEntity<String> createElection(@RequestBody AssociationRequestModel request)
             throws ResponseStatusException {
-        try {
-            int associationId = request.getAssociationId();
-            return ResponseEntity.ok(votingService
-                    .createElection(VotingType.ELECTION, associationId, null, null, null));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+        int associationId = request.getAssociationId();
+        return ResponseEntity.ok(votingService
+                .createElection(VotingType.ELECTION, associationId, null, null, null));
+
     }
 
     /**
